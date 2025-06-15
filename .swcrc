@@ -1,0 +1,12 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "jsc": {
+    "baseUrl": "./src",
+    "loose": true,
+    "keepClassNames": true,
+    "parser": {
+      "syntax": "typescript"
+    },
+    "target": "es2023"
+  }
+}

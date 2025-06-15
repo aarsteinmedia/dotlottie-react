@@ -1,0 +1,17 @@
+.cache
+.history
+.idea
+.vscode
+
+dist/
+node_modules
+*.env
+*.env.*
+
+.DS_Store
+*.pem
+
+packages/functional-tests/app/dotlottie-player.js
+
+TestElement.*
+teststyle.*
