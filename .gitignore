@@ -1,17 +1,24 @@
-.cache
-.history
-.idea
-.vscode
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-dist/
 node_modules
-*.env
-*.env.*
+dist
+dist-ssr
+*.local
 
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-*.pem
-
-packages/functional-tests/app/dotlottie-player.js
-
-TestElement.*
-teststyle.*
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

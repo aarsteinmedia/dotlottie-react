@@ -1,11 +1,6 @@
 {
-  "extends": "./tsconfig.json",
-  "exclude": [
-    "**/test",
-    "**/node_modules",
-    "**/*.dev.ts",
-    "**/*.config.ts",
-    "**/dist",
-    "**/preview"
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "lib"
   ]
 }

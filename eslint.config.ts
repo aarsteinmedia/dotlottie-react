@@ -14,14 +14,27 @@ const sheriffOptions: SheriffSettings = {
   'react': true,
   'remeda': false,
   'storybook': true,
-  'vitest': false
+  'vitest': true
 }
 
 const config: ConfigArray = tseslint.config(
   sheriff(sheriffOptions),
   {
     files: ['**/*.{ts,tsx,js}'],
-    ignores: ['**/node_modules/*', './types/*'],
+    ignores: [
+      '**/node_modules/*',
+      './types/*',
+      'dist',
+      'public',
+      '**/generated/**/*',
+      'vite-env.d.ts'
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: 'tsconfig.app.json',
+        tsconfigRootDir: import.meta.dirname
+      }
+    },
     plugins: { perfectionist },
     rules: {
       '@stylistic/array-element-newline': ['warn', { minItems: 3 }],

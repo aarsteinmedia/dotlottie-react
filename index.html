@@ -1,26 +1,16 @@
-<!DOCTYPE html>
-
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <title>DotLottie Player Demo</title>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DotLottie React</title>
 </head>
 
-<body style="font-family: sans-serif; color: white; background-color: #0b1a29;">
-  <div id="root"><!--app-html--></div>
-  <script type="importmap">
-    {
-      "imports": {
-        "react/jsx-runtime": "./node_modules/react/jsx-runtime.js",
-        "react": "./node_modules/react/index.js",
-        "scheduler": "./node_modules/scheduler/index.js",
-        "@aarsteinmedia/lottie-web/utils": "./node_modules/@aarsteinmedia/lottie-web/dist/lottie-utils.js",
-        "@aarsteinmedia/lottie-web": "./node_modules/@aarsteinmedia/lottie-web/dist/lottie.js"
-      }
-    }
-  </script>
-  <script type="module" src="dist/index.js"></script>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 
 </html>

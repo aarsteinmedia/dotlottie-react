@@ -1,49 +1,7 @@
 {
-  "ts-node": {
-    "swc": true
-  },
-  "compilerOptions": {
-    "target": "ES2023",
-    "useDefineForClassFields": true,
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "module": "ESNext",
-    "allowJs": true,
-    "skipLibCheck": true,
-    /* Bundler mode */
-    "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-    "verbatimModuleSyntax": true,
-    /* Paths */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
-  },
-  "include": [
-    "src/**/*",
-    "preview/**/*",
-    "global.d.ts",
-    "eslint.config.ts",
-    "rollup.config.ts"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/dist"
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
   ]
 }

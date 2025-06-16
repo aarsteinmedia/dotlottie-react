@@ -1,124 +1,32 @@
 {
-  "name": "@aarsteinmedia/dotlottie-react",
+  "name": "dotlottie-react",
+  "private": true,
   "version": "0.1.0",
-  "description": "React Component for playing Lottie animations in your web app.",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "node": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "repository": {
-    "url": "git+https://github.com/aarsteinmedia/dotlottie-react.git",
-    "type": "git"
-  },
-  "bugs": "https://github.com/aarsteinmedia/dotlottie-react/issues",
-  "author": {
-    "name": "Johan Martin Aarstein",
-    "email": "johan@aarstein.media",
-    "url": "https://www.aarstein.media",
-    "organization": "Aarstein Media"
-  },
-  "license": "GPL-2.0-or-later",
   "scripts": {
-    "prebuild": "rimraf ./dist",
-    "build": "rollup -c --configPlugin typescript",
-    "prebuild:types": "rimraf ./types ",
-    "build:types": "tsc -p ./tsconfig.build.json && tsc-alias",
-    "prod": "pnpm build:types && pnpm build",
-    "dev": "rollup -cw --configPlugin typescript --environment NODE_ENV:development",
-    "lint:js": "eslint",
-    "lint:js:fix": "eslint --fix",
-    "lint:css": "npx stylelint **/*.css",
-    "lint:css:fix": "npx stylelint **/*.css --fix"
+    "dev": "vite",
+    "build": "tsc --p ./tsconfig.build.json -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@aarsteinmedia/lottie-web": "^1.0.13",
-    "fflate": "^0.8.2"
-  },
-  "peerDependencies": {
+    "fflate": "^0.8.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.5",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "@swc/core": "^1.12.1",
     "@types/node": "^24.0.3",
-    "@types/postcss-flexbugs-fixes": "^5.0.3",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "autoprefixer": "^10.4.21",
-    "esbuild": "^0.25.5",
+    "@vitejs/plugin-react-swc": "^3.10.2",
     "eslint": "^9.29.0",
-    "eslint-config-prettier": "^10.1.5",
     "eslint-config-sheriff": "^28.0.0",
     "eslint-plugin-perfectionist": "^4.14.0",
     "globals": "^16.2.0",
     "jiti": "^2.4.2",
-    "postcss-flexbugs-fixes": "^5.0.2",
-    "prettier": "^3.5.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.43.0",
-    "rollup-plugin-dts": "^6.2.1",
-    "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-opener": "^0.1.4",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-summary": "^3.0.1",
-    "rollup-plugin-swc3": "^0.12.1",
-    "rollup-plugin-typescript-paths": "^1.5.0",
-    "scheduler": "^0.26.0",
-    "stylelint": "^16.20.0",
-    "stylelint-config-recommended": "^16.0.0",
-    "tsc-alias": "^1.8.16",
-    "tslib": "^2.8.1",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.0"
-  },
-  "browserslist": {
-    "production": [
-      ">0.3%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "customElements": "custom-elements.json",
-  "files": [
-    "CHANGELOG.md",
-    "custom-elements.json",
-    "dist",
-    "README.md"
-  ],
-  "keywords": [
-    "lottie",
-    "dotlottie",
-    "animation",
-    "web component",
-    "svg",
-    "vector",
-    "player"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">= 12.17.0"
-  },
-  "funding": {
-    "type": "paypal",
-    "url": "https://www.paypal.com/donate/?hosted_button_id=E7C7DMN8KSQ6A"
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.34.0",
+    "vite": "^6.3.5"
   }
 }
