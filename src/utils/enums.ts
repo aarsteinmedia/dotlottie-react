@@ -16,21 +16,3 @@ export enum PlayerState {
   Playing = 'playing',
   Stopped = 'stopped',
 }
-
-export enum PlayMode {
-  Bounce = 'bounce',
-  Normal = 'normal',
-}
-
-export enum PreserveAspectRatio {
-  Contain = 'xMidYMid meet',
-  Cover = 'xMidYMid slice',
-  Initial = 'none',
-  None = 'xMinYMin slice',
-}
-
-export enum RendererType {
-  Canvas = 'canvas',
-  HTML = 'html',
-  SVG = 'svg',
-}

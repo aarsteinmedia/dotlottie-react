@@ -3,41 +3,32 @@
     "swc": true
   },
   "compilerOptions": {
-    "baseUrl": ".",
-    "declaration": true,
-    "declarationDir": "types",
-    "emitDeclarationOnly": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "experimentalDecorators": true,
+    "target": "ES2023",
+    "useDefineForClassFields": true,
     "lib": [
-      "DOM",
-      "DOM.Iterable",
       "ESNext",
+      "DOM",
+      "DOM.Iterable"
     ],
     "module": "ESNext",
+    "allowJs": true,
+    "skipLibCheck": true,
+    /* Bundler mode */
     "moduleResolution": "Bundler",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    /* Linting */
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "dist",
-    "plugins": [
-      {
-        "strict": true
-      }
-    ],
-    "removeComments": true,
-    "resolveJsonModule": true,
-    // "rootDir": "src",
-    "strict": true,
-    "target": "ES2023",
-    "useDefineForClassFields": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
     "verbatimModuleSyntax": true,
+    /* Paths */
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
@@ -46,13 +37,13 @@
   },
   "include": [
     "src/**/*",
+    "preview/**/*",
     "global.d.ts",
     "eslint.config.ts",
     "rollup.config.ts"
   ],
   "exclude": [
     "**/node_modules",
-    "**/dist",
-    "**/preview"
+    "**/dist"
   ]
 }

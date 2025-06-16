@@ -9,12 +9,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import flexbugs from 'postcss-flexbugs-fixes'
 import { dts } from 'rollup-plugin-dts'
-import template from 'rollup-plugin-html-literals'
 import livereload from 'rollup-plugin-livereload'
 import serve from 'rollup-plugin-opener'
 import postcss from 'rollup-plugin-postcss'
 import pluginSummary from 'rollup-plugin-summary'
-import { minify, swc } from 'rollup-plugin-swc3'
+import { swc } from 'rollup-plugin-swc3'
 import { typescriptPaths } from 'rollup-plugin-typescript-paths'
 
 const isProd = process.env.NODE_ENV !== 'development',
@@ -32,8 +31,10 @@ const isProd = process.env.NODE_ENV !== 'development',
     'react/jsx-dev-runtime',
   ],
 
-  input = path.resolve(
-    __dirname, 'src', 'index.ts'
+  input = isProd ? path.resolve(
+    __dirname, 'src', 'index.tsx'
+  ) : path.resolve(
+    __dirname, 'preview', 'app.tsx'
   ),
 
   plugins = (preferBuiltins = false): Plugin[] => [
@@ -46,24 +47,6 @@ const isProd = process.env.NODE_ENV !== 'development',
         ]
         : [],
     }),
-    template({
-      include: [
-        path.resolve(
-          __dirname, 'src', 'elements', 'DotLottiePlayer.ts'
-        ), path.resolve(
-          __dirname, 'src', 'templates', '*'
-        ),
-      ],
-      options: {
-        shouldMinify({ parts }) {
-          return parts.some(({ text }) =>
-          // Matches Polymer templates that are not tagged
-            text.includes('<figure') ||
-            text.includes('<div') ||
-            text.includes('<svg'))
-        },
-      },
-    }),
     json({ compact: true }),
     nodeResolve({
       extensions: ['.ts'],
@@ -72,13 +55,6 @@ const isProd = process.env.NODE_ENV !== 'development',
     commonjs(),
     swc(),
   ],
-
-  unpkgPlugins = ((): Plugin[] =>
-    isProd ? [
-      ...plugins(),
-      minify(),
-      pluginSummary(),
-    ] : plugins())(),
 
   modulePlugins = (): Plugin[] =>
 
@@ -105,24 +81,6 @@ const isProd = process.env.NODE_ENV !== 'development',
     plugins: [dts()],
   },
 
-  unpkg: RollupOptions = {
-    input,
-    onwarn(warning, warn) {
-      if (warning.code === 'CIRCULAR_DEPENDENCY') {
-        return
-      }
-      warn(warning)
-    },
-    output: {
-      exports: 'named',
-      extend: true,
-      file: pkg.unpkg,
-      format: 'iife',
-      name: pkg.name,
-    },
-    plugins: unpkgPlugins,
-  },
-
   module: RollupOptions = {
     external,
     input,
@@ -143,7 +101,5 @@ const isProd = process.env.NODE_ENV !== 'development',
   }
 
 export default isProd ? [
-  module,
-  types,
-  unpkg
+  module, types,
 ] : module

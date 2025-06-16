@@ -1,8 +1,4 @@
-* {
-  box-sizing: border-box;
-}
-
-:host {
+.dotLottie {
   --lottie-player-toolbar-height: 35px;
   --lottie-player-toolbar-background-color: #fff;
   --lottie-player-toolbar-icon-color: #000;
@@ -11,6 +7,8 @@
   --lottie-player-seeker-track-color: rgb(0 0 0 / 20%);
   --lottie-player-seeker-thumb-color: #4285f4;
   --lottie-player-seeker-display: block;
+
+  box-sizing: border-box;
 
   width: 100%;
   height: 100%;
@@ -305,7 +303,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :host {
+  .dotlottie {
     --lottie-player-toolbar-background-color: #000;
     --lottie-player-toolbar-icon-color: #fff;
     --lottie-player-toolbar-icon-hover-color: #fff;

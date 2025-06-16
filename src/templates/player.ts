@@ -25,10 +25,10 @@ export default async function renderPlayer(this: DotLottiePlayer) {
                           <svg
                             preserveAspectRatio="xMidYMid slice"
                             xmlns="http://www.w3.org/2000/svg"
-                            xml:space="preserve"
                             width="1920"
                             height="1080"
                             viewBox="0 0 1920 1080"
+                            style="white-space: preserve"
                           >
                             <path fill="#fff" d="M0 0h1920v1080H0z" />
                             <path

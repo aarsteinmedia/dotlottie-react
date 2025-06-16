@@ -11,7 +11,7 @@ const sheriffOptions: SheriffSettings = {
   'lodash': false,
   'next': false,
   'playwright': false,
-  'react': false,
+  'react': true,
   'remeda': false,
   'storybook': true,
   'vitest': false
@@ -20,7 +20,7 @@ const sheriffOptions: SheriffSettings = {
 const config: ConfigArray = tseslint.config(
   sheriff(sheriffOptions),
   {
-    files: ['**/*.{ts,js}'],
+    files: ['**/*.{ts,tsx,js}'],
     ignores: ['**/node_modules/*', './types/*'],
     plugins: { perfectionist },
     rules: {
@@ -140,6 +140,8 @@ const config: ConfigArray = tseslint.config(
       'perfectionist/sort-imports': 'warn',
       'perfectionist/sort-interfaces': 'warn',
       'perfectionist/sort-objects': 'warn',
+      'react/function-component-definition': 0,
+      'react/no-array-index-key': 'warn',
       'simple-import-sort/imports': 'off',
       'unicorn/no-array-reduce': ['error', { allowSimpleOperations: true }],
       'unicorn/prefer-query-selector': 'off',

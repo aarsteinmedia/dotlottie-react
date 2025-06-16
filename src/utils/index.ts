@@ -1,4 +1,4 @@
-import type { LottieAsset } from '@aarsteinmedia/lottie-web'
+import type { AnimationData, LottieAsset } from '@aarsteinmedia/lottie-web'
 
 import {
   createElementID, isServer, PreserveAspectRatio
@@ -147,6 +147,20 @@ export const aspectRatio = (objectFit: ObjectFit) => {
     'e' in asset &&
     'u' in asset &&
     'id' in asset,
+  isLottie = (json: AnimationData) => {
+    const mandatory = [
+      'v',
+      'ip',
+      'op',
+      'layers',
+      'fr',
+      'w',
+      'h'
+    ]
+
+    return mandatory.every((field: string) =>
+      Object.hasOwn(json, field))
+  },
   isImage = (asset: LottieAsset) =>
     'w' in asset && 'h' in asset && !('xt' in asset) && 'p' in asset,
   frameOutput = (frame?: number) =>

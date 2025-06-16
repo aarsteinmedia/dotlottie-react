@@ -1,7 +1,7 @@
 declare module '*.css' {
-  const content: string
+  const classes: { readonly [key: string]: string }
 
-  export default content
+  export default classes
 }
 
 // declare module 'rollup-plugin-esbuild-minify' {
