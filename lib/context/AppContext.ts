@@ -3,6 +3,7 @@ import type {
   AnimationSettings, LottieManifest, Vector2
 } from '@aarsteinmedia/lottie-web'
 
+import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import { createContext } from 'react'
 
 import { PlayerState } from '@/utils/enums'
@@ -19,6 +20,7 @@ export interface AppState {
   lang?: string
   loop?: boolean
   manifest?: LottieManifest
+  mode: PlayMode
   multiAnimationSettings: AnimationSettings[]
   playerState: PlayerState
   prevState: PlayerState
@@ -32,6 +34,7 @@ const defaultValue: AppState = {
   animations: [],
   count: 0,
   currentAnimation: 0,
+  mode: PlayMode.Normal,
   multiAnimationSettings: [],
   playerState: PlayerState.Loading,
   prevState: PlayerState.Loading,

@@ -39,8 +39,7 @@ function App() {
             justifyContent: 'center',
             textAlign: 'center'
           }}>
-          <DotLottiePlayer src="/am.lottie" />
-          {/* <dotlottie-player autoplay controls background="rgba(255,255,255,0.8)" class="preview"></dotlottie-player> */}
+          <DotLottiePlayer controls subframe src="/am.lottie" />
         </div>
 
       </div>

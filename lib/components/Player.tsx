@@ -1,7 +1,8 @@
 'use client'
-
 import Lottie, {
-  type AnimationConfiguration, type AnimationDirection, type AnimationItem
+  type AnimationConfiguration,
+  type AnimationDirection,
+  type AnimationItem,
 } from '@aarsteinmedia/lottie-web'
 import {
   createElementID,
@@ -9,15 +10,15 @@ import {
   PlayerEvents, PlayMode, RendererType
 } from '@aarsteinmedia/lottie-web/utils'
 import {
-  use, useRef, useState
+  use, useEffect, useRef, useState
 } from 'react'
 
+import Controls from '@/components/Controls'
 import ErrorMessage from '@/components/ErrorMessage'
 import AppContext from '@/context/AppContext'
-import useDidComponentMount from '@/hooks/useDidComponentMount'
-import styles from '@/styles.module.css'
+import styles from '@/styles/player.module.css'
 import {
-  aspectRatio, handleErrors, isLottie
+  aspectRatio, download, frameOutput, getFilename, handleErrors, isLottie
 } from '@/utils'
 import { type ObjectFit, PlayerState } from '@/utils/enums'
 import getAnimationData from '@/utils/getAnimationData'
@@ -38,7 +39,6 @@ export default function Player({
   direction = 1,
   hover,
   intermission,
-  mode = PlayMode.Normal,
   objectFit = 'contain',
   renderer = RendererType.SVG,
   speed = 1,
@@ -50,7 +50,6 @@ export default function Player({
   direction?: AnimationDirection,
   hover?: boolean
   intermission?: number
-  mode?: PlayMode,
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
   renderer?: RendererType
   speed?: number,
@@ -205,6 +204,26 @@ export default function Player({
             playerState: PlayerState.Playing
           }
         })
+      }
+    },
+
+    /**
+     * Pause.
+     */
+    pause = () => {
+      if (!lottieInstance.current) {
+        return
+      }
+
+      try {
+        lottieInstance.current.pause()
+        dispatchEvent(new CustomEvent(PlayerEvents.Pause))
+      } finally {
+        setAppState(prev => ({
+          ...prev,
+          playerState: PlayerState.Paused,
+          prevState: prev.playerState
+        }))
       }
     },
 
@@ -543,17 +562,15 @@ export default function Player({
 
         const { mode: playMode } = appState.multiAnimationSettings[appState.currentAnimation]
 
-        if (playMode) {
-          setAppState(prev => ({
-            ...prev,
-            isBounce: playMode as PlayMode === PlayMode.Bounce
-          }))
-        }
-
         lottieInstance.current = Lottie.loadAnimation({
           ...getOptions(),
           animationData: appState.animations[appState.currentAnimation],
         })
+
+        setAppState(prev => ({
+          ...prev,
+          isBounce: playMode && playMode as PlayMode === PlayMode.Bounce,
+        }))
 
         // Remove event listeners to new Lottie instance, and add new
         removeEventListeners()
@@ -718,6 +735,125 @@ export default function Player({
 
     },
 
+    /**
+     * Animation play direction.
+     *
+     * @param value - Animation direction.
+     */
+    setDirection = (value: AnimationDirection) => {
+      lottieInstance.current?.setDirection(value)
+    },
+
+    /**
+     * Toggle playing state.
+     */
+    togglePlay = () => {
+      if (!lottieInstance.current) {
+        return
+      }
+
+      const {
+        currentFrame, playDirection, totalFrames
+      } = lottieInstance.current
+
+      if (appState.playerState === PlayerState.Playing) {
+        pause()
+
+        return
+      }
+      if (appState.playerState !== PlayerState.Completed) {
+        play()
+
+        return
+      }
+      setAppState(prev => ({
+        ...prev,
+        playerState: PlayerState.Playing
+      }))
+      if (appState.isBounce) {
+        setDirection((playDirection * -1) as AnimationDirection)
+
+        lottieInstance.current.goToAndPlay(currentFrame, true)
+
+        return
+      }
+      if (playDirection === -1) {
+        lottieInstance.current.goToAndPlay(totalFrames, true)
+
+        return
+      }
+
+      lottieInstance.current.goToAndPlay(0, true)
+    },
+
+    /**
+     * Handles click and drag actions on the progress track.
+     */
+    handleSeekChange = ({ target }: React.ChangeEvent) => {
+      if (
+        !(target instanceof HTMLInputElement) ||
+        !lottieInstance.current ||
+        isNaN(Number(target.value))
+      ) {
+        return
+      }
+
+      seek(Math.round(Number(target.value) / 100 * lottieInstance.current.totalFrames))
+    },
+
+    /**
+     * Snapshot and download the current frame as SVG.
+     */
+    snapshot = (shouldDownload = true, name = 'AM Lottie') => {
+      try {
+        if (!container.current) {
+          throw new Error('Unknown error')
+        }
+
+        // Get SVG element and serialize markup
+        const svgElement = container.current.querySelector('figure svg')
+
+        if (!svgElement) {
+          throw new Error('Could not retrieve animation from DOM')
+        }
+
+        const data =
+          svgElement instanceof Node
+            ? new XMLSerializer().serializeToString(svgElement)
+            : null
+
+        if (!data) {
+          throw new Error('Could not serialize SVG element')
+        }
+
+        if (shouldDownload) {
+          download(data, {
+            mimeType: 'image/svg+xml',
+            name: `${getFilename(appState.src || name)}-${frameOutput(appState.seeker)}.svg`,
+          })
+        }
+
+        return data
+      } catch (error) {
+        console.error(error)
+
+        return null
+      }
+    },
+
+    /**
+     * Toggle loop.
+     */
+    toggleLoop = () => {
+      const hasLoop = !appState.loop
+
+      setAppState(prev => ({
+        ...prev,
+        loop: hasLoop
+      }))
+      setLoop(hasLoop)
+    },
+
     load = async (src: string | null) => {
       if (!src) {
         return
@@ -747,7 +883,7 @@ export default function Player({
         }
 
         setAppState((prev) => {
-          let isBounce = mode === PlayMode.Bounce
+          let isBounce = prev.mode === PlayMode.Bounce
 
           if (prev.multiAnimationSettings.length > 0 && prev.multiAnimationSettings[prev.currentAnimation]?.mode) {
             isBounce =
@@ -776,7 +912,7 @@ export default function Player({
                   autoplay: !prev.animateOnScroll && prev.autoplay,
                   direction,
                   id: createElementID(),
-                  mode,
+                  mode: prev.mode,
                   speed,
                 },
               ],
@@ -846,12 +982,20 @@ export default function Player({
       }
     }
 
-  useDidComponentMount(() => {
+  // eslint-disable-next-line react-you-might-not-need-an-effect/you-might-not-need-an-effect
+  useEffect(() => {
+    // eslint-disable-next-line react-you-might-not-need-an-effect/you-might-not-need-an-effect
     void load(appState.src)
-  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
-    <div className={styles.dotLottie} lang={appState.lang} aria-label={description}>
+    <div
+      className={styles.dotLottie}
+      lang={appState.lang}
+      aria-label={description}
+      data-controls={appState.controls}
+    >
       <figure className={styles.animation} ref={container} style={{ background }}>
         {appState.playerState === PlayerState.Error &&
           <div className={styles.error}>
@@ -859,6 +1003,16 @@ export default function Player({
           </div>
         }
       </figure>
+      {appState.controls &&
+        <Controls
+          freeze={freeze}
+          handleSeekChange={handleSeekChange}
+          snapshot={snapshot}
+          stop={stop}
+          toggleLoop={toggleLoop}
+          togglePlay={togglePlay}
+        />
+      }
     </div>
   )
 }
