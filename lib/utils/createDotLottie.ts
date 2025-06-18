@@ -1,12 +1,13 @@
 import type { AnimationData, LottieManifest } from '@aarsteinmedia/lottie-web'
 
-import { createElementID } from '@aarsteinmedia/lottie-web/utils'
+import { createElementID, isServer } from '@aarsteinmedia/lottie-web/utils'
 import {
   strToU8, zip, type Zippable
 } from 'fflate'
 
 import {
-  addExt, base64ToU8, download, getExt, getExtFromB64, handleErrors, isAudio, isImage
+  addExt, download, getExt, getExtFromB64, handleErrors, isAudio, isImage,
+  parseBase64
 } from '@/utils'
 
 const getArrayBuffer = async (zippable: Zippable) => {
@@ -51,11 +52,22 @@ const getArrayBuffer = async (zippable: Zippable) => {
         reject(error as Error)
       }
     })
-  }
+  },
+  /**
+   * Convert Base64 encoded string to Uint8Array.
+   *
+   * @param str - Base64 encoded string.
+   * @returns UTF-8/Latin-1 binary.
+   */
+  base64ToU8 = (str: string) =>
+    strToU8(isServer
+      ? Buffer.from(parseBase64(str), 'base64').toString('binary')
+      : atob(parseBase64(str)),
+    true)
 
 /**
-   * Convert a JSON Lottie to dotLottie or combine several animations and download new dotLottie file in your browser.
-   */
+ * Convert a JSON Lottie to dotLottie or combine several animations and download new dotLottie file in your browser.
+ */
 export default async function createDotLottie ({
   animations = [],
   fileName,

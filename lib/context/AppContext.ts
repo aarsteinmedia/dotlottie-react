@@ -16,8 +16,8 @@ export interface AppState {
   count: number
   currentAnimation: number
   id?: string
-  isBounce?: boolean
-  lang?: string
+  isDotLottie: boolean
+  lang: string
   loop?: boolean
   manifest?: LottieManifest
   mode: PlayMode
@@ -25,7 +25,7 @@ export interface AppState {
   playerState: PlayerState
   prevState: PlayerState
   seeker: number
-  segment?: Vector2
+  segment: null | Vector2
   simple?: boolean
   src: null | string
 }
@@ -34,11 +34,14 @@ const defaultValue: AppState = {
   animations: [],
   count: 0,
   currentAnimation: 0,
+  isDotLottie: false,
+  lang: 'en',
   mode: PlayMode.Normal,
   multiAnimationSettings: [],
   playerState: PlayerState.Loading,
   prevState: PlayerState.Loading,
   seeker: 0,
+  segment: null,
   src: null
 }
 

@@ -1,54 +1,68 @@
-# React + TypeScript + Vite
+# AM LottiePlayer React
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Awesome Vector Animations](/.github/readmeBanner.svg)
 
-Currently, two official plugins are available:
+This is a work in progress, and a reworked verson of [@aarsteinmedia/dotlottie-player](https://www.npmjs.com/package/@aarsteinmedia/dotlottie-player), made to work natively with React.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Installation
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```shell
+pnpm add @aarsteinmedia/dotlottie-react
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```jsx
+import DotLottiePlayer '@aarsteinmedia/dotlottie-react'
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+function App() {
+  return (
+    <DotLottiePlayer
+      className="your-class-name"
+      src="https://storage.googleapis.com/aarsteinmedia/am.lottie"
+      autoplay
+      controls
+      loop
+      style={{
+        width: '320px',
+        margin: 'auto'
+      }}
+    />
+  )
+}
+
+export default App
 ```
+
+## Properties
+
+| Property / Attribute      | Description                                                                                                                   | Type                                     | Default           |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ----------------- |
+| `animateOncroll`          | Play animation by scrolling                                                                                                   | `boolean`                                | `false`           |
+| `autoplay`                | Play animation on load                                                                                                        | `boolean`                                | `false`           |
+| `background`              | Background color                                                                                                              | `string`                                 | `undefined`       |
+| `controls`                | Show controls                                                                                                                 | `boolean`                                | `false`           |
+| `count`                   | Number of times to loop animation                                                                                             | `number`                                 | `undefined`       |
+| `direction`               | Direction of animation                                                                                                        | `1` \| `-1`                              | `1`               |
+| `hover`                   | Whether to play on mouse hover                                                                                                | `boolean`                                | `false`           |
+| `loop`                    | Whether to loop animation                                                                                                     | `boolean`                                | `false`           |
+| `mode`                    | Play mode                                                                                                                     | `normal` \| `bounce`                     | `normal`          |
+| `objectFit`               | Resizing of animation in container                                                                                            | `contain` \| `cover` \| `fill` \| `none` | `contain`         |
+| `renderer`                | Renderer to use                                                                                                               | `svg` \| `canvas` \| `html`              | `svg`             |
+| `speed`                   | Animation speed                                                                                                               | `number`                                 | `1`               |
+| `src` _(required)_        | URL to LottieJSON or dotLottie                                                                                                | `string`                                 | `undefined`       |
+| `subframe`                | When enabled this can help to reduce flicker on some animations, especially on Safari and iOS devices.                        | `boolean`                                | `false`           |
+
+
+## WordPress Plugins
+<img align="left" width="110" height="110" src="/.github/wpIcon.svg" style="margin-right:1em" />
+
+We've made a free WordPress plugin that works with Gutenberg Blocks, Elementor, Divi Builder and Flatsome UX Builder: [AM LottiePlayer](https://www.aarstein.media/en/am-lottieplayer). It has all the functionality of this package, with a helpful user interface.
+
+It's super lightweight – and only loads on pages where animations are used.
+
+We've also made a premium WordPress plugin for purchase: [AM LottiePlayer PRO](https://www.aarstein.media/en/am-lottieplayer/pro). It has an easy-to-use GUI for combining and controlling multiple Lottie animations in a single file, converting JSON to dotLottie with drag-and-drop, and many more exclusive features.
+
+## License
+
+GPL-2.0-or-later

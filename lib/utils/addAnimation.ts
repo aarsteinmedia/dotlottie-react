@@ -7,9 +7,9 @@ import createDotLottie from '@/utils/createDotLottie'
 import getAnimationData from '@/utils/getAnimationData'
 
 /**
-   * Creates a new dotLottie file, by combinig several animations.
-   * If set to false the function returns an ArrayBuffer. Defaults to true.
-   */
+ * Creates a new dotLottie file, by combinig several animations.
+ * If set to false the function returns an ArrayBuffer. Defaults to true.
+ */
 export default async function addAnimation ({
   configs,
   fileName,
@@ -30,10 +30,10 @@ export default async function addAnimation ({
     error?: string
   }> {
 
-  // Initialize meta object for animation, with fallbacks for
   /**
-     * When the method is called indepenently.
-     */
+   * Initialize meta object for animation, with fallbacks for
+   * when the method is called indepenently.
+   */
   const {
     animations = [],
     manifest = {

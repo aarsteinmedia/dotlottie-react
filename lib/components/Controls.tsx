@@ -1,25 +1,49 @@
 'use client'
+import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
+
 import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import { use, useState } from 'react'
 
+import BoomerangIcon from '@/components/icons/BoomerangIcon'
+import ConvertIcon from '@/components/icons/ConvertIcon'
+import DownloadIcon from '@/components/icons/DownloadIcon'
+import LoopIcon from '@/components/icons/LoopIcon'
+import NextIcon from '@/components/icons/NextIcon'
+import PauseIcon from '@/components/icons/PauseIcon'
+import PlayIcon from '@/components/icons/PlayIcon'
+import PreviousIcon from '@/components/icons/PreviousIcon'
+import SettingsIcon from '@/components/icons/SettingsIcon'
+import StopIcon from '@/components/icons/StopIcon'
 import AppContext from '@/context/AppContext'
 import styles from '@/styles/controls.module.css'
+import {
+  download, frameOutput, getFilename
+} from '@/utils'
+import convert from '@/utils/convert'
 import { PlayerState } from '@/utils/enums'
 
 export default function Controls({
+  animationItem,
+  container,
   freeze,
-  handleSeekChange,
-  snapshot,
+  next,
+  pause,
+  play,
+  previous,
+  seek,
+  setLoop,
   stop,
-  toggleLoop,
-  togglePlay
 }: {
+  animationItem: React.RefObject<AnimationItem | null>
+  container: React.RefObject<HTMLElement | null>
   freeze: () => void
-  handleSeekChange: (e: React.ChangeEvent) => void
-  snapshot: (shouldDownload?: boolean, name?: string) => string | null
+  next: () => void
+  pause: () => void
+  play: () => void
+  previous: () => void
+  seek: (frame: number) => void
+  setLoop: (val: boolean) => void
   stop: () => void
-  toggleLoop: () => void
-  togglePlay: () => void
 }) {
   const { appState, setAppState } = use(AppContext),
     [state, setState] = useState({ isSettingsOpen: false }),
@@ -35,6 +59,67 @@ export default function Controls({
       setState({ isSettingsOpen: flag })
     },
     /**
+    * Animation play direction.
+    *
+    * @param value - Animation direction.
+    */
+    setDirection = (value: AnimationDirection) => {
+      animationItem.current?.setDirection(value)
+    },
+    /**
+     * Toggle playing state.
+     */
+    togglePlay = () => {
+      if (!animationItem.current) {
+        return
+      }
+
+      const {
+        currentFrame, playDirection, totalFrames
+      } = animationItem.current
+
+      if (appState.playerState === PlayerState.Playing) {
+        pause()
+
+        return
+      }
+      if (appState.playerState !== PlayerState.Completed) {
+        play()
+
+        return
+      }
+      setAppState(prev => ({
+        ...prev,
+        playerState: PlayerState.Playing
+      }))
+      if (appState.mode === PlayMode.Bounce) {
+        setDirection((playDirection * -1) as AnimationDirection)
+
+        animationItem.current.goToAndPlay(currentFrame, true)
+
+        return
+      }
+      if (playDirection === -1) {
+        animationItem.current.goToAndPlay(totalFrames, true)
+
+        return
+      }
+
+      animationItem.current.goToAndPlay(0, true)
+    },
+    /**
+     * Toggle loop.
+     */
+    toggleLoop = () => {
+      const hasLoop = !appState.loop
+
+      setAppState(prev => ({
+        ...prev,
+        loop: hasLoop
+      }))
+      setLoop(hasLoop)
+    },
+    /**
      * Toggle Boomerang.
      */
     toggleBoomerang = () => {
@@ -47,7 +132,7 @@ export default function Controls({
 
           setAppState(prev => ({
             ...prev,
-            isBounce: true
+            mode: PlayMode.Bounce
           }))
 
           return
@@ -55,7 +140,7 @@ export default function Controls({
         curr.mode = PlayMode.Normal
         setAppState(prev => ({
           ...prev,
-          isBounce: false
+          mode: PlayMode.Normal
         }))
 
         return
@@ -64,7 +149,6 @@ export default function Controls({
       if (appState.mode === PlayMode.Normal) {
         setAppState(prev => ({
           ...prev,
-          isBounce: true,
           mode: PlayMode.Bounce
         }))
 
@@ -73,9 +157,22 @@ export default function Controls({
 
       setAppState(prev => ({
         ...prev,
-        isBounce: false,
         mode: PlayMode.Normal
       }))
+    },
+    /**
+     * Handles click and drag actions on the progress track.
+     */
+    handleSeekChange = ({ target }: React.ChangeEvent) => {
+      if (
+        !(target instanceof HTMLInputElement) ||
+        !animationItem.current ||
+        isNaN(Number(target.value))
+      ) {
+        return
+      }
+
+      seek(Math.round(Number(target.value) / 100 * animationItem.current.totalFrames))
     },
     /**
      * Handle blur.
@@ -84,7 +181,47 @@ export default function Controls({
       setTimeout(() => {
         toggleSettings(false)
       }, 200)
+    },
+    /**
+     * Snapshot and download the current frame as SVG.
+     */
+    snapshot = (shouldDownload = true, name = 'AM Lottie') => {
+      try {
+        if (!container.current) {
+          throw new Error('Unknown error')
+        }
+
+        // Get SVG element and serialize markup
+        const svgElement = container.current.querySelector('figure svg')
+
+        if (!svgElement) {
+          throw new Error('Could not retrieve animation from DOM')
+        }
+
+        const data =
+          svgElement instanceof Node
+            ? new XMLSerializer().serializeToString(svgElement)
+            : null
+
+        if (!data) {
+          throw new Error('Could not serialize SVG element')
+        }
+
+        if (shouldDownload) {
+          download(data, {
+            mimeType: 'image/svg+xml',
+            name: `${getFilename(appState.src || name)}-${frameOutput(appState.seeker)}.svg`,
+          })
+        }
+
+        return data
+      } catch (error) {
+        console.error(error)
+
+        return null
+      }
     }
+
 
   return (
     <div
@@ -99,15 +236,9 @@ export default function Controls({
         onClick={togglePlay}
       >
         {appState.playerState === PlayerState.Playing ?
-          <svg width="24" height="24" aria-hidden="true" focusable="false">
-            <path
-              d="M14.016 5.016H18v13.969h-3.984V5.016zM6 18.984V5.015h3.984v13.969H6z"
-            />
-          </svg>
+          <PauseIcon />
           :
-          <svg width="24" height="24" aria-hidden="true" focusable="false">
-            <path d="M8.016 5.016L18.985 12 8.016 18.984V5.015z" />
-          </svg>
+          <PlayIcon />
         }
       </button>
 
@@ -117,19 +248,23 @@ export default function Controls({
         aria-label="Stop"
         onClick={stop}
       >
-        <svg width="24" height="24" aria-hidden="true" focusable="false">
-          <path d="M6 6h12v12H6V6z" />
-        </svg>
+        <StopIcon />
       </button>
-      <button hidden className={styles.button} aria-label="Previous animation">
-        <svg width="24" height="24" aria-hidden="true" focusable="false">
-          <path d="M17.9 18.2 8.1 12l9.8-6.2v12.4zm-10.3 0H6.1V5.8h1.5v12.4z" />
-        </svg>
+      <button
+        hidden={appState.animations.length === 0 || appState.currentAnimation === 0}
+        className={styles.button}
+        aria-label="Previous animation"
+        onClick={previous}
+      >
+        <PreviousIcon />
       </button>
-      <button hidden className={styles.button} aria-label="Next animation">
-        <svg width="24" height="24" aria-hidden="true" focusable="false">
-          <path d="m6.1 5.8 9.8 6.2-9.8 6.2V5.8zM16.4 5.8h1.5v12.4h-1.5z" />
-        </svg>
+      <button
+        hidden={appState.animations.length === 0 || appState.currentAnimation === appState.animations.length - 1}
+        className={styles.button}
+        aria-label="Next animation"
+        onClick={next}
+      >
+        <NextIcon />
       </button>
       <form
         className={styles.progressContainer}
@@ -161,11 +296,7 @@ export default function Controls({
             aria-label="Toggle loop"
             onClick={toggleLoop}
           >
-            <svg width="24" height="24" aria-hidden="true" focusable="false">
-              <path
-                d="M17.016 17.016v-4.031h1.969v6h-12v3l-3.984-3.984 3.984-3.984v3h10.031zM6.984 6.984v4.031H5.015v-6h12v-3l3.984 3.984-3.984 3.984v-3H6.984z"
-              />
-            </svg>
+            <LoopIcon />
           </button>
           <button
             className={styles.button}
@@ -174,11 +305,7 @@ export default function Controls({
             tabIndex={0}
             onClick={toggleBoomerang}
           >
-            <svg width="24" height="24" aria-hidden="true" focusable="false">
-              <path
-                d="m11.8 13.2-.3.3c-.5.5-1.1 1.1-1.7 1.5-.5.4-1 .6-1.5.8-.5.2-1.1.3-1.6.3s-1-.1-1.5-.3c-.6-.2-1-.5-1.4-1-.5-.6-.8-1.2-.9-1.9-.2-.9-.1-1.8.3-2.6.3-.7.8-1.2 1.3-1.6.3-.2.6-.4 1-.5.2-.2.5-.2.8-.3.3 0 .7-.1 1 0 .3 0 .6.1.9.2.9.3 1.7.9 2.4 1.5.4.4.8.7 1.1 1.1l.1.1.4-.4c.6-.6 1.2-1.2 1.9-1.6.5-.3 1-.6 1.5-.7.4-.1.7-.2 1-.2h.9c1 .1 1.9.5 2.6 1.4.4.5.7 1.1.8 1.8.2.9.1 1.7-.2 2.5-.4.9-1 1.5-1.8 2-.4.2-.7.4-1.1.4-.4.1-.8.1-1.2.1-.5 0-.9-.1-1.3-.3-.8-.3-1.5-.9-2.1-1.5-.4-.4-.8-.7-1.1-1.1h-.3zm-1.1-1.1c-.1-.1-.1-.1 0 0-.3-.3-.6-.6-.8-.9-.5-.5-1-.9-1.6-1.2-.4-.3-.8-.4-1.3-.4-.4 0-.8 0-1.1.2-.5.2-.9.6-1.1 1-.2.3-.3.7-.3 1.1 0 .3 0 .6.1.9.1.5.4.9.8 1.2.5.4 1.1.5 1.7.5.5 0 1-.2 1.5-.5.6-.4 1.1-.8 1.6-1.3.1-.3.3-.5.5-.6zM13 12c.5.5 1 1 1.5 1.4.5.5 1.1.9 1.9 1 .4.1.8 0 1.2-.1.3-.1.6-.3.9-.5.4-.4.7-.9.8-1.4.1-.5 0-.9-.1-1.4-.3-.8-.8-1.2-1.7-1.4-.4-.1-.8-.1-1.2 0-.5.1-1 .4-1.4.7-.5.4-1 .8-1.4 1.2-.2.2-.4.3-.5.5z"
-              />
-            </svg>
+            <BoomerangIcon />
           </button>
           <button
             className={styles.button}
@@ -192,45 +319,31 @@ export default function Controls({
               toggleSettings()
             }}
           >
-            <svg width="24" height="24" aria-hidden="true" focusable="false">
-              <circle cx="12" cy="5.4" r="2.5" />
-              <circle cx="12" cy="12" r="2.5" />
-              <circle cx="12" cy="18.6" r="2.5" />
-            </svg>
+            <SettingsIcon />
           </button>
           <div hidden={!state.isSettingsOpen} id={`${appState.id}-settings`} className={styles.popover}>
             <button
-              hidden
               className={styles.button}
-              aria-label="Convert JSON animation to dotLottie format"
+              aria-label={appState.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
+              onClick={() => {
+                void convert({
+                  currentAnimation: appState.currentAnimation,
+                  generator: '@aarsteinmedia/dotlottie-react',
+                  isDotLottie: appState.isDotLottie,
+                  manifest: appState.manifest,
+                  src: appState.src ?? undefined
+                })
+              }}
             >
-              <svg
-                width="24"
-                height="24"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M17.016 17.016v-4.031h1.969v6h-12v3l-3.984-3.984 3.984-3.984v3h10.031zM6.984 6.984v4.031H5.015v-6h12v-3l3.984 3.984-3.984 3.984v-3H6.984z"
-                />
-              </svg>
-              Convert to dotLottie
+              <ConvertIcon />
+              {appState.isDotLottie ? 'Convert to JSON' : 'Convert to dotLottie'}
             </button>
             <button
               className={styles.button}
               aria-label="Download still image"
               onClick={() => snapshot(true)}
             >
-              <svg
-                width="24"
-                height="24"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M16.8 10.8 12 15.6l-4.8-4.8h3V3.6h3.6v7.2h3zM12 15.6H3v4.8h18v-4.8h-9zm7.8 2.4h-2.4v-1.2h2.4V18z"
-                />
-              </svg>
+              <DownloadIcon />
               Download still image
             </button>
           </div>

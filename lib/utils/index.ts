@@ -3,7 +3,6 @@ import type { AnimationData, LottieAsset } from '@aarsteinmedia/lottie-web'
 import {
   createElementID, isServer, PreserveAspectRatio
 } from '@aarsteinmedia/lottie-web/utils'
-import { strToU8 } from 'fflate'
 
 import { ObjectFit } from '@/utils/enums'
 
@@ -106,17 +105,6 @@ export const aspectRatio = (objectFit: ObjectFit) => {
     return `${str}.${ext}`
   },
   parseBase64 = (str: string) => str.slice(Math.max(0, str.indexOf(',') + 1)),
-  /**
-   * Convert Base64 encoded string to Uint8Array.
-   *
-   * @param str - Base64 encoded string.
-   * @returns UTF-8/Latin-1 binary.
-   */
-  base64ToU8 = (str: string) =>
-    strToU8(isServer
-      ? Buffer.from(parseBase64(str), 'base64').toString('binary')
-      : atob(parseBase64(str)),
-    true),
   getExtFromB64 = (str: string) => {
     const mime = str.split(':')[1].split(';')[0],
       ext = mime.split('/')[1].split('+')[0]

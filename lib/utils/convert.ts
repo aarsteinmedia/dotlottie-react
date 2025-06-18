@@ -9,7 +9,8 @@ import getAnimationData from '@/utils/getAnimationData'
 
 export default async function convert ({
   animations: animationsFromProps,
-  fileName,
+  currentAnimation = 0,
+  fileName: fileNameFromProps,
   generator,
   isDotLottie,
   manifest,
@@ -28,21 +29,29 @@ export default async function convert ({
   if (!animations) {
     const animationData = await getAnimationData(toConvert)
 
-    animations = animationData.animations
+    animations = animationData.animations ?? []
   }
 
   if (typeCheck || isDotLottie) {
 
+    let fileName = getFilename(fileNameFromProps || toConvert || 'converted')
+
+    if (animations.length > 1) {
+      fileName += `-${currentAnimation + 1}`
+    }
+
+    fileName += '.json'
+
     return createJSON({
-      animation: animations?.[0],
-      fileName: `${getFilename(fileName || toConvert || 'converted')}.json`,
+      animation: animations[currentAnimation],
+      fileName,
       shouldDownload,
     })
   }
 
   return createDotLottie({
     animations,
-    fileName: `${getFilename(fileName || toConvert || 'converted')}.lottie`,
+    fileName: `${getFilename(fileNameFromProps || toConvert || 'converted')}.lottie`,
     manifest: {
       ...manifest ?? manifest,
       generator,

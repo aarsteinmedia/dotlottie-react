@@ -26,24 +26,25 @@ export default function DotLottiePlayer({
   simple,
   speed = 1,
   src,
-  subframe
-}: {
+  subframe,
+  ...rest
+}: React.HTMLAttributes<HTMLElement> & {
   animateOnScroll?: boolean
   autoplay?: boolean
   background?: string
   controls?: boolean
   count?: number
   description?: string
-  direction?: AnimationDirection,
+  direction?: AnimationDirection
   hover?: boolean
   id?: string
   intermission?: number
   loop?: boolean
-  mode?: PlayMode,
+  mode?: 'normal' | 'bounce',
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
   renderer?: RendererType
   simple?: boolean
-  speed?: number,
+  speed?: number
   src: string
   subframe?: boolean
 }) {
@@ -54,6 +55,7 @@ export default function DotLottiePlayer({
       controls={controls}
       id={id}
       loop={loop}
+      mode={mode as PlayMode}
       simple={simple}
       src={src}
     >
@@ -64,11 +66,11 @@ export default function DotLottiePlayer({
         direction={direction}
         hover={hover}
         intermission={intermission}
-        mode={mode}
         objectFit={objectFit}
         renderer={renderer}
         speed={speed}
         subframe={subframe}
+        {...rest}
       />
     </AppProvider>
   )

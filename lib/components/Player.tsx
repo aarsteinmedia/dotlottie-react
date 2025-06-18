@@ -5,6 +5,7 @@ import Lottie, {
   type AnimationItem,
 } from '@aarsteinmedia/lottie-web'
 import {
+  clamp,
   createElementID,
   isServer,
   PlayerEvents, PlayMode, RendererType
@@ -16,9 +17,12 @@ import {
 import Controls from '@/components/Controls'
 import ErrorMessage from '@/components/ErrorMessage'
 import AppContext from '@/context/AppContext'
+import useEventListener from '@/hooks/useEventListener'
+import useIntersectionObserver from '@/hooks/useIntersectionObserver'
+import useIsVisible from '@/hooks/useIsVisible'
 import styles from '@/styles/player.module.css'
 import {
-  aspectRatio, download, frameOutput, getFilename, handleErrors, isLottie
+  aspectRatio, handleErrors, isLottie
 } from '@/utils'
 import { type ObjectFit, PlayerState } from '@/utils/enums'
 import getAnimationData from '@/utils/getAnimationData'
@@ -42,7 +46,8 @@ export default function Player({
   objectFit = 'contain',
   renderer = RendererType.SVG,
   speed = 1,
-  subframe
+  subframe,
+  ...rest
 }: {
   background?: string
   count?: number
@@ -57,6 +62,9 @@ export default function Player({
 }){
 
   const { appState, setAppState } = use(AppContext),
+    container = useRef<HTMLElement>(null),
+    animationItem = useRef<AnimationItem>(null),
+    isVisible = useIsVisible(container.current),
     [state, setState] = useState<{
       errorMessage: string
       isVisible: boolean
@@ -66,18 +74,16 @@ export default function Player({
     }>({
       errorMessage: 'Unknown error',
       isLoaded: false,
-      isVisible: true, // TODO: Check if this can be correct on load
+      isVisible,
       scrollTimeout: null,
       scrollY: 0
     }),
-    container = useRef<HTMLElement>(null),
-    intersectionObserver = useRef<IntersectionObserver>(null),
-    lottieInstance = useRef<AnimationItem>(null),
 
     getOptions = () => {
       if (!container.current) {
         throw new Error('Container not rendered')
       }
+
       const preserveAspectRatio =
         aspectRatio(objectFit as ObjectFit),
         currentAnimationSettings = appState.multiAnimationSettings.length > 0
@@ -114,7 +120,7 @@ export default function Player({
       }
 
       // Segment
-      let initialSegment = appState.segment
+      let initialSegment = appState.segment ?? undefined
 
       if (appState.segment?.every((val) => val > 0)) {
         initialSegment = [appState.segment[0] - 1, appState.segment[1] - 1]
@@ -169,62 +175,53 @@ export default function Player({
      * Stop.
      */
     stop = () => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
 
-      try {
-        lottieInstance.current.stop()
-        dispatchEvent(new CustomEvent(PlayerEvents.Stop))
-      } finally {
-        setAppState((prev) => ({
-          ...prev,
-          count: 0,
-          playerState: PlayerState.Stopped,
-          prevState: prev.playerState
-        }))
-      }
+      animationItem.current.stop()
+      dispatchEvent(new CustomEvent(PlayerEvents.Stop))
+      setAppState((prev) => ({
+        ...prev,
+        count: 0,
+        playerState: PlayerState.Stopped,
+        prevState: prev.playerState
+      }))
     },
 
     /**
      * Play.
      */
     play = () => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
 
-      try {
-        lottieInstance.current.play()
-        dispatchEvent(new CustomEvent(PlayerEvents.Play))
-      } finally {
-        setAppState(prev => {
-          return {
-            ...prev,
-            playerState: PlayerState.Playing
-          }
-        })
-      }
+      animationItem.current.play()
+      dispatchEvent(new CustomEvent(PlayerEvents.Play))
+      setAppState(prev => {
+        return {
+          ...prev,
+          playerState: PlayerState.Playing
+        }
+      })
     },
 
     /**
      * Pause.
      */
     pause = () => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
 
-      try {
-        lottieInstance.current.pause()
-        dispatchEvent(new CustomEvent(PlayerEvents.Pause))
-      } finally {
-        setAppState(prev => ({
-          ...prev,
-          playerState: PlayerState.Paused,
-          prevState: prev.playerState
-        }))
-      }
+      animationItem.current.pause()
+      dispatchEvent(new CustomEvent(PlayerEvents.Pause))
+      setAppState(prev => ({
+        ...prev,
+        playerState: PlayerState.Paused,
+        prevState: prev.playerState
+      }))
     },
 
     /**
@@ -251,22 +248,19 @@ export default function Player({
      * user requested pauses and component instigated pauses.
      */
     freeze = () => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
 
-      try {
-        lottieInstance.current.pause()
-        dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
-      } finally {
-        setAppState(prev => {
-          return {
-            ...prev,
-            playerState: PlayerState.Frozen,
-            prevState: prev.playerState
-          }
-        })
-      }
+      animationItem.current.pause()
+      dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
+      setAppState(prev => {
+        return {
+          ...prev,
+          playerState: PlayerState.Frozen,
+          prevState: prev.playerState
+        }
+      })
     },
 
     /**
@@ -275,7 +269,7 @@ export default function Player({
      * @param value - Frame to seek to.
      */
     seek = (value: number | string) => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
 
@@ -288,7 +282,7 @@ export default function Player({
 
       // Calculate and set the frame number
       const frame = Math.round(matches[2] === '%'
-        ? lottieInstance.current.totalFrames * Number(matches[1]) / 100
+        ? animationItem.current.totalFrames * Number(matches[1]) / 100
         : Number(matches[1]))
 
       // Set seeker to new frame number
@@ -305,7 +299,7 @@ export default function Player({
         appState.playerState === PlayerState.Frozen &&
         appState.prevState === PlayerState.Playing
       ) {
-        lottieInstance.current.goToAndPlay(frame, true)
+        animationItem.current.goToAndPlay(frame, true)
         setState(prev => {
           return {
             ...prev,
@@ -315,19 +309,19 @@ export default function Player({
 
         return
       }
-      lottieInstance.current.goToAndStop(frame, true)
-      lottieInstance.current.pause()
+      animationItem.current.goToAndStop(frame, true)
+      animationItem.current.pause()
     },
 
     /**
      * Set loop.
      */
     setLoop = (value: boolean) => {
-      lottieInstance.current?.setLoop(value)
+      animationItem.current?.setLoop(value)
     },
 
     loopComplete = () => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
 
@@ -335,12 +329,12 @@ export default function Player({
           playDirection,
           // firstFrame,
           totalFrames,
-        } = lottieInstance.current,
+        } = animationItem.current,
         inPoint = appState.segment ? appState.segment[0] : 0,
         outPoint = appState.segment ? appState.segment[0] : totalFrames
 
       if (appState.count) {
-        if (appState.isBounce) {
+        if (appState.mode === PlayMode.Bounce) {
           setAppState(prev => ({
             ...prev,
             count: prev.count + 0.5
@@ -368,34 +362,34 @@ export default function Player({
 
       dispatchEvent(new CustomEvent(PlayerEvents.Loop))
 
-      if (appState.isBounce) {
-        lottieInstance.current.goToAndStop(playDirection === -1 ? inPoint : outPoint * 0.99,
+      if (appState.mode === PlayMode.Bounce) {
+        animationItem.current.goToAndStop(playDirection === -1 ? inPoint : outPoint * 0.99,
           true)
 
-        lottieInstance.current.setDirection((playDirection * -1) as AnimationDirection)
+        animationItem.current.setDirection((playDirection * -1) as AnimationDirection)
 
         return setTimeout(() => {
           if (!appState.animateOnScroll) {
-            lottieInstance.current?.play()
+            animationItem.current?.play()
           }
         }, intermission)
       }
 
-      lottieInstance.current.goToAndStop(playDirection === -1 ? outPoint * 0.99 : inPoint,
+      animationItem.current.goToAndStop(playDirection === -1 ? outPoint * 0.99 : inPoint,
         true)
 
       return setTimeout(() => {
         if (!appState.animateOnScroll) {
-          lottieInstance.current?.play()
+          animationItem.current?.play()
         }
       }, intermission)
     },
 
     enterFrame = () => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
-      const { currentFrame, totalFrames } = lottieInstance.current,
+      const { currentFrame, totalFrames } = animationItem.current,
         seeker = Math.round(currentFrame / totalFrames * 100)
 
       setAppState(prev => {
@@ -417,7 +411,7 @@ export default function Player({
      * Handle scroll.
      */
     handleScroll = () => {
-      if (!appState.animateOnScroll || !lottieInstance.current) {
+      if (!appState.animateOnScroll || !animationItem.current) {
         return
       }
       if (isServer) {
@@ -443,18 +437,18 @@ export default function Player({
           ? scrollY - state.scrollY
           : state.scrollY - scrollY,
           clampedScroll = Math.min(Math.max(adjustedScroll / 3, 1),
-            lottieInstance.current.totalFrames * 3),
+            animationItem.current.totalFrames * 3),
           roundedScroll = clampedScroll / 3
 
         requestAnimationFrame(() => {
-          if (roundedScroll < (lottieInstance.current?.totalFrames ?? 0)) {
+          if (roundedScroll < (animationItem.current?.totalFrames ?? 0)) {
             setAppState(prev => {
               return {
                 ...prev,
                 playerState: PlayerState.Playing
               }
             })
-            lottieInstance.current?.goToAndStop(roundedScroll, true)
+            animationItem.current?.goToAndStop(roundedScroll, true)
           } else {
             setAppState(prev => {
               return {
@@ -492,98 +486,40 @@ export default function Player({
       dispatchEvent(new CustomEvent(PlayerEvents.Ready))
     },
 
-    /**
-     * Toggle event listeners.
-     */
-    toggleEventListeners = (action: 'add' | 'remove') => {
-      const method = action === 'add' ? 'addEventListener' : 'removeEventListener'
-
-      if (lottieInstance.current) {
-        lottieInstance.current[method]('enterFrame', enterFrame)
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        lottieInstance.current[method]('complete', complete)
-        lottieInstance.current[method]('loopComplete', loopComplete)
-        lottieInstance.current[method]('DOMLoaded', domLoaded)
-        lottieInstance.current[method]('data_ready', dataReady)
-        lottieInstance.current[method]('data_failed', dataFailed)
-      }
-
-      if (container.current && hover) {
-        container.current[method]('mouseenter', mouseEnter)
-        container.current[method]('mouseleave', mouseLeave)
-      }
-
-      window[method](
-        'focus', handleWindowBlur as EventListener, {
-          capture: false,
-          passive: true,
-        }
-      )
-      window[method](
-        'blur', handleWindowBlur as EventListener, {
-          capture: false,
-          passive: true,
-        }
-      )
-
-      if (appState.animateOnScroll) {
-        window[method](
-          'scroll', handleScroll, {
-            capture: true,
-            passive: true,
-          }
-        )
-      }
-    },
-
-    /**
-     * Add event listeners.
-     */
-    addEventListeners = () => {
-      toggleEventListeners('add')
-    },
-
-    /**
-     * Remove event listeners.
-     */
-    removeEventListeners = () => {
-      toggleEventListeners('remove')
-    },
-
-    switchInstance = (isPrevious = false) => {
+    switchInstance = (currentAnimation: number, isPrevious = false) => {
       // Bail early if there is not animation to play
-      if (!appState.animations[appState.currentAnimation]) {
+      if (!appState.animations[currentAnimation]) {
         return
       }
 
       try {
         // Clear previous animation
-        lottieInstance.current?.destroy()
+        animationItem.current?.destroy()
 
-        const { mode: playMode } = appState.multiAnimationSettings[appState.currentAnimation]
+        const { mode: playMode } = appState.multiAnimationSettings[currentAnimation] ?? {}
 
-        lottieInstance.current = Lottie.loadAnimation({
+        animationItem.current = Lottie.loadAnimation({
           ...getOptions(),
-          animationData: appState.animations[appState.currentAnimation],
+          animationData: appState.animations[currentAnimation],
         })
 
         setAppState(prev => ({
           ...prev,
-          isBounce: playMode && playMode as PlayMode === PlayMode.Bounce,
+          mode: playMode ?? PlayMode.Normal,
         }))
 
         // Remove event listeners to new Lottie instance, and add new
-        removeEventListeners()
-        addEventListeners()
+        // removeEventListeners()
+        // addEventListeners()
 
         dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
 
         if (
-          appState.multiAnimationSettings[appState.currentAnimation]?.autoplay ??
+          appState.multiAnimationSettings[currentAnimation]?.autoplay ??
           appState.autoplay
         ) {
           if (appState.animateOnScroll) {
-            lottieInstance.current.goToAndStop(0, true)
+            animationItem.current.goToAndStop(0, true)
 
             setAppState(prev => {
               return {
@@ -595,7 +531,7 @@ export default function Player({
             return
           }
 
-          lottieInstance.current.goToAndPlay(0, true)
+          animationItem.current.goToAndPlay(0, true)
           setAppState(prev => {
             return {
               ...prev,
@@ -606,7 +542,7 @@ export default function Player({
           return
         }
 
-        lottieInstance.current.goToAndStop(0, true)
+        animationItem.current.goToAndStop(0, true)
         setAppState(prev => {
           return {
             ...prev,
@@ -631,20 +567,41 @@ export default function Player({
     },
 
     /**
+     * Skip to previous animation.
+     */
+    previous = () => {
+      setAppState((prev) => {
+        const currentAnimation = clamp(prev.currentAnimation - 1, 0)
+
+        switchInstance(currentAnimation, true)
+
+        return {
+          ...prev,
+          currentAnimation
+        }
+      })
+    },
+
+    /**
      * Skip to next animation.
      */
     next = () => {
       setAppState((prev) => {
+        const currentAnimation = clamp(
+          prev.currentAnimation + 1, 0, prev.animations.length
+        )
+
+        switchInstance(currentAnimation)
+
         return {
           ...prev,
-          currentAnimation: prev.currentAnimation + 1
+          currentAnimation
         }
       })
-      switchInstance()
     },
 
     complete = () => {
-      if (!lottieInstance.current) {
+      if (!animationItem.current) {
         return
       }
 
@@ -664,13 +621,13 @@ export default function Player({
             }
           })
 
-          switchInstance()
+          switchInstance(0)
 
           return
         }
       }
 
-      const { currentFrame, totalFrames } = lottieInstance.current,
+      const { currentFrame, totalFrames } = animationItem.current,
         seeker = Math.round(currentFrame / totalFrames * 100)
 
       setAppState(prev => {
@@ -687,171 +644,6 @@ export default function Player({
           seeker,
         },
       }))
-    },
-
-    /**
-     * Add IntersectionObserver.
-     */
-    addIntersectionObserver = () => {
-      if (
-        !container.current ||
-        intersectionObserver.current ||
-        !('IntersectionObserver' in window)
-      ) {
-        return
-      }
-
-      intersectionObserver.current = new IntersectionObserver((entries) => {
-        const { length } = entries
-
-        for (let i = 0; i < length; i++) {
-          if (!entries[i].isIntersecting || document.hidden) {
-            if (appState.playerState === PlayerState.Playing) {
-              freeze()
-            }
-            setState(prev => ({
-              ...prev,
-              isVisible: false
-            }))
-            continue
-          }
-          if (!appState.animateOnScroll && appState.playerState === PlayerState.Frozen) {
-            play()
-          }
-          if (!state.scrollY) {
-            setState(prev => ({
-              ...prev,
-              scrollY
-            }))
-          }
-          setState(prev => ({
-            ...prev,
-            isVisible: true
-          }))
-        }
-      })
-
-      intersectionObserver.current.observe(container.current)
-
-    },
-
-    /**
-     * Animation play direction.
-     *
-     * @param value - Animation direction.
-     */
-    setDirection = (value: AnimationDirection) => {
-      lottieInstance.current?.setDirection(value)
-    },
-
-    /**
-     * Toggle playing state.
-     */
-    togglePlay = () => {
-      if (!lottieInstance.current) {
-        return
-      }
-
-      const {
-        currentFrame, playDirection, totalFrames
-      } = lottieInstance.current
-
-      if (appState.playerState === PlayerState.Playing) {
-        pause()
-
-        return
-      }
-      if (appState.playerState !== PlayerState.Completed) {
-        play()
-
-        return
-      }
-      setAppState(prev => ({
-        ...prev,
-        playerState: PlayerState.Playing
-      }))
-      if (appState.isBounce) {
-        setDirection((playDirection * -1) as AnimationDirection)
-
-        lottieInstance.current.goToAndPlay(currentFrame, true)
-
-        return
-      }
-      if (playDirection === -1) {
-        lottieInstance.current.goToAndPlay(totalFrames, true)
-
-        return
-      }
-
-      lottieInstance.current.goToAndPlay(0, true)
-    },
-
-    /**
-     * Handles click and drag actions on the progress track.
-     */
-    handleSeekChange = ({ target }: React.ChangeEvent) => {
-      if (
-        !(target instanceof HTMLInputElement) ||
-        !lottieInstance.current ||
-        isNaN(Number(target.value))
-      ) {
-        return
-      }
-
-      seek(Math.round(Number(target.value) / 100 * lottieInstance.current.totalFrames))
-    },
-
-    /**
-     * Snapshot and download the current frame as SVG.
-     */
-    snapshot = (shouldDownload = true, name = 'AM Lottie') => {
-      try {
-        if (!container.current) {
-          throw new Error('Unknown error')
-        }
-
-        // Get SVG element and serialize markup
-        const svgElement = container.current.querySelector('figure svg')
-
-        if (!svgElement) {
-          throw new Error('Could not retrieve animation from DOM')
-        }
-
-        const data =
-          svgElement instanceof Node
-            ? new XMLSerializer().serializeToString(svgElement)
-            : null
-
-        if (!data) {
-          throw new Error('Could not serialize SVG element')
-        }
-
-        if (shouldDownload) {
-          download(data, {
-            mimeType: 'image/svg+xml',
-            name: `${getFilename(appState.src || name)}-${frameOutput(appState.seeker)}.svg`,
-          })
-        }
-
-        return data
-      } catch (error) {
-        console.error(error)
-
-        return null
-      }
-    },
-
-    /**
-     * Toggle loop.
-     */
-    toggleLoop = () => {
-      const hasLoop = !appState.loop
-
-      setAppState(prev => ({
-        ...prev,
-        loop: hasLoop
-      }))
-      setLoop(hasLoop)
     },
 
     load = async (src: string | null) => {
@@ -904,7 +696,6 @@ export default function Player({
           return {
             ...prev,
             animations,
-            isBounce,
             isDotLottie,
             manifest: manifest ?? {
               animations: [
@@ -917,13 +708,14 @@ export default function Player({
                 },
               ],
             },
+            mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
             playerState
           }
         })
 
         // Clear previous animation, if any
-        lottieInstance.current?.destroy()
-        lottieInstance.current = Lottie.loadAnimation({
+        animationItem.current?.destroy()
+        animationItem.current = Lottie.loadAnimation({
           ...getOptions(),
           animationData: animations[appState.currentAnimation]
         })
@@ -946,7 +738,7 @@ export default function Player({
         return
       }
 
-      addEventListeners()
+      // addEventListeners()
 
       const _speed =
         appState.multiAnimationSettings[appState.currentAnimation]?.speed ??
@@ -956,9 +748,9 @@ export default function Player({
           direction
 
       // Set initial playback speed and direction
-      lottieInstance.current.setSpeed(_speed)
-      lottieInstance.current.setDirection(_direction)
-      lottieInstance.current.setSubframe(Boolean(subframe))
+      animationItem.current.setSpeed(_speed)
+      animationItem.current.setDirection(_direction)
+      animationItem.current.setSubframe(Boolean(subframe))
 
       // Start playing if autoplay is enabled
       if (appState.autoplay || appState.animateOnScroll) {
@@ -977,8 +769,6 @@ export default function Player({
             }
           })
         }
-
-        addIntersectionObserver()
       }
     }
 
@@ -986,8 +776,88 @@ export default function Player({
   useEffect(() => {
     // eslint-disable-next-line react-you-might-not-need-an-effect/you-might-not-need-an-effect
     void load(appState.src)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Intersection Observer
+  useIntersectionObserver(
+    /**
+     * On visible.
+     */
+    () => {
+      if (!appState.animateOnScroll && appState.playerState === PlayerState.Frozen) {
+        play()
+      }
+      if (!state.scrollY) {
+        setState(prev => ({
+          ...prev,
+          scrollY
+        }))
+      }
+      setState(prev => ({
+        ...prev,
+        isVisible: true
+      }))
+    },
+    /**
+     * On hidden.
+     */
+    () => {
+      if (appState.playerState === PlayerState.Playing) {
+        freeze()
+      }
+      setState(prev => ({
+        ...prev,
+        isVisible: false
+      }))
+    },
+    // To observe.
+    container.current
+  )
+
+  // Event listeners.
+  useEventListener(
+    'enterFrame', enterFrame, { element: animationItem }
+  )
+  useEventListener(
+    'complete', complete, { element: animationItem }
+  )
+  useEventListener(
+    'loopComplete', loopComplete, { element: animationItem }
+  )
+  useEventListener(
+    'DOMLoaded', domLoaded, { element: animationItem }
+  )
+  useEventListener(
+    'data_ready', dataReady, { element: animationItem }
+  )
+  useEventListener(
+    'data_failed', dataFailed, { element: animationItem }
+  )
+  useEventListener(
+    'mouseenter', mouseEnter, { element: container }
+  )
+  useEventListener(
+    'mouseleave', mouseLeave, { element: container }
+  )
+  useEventListener(
+    'focus', handleWindowBlur, {
+      capture: false,
+      passive: true
+    }
+  )
+  useEventListener(
+    'blur', handleWindowBlur, {
+      capture: false,
+      passive: true
+    }
+  )
+  useEventListener(
+    'scroll', handleScroll, {
+      capture: true,
+      passive: true
+    }
+  )
 
   return (
     <div
@@ -995,6 +865,7 @@ export default function Player({
       lang={appState.lang}
       aria-label={description}
       data-controls={appState.controls}
+      {...rest}
     >
       <figure className={styles.animation} ref={container} style={{ background }}>
         {appState.playerState === PlayerState.Error &&
@@ -1005,12 +876,16 @@ export default function Player({
       </figure>
       {appState.controls &&
         <Controls
+          animationItem={animationItem}
+          container={container}
           freeze={freeze}
-          handleSeekChange={handleSeekChange}
-          snapshot={snapshot}
+          next={next}
+          pause={pause}
+          play={play}
+          previous={previous}
+          seek={seek}
+          setLoop={setLoop}
           stop={stop}
-          toggleLoop={toggleLoop}
-          togglePlay={togglePlay}
         />
       }
     </div>
