@@ -1,6 +1,6 @@
 import type { LottieManifest } from '@aarsteinmedia/lottie-web'
 
-import type { AnimationAttributes } from '@/types'
+import type { AddAnimationParams, Result } from '@/types'
 
 import { handleErrors } from '@/utils'
 import createDotLottie from '@/utils/createDotLottie'
@@ -17,18 +17,7 @@ export default async function addAnimation ({
   id,
   shouldDownload = true,
   src,
-}: {
-  configs: AnimationAttributes[]
-  src?: string
-  id?: string
-  fileName?: string
-  shouldDownload?: boolean
-  generator: string
-}): Promise<{
-    result?: null | ArrayBuffer
-    success: boolean
-    error?: string
-  }> {
+}: AddAnimationParams): Promise<Result> {
 
   /**
    * Initialize meta object for animation, with fallbacks for

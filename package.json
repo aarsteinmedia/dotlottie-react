@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --p ./tsconfig.build.json && vite build",
-    "lint": "eslint .",
+    "lint": "eslint ./lib",
+    "lint:fix": "eslint ./lib --fix",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,8 +15,8 @@
     "fflate": "^0.8.2"
   },
   "peerDependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "^19.x",
+    "react-dom": "^19.x"
   },
   "devDependencies": {
     "@types/node": "^24.0.3",

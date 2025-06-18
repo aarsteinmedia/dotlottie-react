@@ -3,6 +3,8 @@ import Lottie, {
   type AnimationConfiguration,
   type AnimationDirection,
   type AnimationItem,
+  type AnimationSegment,
+  type AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
 import {
   clamp,
@@ -11,8 +13,10 @@ import {
   PlayerEvents, PlayMode, RendererType
 } from '@aarsteinmedia/lottie-web/utils'
 import {
-  use, useEffect, useRef, useState
+  use, useCallback, useEffect, useImperativeHandle, useRef, useState
 } from 'react'
+
+import type { DotLottieMethods } from '@/types'
 
 import Controls from '@/components/Controls'
 import ErrorMessage from '@/components/ErrorMessage'
@@ -24,10 +28,10 @@ import styles from '@/styles/player.module.css'
 import {
   aspectRatio, handleErrors, isLottie
 } from '@/utils'
+import addAnimation from '@/utils/addAnimation'
+import convert from '@/utils/convert'
 import { type ObjectFit, PlayerState } from '@/utils/enums'
 import getAnimationData from '@/utils/getAnimationData'
-
-// const generator = '@aarsteinmedia/dotlottie-react'
 
 const dataReady = () => {
   dispatchEvent(new CustomEvent(PlayerEvents.Load))
@@ -44,6 +48,7 @@ export default function Player({
   hover,
   intermission,
   objectFit = 'contain',
+  ref,
   renderer = RendererType.SVG,
   speed = 1,
   subframe,
@@ -59,6 +64,7 @@ export default function Player({
   renderer?: RendererType
   speed?: number,
   subframe?: boolean
+  ref?: React.RefObject<DotLottieMethods | null>
 }){
 
   const { appState, setAppState } = use(AppContext),
@@ -79,7 +85,7 @@ export default function Player({
       scrollY: 0
     }),
 
-    getOptions = () => {
+    getOptions = useCallback(() => {
       if (!container.current) {
         throw new Error('Container not rendered')
       }
@@ -169,12 +175,20 @@ export default function Player({
       }
 
       return options
-    },
+    }, [appState.animateOnScroll,
+      appState.autoplay,
+      appState.currentAnimation,
+      appState.loop,
+      appState.manifest?.animations,
+      appState.multiAnimationSettings,
+      appState.segment,
+      objectFit,
+      renderer]),
 
     /**
      * Stop.
      */
-    stop = () => {
+    stop = useCallback(() => {
       if (!animationItem.current) {
         return
       }
@@ -187,12 +201,12 @@ export default function Player({
         playerState: PlayerState.Stopped,
         prevState: prev.playerState
       }))
-    },
+    }, [setAppState]),
 
     /**
      * Play.
      */
-    play = () => {
+    play = useCallback(() => {
       if (!animationItem.current) {
         return
       }
@@ -205,12 +219,12 @@ export default function Player({
           playerState: PlayerState.Playing
         }
       })
-    },
+    }, [setAppState]),
 
     /**
      * Pause.
      */
-    pause = () => {
+    pause = useCallback(() => {
       if (!animationItem.current) {
         return
       }
@@ -222,7 +236,7 @@ export default function Player({
         playerState: PlayerState.Paused,
         prevState: prev.playerState
       }))
-    },
+    }, [setAppState]),
 
     /**
      * Handle MouseEnter.
@@ -268,7 +282,7 @@ export default function Player({
      *
      * @param value - Frame to seek to.
      */
-    seek = (value: number | string) => {
+    seek = useCallback((value: number | string) => {
       if (!animationItem.current) {
         return
       }
@@ -311,7 +325,7 @@ export default function Player({
       }
       animationItem.current.goToAndStop(frame, true)
       animationItem.current.pause()
-    },
+    }, [appState.playerState, appState.prevState]),
 
     /**
      * Set loop.
@@ -486,7 +500,7 @@ export default function Player({
       dispatchEvent(new CustomEvent(PlayerEvents.Ready))
     },
 
-    switchInstance = (currentAnimation: number, isPrevious = false) => {
+    switchInstance = useCallback((currentAnimation: number, isPrevious = false) => {
       // Bail early if there is not animation to play
       if (!appState.animations[currentAnimation]) {
         return
@@ -564,12 +578,17 @@ export default function Player({
 
         dispatchEvent(new CustomEvent(PlayerEvents.Error))
       }
-    },
+    }, [appState.animateOnScroll,
+      appState.animations,
+      appState.autoplay,
+      appState.multiAnimationSettings,
+      getOptions,
+      setAppState]),
 
     /**
      * Skip to previous animation.
      */
-    previous = () => {
+    previous = useCallback(() => {
       setAppState((prev) => {
         const currentAnimation = clamp(prev.currentAnimation - 1, 0)
 
@@ -580,12 +599,12 @@ export default function Player({
           currentAnimation
         }
       })
-    },
+    }, [setAppState, switchInstance]),
 
     /**
      * Skip to next animation.
      */
-    next = () => {
+    next = useCallback(() => {
       setAppState((prev) => {
         const currentAnimation = clamp(
           prev.currentAnimation + 1, 0, prev.animations.length
@@ -598,7 +617,7 @@ export default function Player({
           currentAnimation
         }
       })
-    },
+    }, [setAppState, switchInstance]),
 
     complete = () => {
       if (!animationItem.current) {
@@ -646,7 +665,40 @@ export default function Player({
       }))
     },
 
-    load = async (src: string | null) => {
+    setSpeed = (value: number) => {
+      animationItem.current?.setSpeed(value)
+    },
+
+    setDirection = (value: AnimationDirection) => {
+      animationItem.current?.setDirection(value)
+    },
+
+    setSubframe = (value: boolean) => {
+      animationItem.current?.setSubframe(value)
+    },
+
+    setCount = useCallback((value: number) => {
+      setAppState(prev => ({
+        ...prev,
+        count: value
+      }))
+    }, [setAppState]),
+
+    setMultiAnimationSettings = useCallback((settings: AnimationSettings[]) => {
+      setAppState(prev => ({
+        ...prev,
+        multiAnimationSettings: settings
+      }))
+    }, [setAppState]),
+
+    setSegment = useCallback((segment: AnimationSegment) => {
+      setAppState(prev => ({
+        ...prev,
+        segment
+      }))
+    }, [setAppState]),
+
+    load = useCallback(async (src: string | null) => {
       if (!src) {
         return
       }
@@ -748,9 +800,9 @@ export default function Player({
           direction
 
       // Set initial playback speed and direction
-      animationItem.current.setSpeed(_speed)
-      animationItem.current.setDirection(_direction)
-      animationItem.current.setSubframe(Boolean(subframe))
+      setSpeed(_speed)
+      setDirection(_direction)
+      setSubframe(Boolean(subframe))
 
       // Start playing if autoplay is enabled
       if (appState.autoplay || appState.animateOnScroll) {
@@ -770,11 +822,22 @@ export default function Player({
           })
         }
       }
-    }
+    }, [
+      appState.animateOnScroll,
+      appState.autoplay,
+      appState.currentAnimation,
+      appState.loop,
+      appState.multiAnimationSettings,
+      direction,
+      getOptions,
+      play,
+      seek,
+      setAppState,
+      speed,
+      subframe
+    ])
 
-  // eslint-disable-next-line react-you-might-not-need-an-effect/you-might-not-need-an-effect
   useEffect(() => {
-    // eslint-disable-next-line react-you-might-not-need-an-effect/you-might-not-need-an-effect
     void load(appState.src)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -813,6 +876,40 @@ export default function Player({
     },
     // To observe.
     container.current
+  )
+
+  useImperativeHandle(
+    ref, () => {
+      return {
+        addAnimation,
+        convert,
+        load,
+        next,
+        pause,
+        play,
+        previous,
+        seek,
+        setCount,
+        setDirection,
+        setLoop,
+        setMultiAnimationSettings,
+        setSegment,
+        setSpeed,
+        setSubframe,
+        stop
+      }
+    }, [
+      load,
+      next,
+      pause,
+      play,
+      previous,
+      seek,
+      setCount,
+      setMultiAnimationSettings,
+      setSegment,
+      stop
+    ]
   )
 
   // Event listeners.

@@ -1,6 +1,10 @@
-import DotLottiePlayer from '@/index'
+import { useRef } from 'react'
+
+import DotLottiePlayer, { type DotLottieMethods } from '@/index'
 
 function App() {
+  const animation = useRef<DotLottieMethods>(null)
+
   return (
     <>
       <header>
@@ -39,7 +43,7 @@ function App() {
             justifyContent: 'center',
             textAlign: 'center'
           }}>
-          <DotLottiePlayer hover subframe src="/strengths.json" onMouseOver={(e) => { console.log(e) }} />
+          <DotLottiePlayer animateOnScroll subframe src="/strengths.json" ref={animation} />
         </div>
 
         <div style={{
