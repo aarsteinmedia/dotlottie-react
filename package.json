@@ -12,6 +12,18 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "repository": {
+    "url": "git+https://github.com/aarsteinmedia/dotlottie-react.git",
+    "type": "git"
+  },
+  "bugs": "https://github.com/aarsteinmedia/dotlottie-react/issues",
+  "author": {
+    "name": "Johan Martin Aarstein",
+    "email": "johan@aarstein.media",
+    "url": "https://www.aarstein.media",
+    "organization": "Aarstein Media"
+  },
+  "license": "GPL-2.0-or-later",
   "scripts": {
     "dev": "vite",
     "build": "tsc --p ./tsconfig.build.json && vite build",
