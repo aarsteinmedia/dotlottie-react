@@ -2,9 +2,10 @@ import type {
   AnimationData, AnimationDirection, AnimationSegment, AnimationSettings, LottieManifest
 } from '@aarsteinmedia/lottie-web'
 
-export interface Animation extends AnimationSettings { id: string }
-
-export interface AnimationAttributes extends Animation { url: string }
+export interface AnimationAttributes extends AnimationSettings {
+  id: string
+  url: string
+}
 
 export interface ConvertParams {
   /** Externally added animations. */

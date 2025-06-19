@@ -31,7 +31,11 @@ export default defineConfig({
   plugins: [
     react(),
     libInjectCss(),
-    dts({ include: ['lib'] })
+    dts({
+      include: ['lib'],
+      rollupTypes: true,
+      tsconfigPath: './tsconfig.app.json'
+    })
   ],
   resolve: { alias: { '@': resolve(__dirname, 'lib') } },
 })

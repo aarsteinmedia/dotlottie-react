@@ -31,6 +31,7 @@ const getArrayBuffer = async (zippable: Zippable) => {
 
     return arrayBuffer
   },
+
   fileToBase64 = async (url: string): Promise<string> => {
     const response = await fetch(url),
       blob = await response.blob()
@@ -53,6 +54,7 @@ const getArrayBuffer = async (zippable: Zippable) => {
       }
     })
   },
+
   /**
    * Convert Base64 encoded string to Uint8Array.
    *

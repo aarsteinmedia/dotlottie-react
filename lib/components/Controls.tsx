@@ -47,6 +47,7 @@ export default function Controls({
 }) {
   const { appState, setAppState } = use(AppContext),
     [state, setState] = useState({ isSettingsOpen: false }),
+
     /**
      * Toggle show Settings.
      */
@@ -58,6 +59,7 @@ export default function Controls({
       }
       setState({ isSettingsOpen: flag })
     },
+
     /**
     * Animation play direction.
     *
@@ -66,6 +68,7 @@ export default function Controls({
     setDirection = (value: AnimationDirection) => {
       animationItem.current?.setDirection(value)
     },
+
     /**
      * Toggle playing state.
      */
@@ -107,6 +110,7 @@ export default function Controls({
 
       animationItem.current.goToAndPlay(0, true)
     },
+
     /**
      * Toggle loop.
      */
@@ -119,6 +123,7 @@ export default function Controls({
       }))
       setLoop(hasLoop)
     },
+
     /**
      * Toggle Boomerang.
      */
@@ -160,6 +165,7 @@ export default function Controls({
         mode: PlayMode.Normal
       }))
     },
+
     /**
      * Handles click and drag actions on the progress track.
      */
@@ -174,6 +180,7 @@ export default function Controls({
 
       seek(Math.round(Number(target.value) / 100 * animationItem.current.totalFrames))
     },
+
     /**
      * Handle blur.
      */
@@ -182,6 +189,7 @@ export default function Controls({
         toggleSettings(false)
       }, 200)
     },
+
     /**
      * Snapshot and download the current frame as SVG.
      */

@@ -37,6 +37,7 @@ export const aspectRatio = (objectFit: ObjectFit) => {
       }
     }
   },
+
   /**
    * Download file, either SVG or dotLottie.
    */
@@ -62,6 +63,7 @@ export const aspectRatio = (objectFit: ObjectFit) => {
       URL.revokeObjectURL(dataURL)
     }, 1000)
   },
+
   getExt = (str?: string) => {
     if (typeof str !== 'string' || !str || !hasExt(str)) {
       return
@@ -104,13 +106,16 @@ export const aspectRatio = (objectFit: ObjectFit) => {
 
     return `${str}.${ext}`
   },
+
   parseBase64 = (str: string) => str.slice(Math.max(0, str.indexOf(',') + 1)),
+
   getExtFromB64 = (str: string) => {
     const mime = str.split(':')[1].split(';')[0],
       ext = mime.split('/')[1].split('+')[0]
 
     return ext
   },
+
   handleErrors = (err: unknown) => {
     const res = {
       message: 'Unknown error',
@@ -128,6 +133,7 @@ export const aspectRatio = (objectFit: ObjectFit) => {
 
     return res
   },
+
   isAudio = (asset: LottieAsset) =>
     !('h' in asset) &&
     !('w' in asset) &&
@@ -135,6 +141,7 @@ export const aspectRatio = (objectFit: ObjectFit) => {
     'e' in asset &&
     'u' in asset &&
     'id' in asset,
+
   isLottie = (json: AnimationData) => {
     const mandatory = [
       'v',
@@ -149,7 +156,9 @@ export const aspectRatio = (objectFit: ObjectFit) => {
     return mandatory.every((field: string) =>
       Object.hasOwn(json, field))
   },
+
   isImage = (asset: LottieAsset) =>
     'w' in asset && 'h' in asset && !('xt' in asset) && 'p' in asset,
+
   frameOutput = (frame?: number) =>
     ((frame ?? 0) + 1).toString().padStart(3, '0')

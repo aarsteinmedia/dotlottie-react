@@ -1,8 +1,17 @@
 {
-  "name": "dotlottie-react",
-  "private": true,
+  "name": "@aarsteinmedia/dotlottie-react",
   "version": "0.1.0",
+  "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
+  "main": "./dist/dotlottie-react.js",
+  "types": "./dist/index.d.ts",
+  "export": {
+    ".": {
+      "import": "./dist/dotlottie-react.js",
+      "node": "./dist/dotlottie-react.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --p ./tsconfig.build.json && vite build",
@@ -35,5 +44,38 @@
     "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-lib-inject-css": "^2.2.2"
+  },
+  "engines": {
+    "node": ">= 14.20.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "lottie",
+    "dotlottie",
+    "bodymovin",
+    "react",
+    "player"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "browserslist": {
+    "production": [
+      ">0.3%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "funding": {
+    "type": "paypal",
+    "url": "https://www.paypal.com/donate/?hosted_button_id=E7C7DMN8KSQ6A"
   }
 }

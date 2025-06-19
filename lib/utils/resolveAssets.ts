@@ -34,6 +34,7 @@ const getMimeFromExt = (ext?: string) => {
       }
     }
   },
+
   isBase64 = (str?: string) => {
     if (!str) {
       return false

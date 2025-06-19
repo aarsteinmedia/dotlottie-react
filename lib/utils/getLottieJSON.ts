@@ -20,6 +20,7 @@ const unzip = async (resp: Response): Promise<Unzipped> => {
 
     return unzipped
   },
+
   getManifest = (unzipped: Unzipped) => {
     const file = strFromU8(unzipped['manifest.json'], false),
       manifest: LottieManifest = JSON.parse(file)
@@ -33,6 +34,7 @@ const unzip = async (resp: Response): Promise<Unzipped> => {
 
     return manifest
   },
+
   prepareString = (str: string) =>
     str
       .replaceAll(new RegExp(/"""/, 'g'), '""')
