@@ -151,12 +151,6 @@
     &:focus::-moz-range-thumb {
       transform: scale(1);
     }
-
-    &:focus {
-      &::-ms-thumb {
-        transform: scale(1);
-      }
-    }
   }
 
   .progress {

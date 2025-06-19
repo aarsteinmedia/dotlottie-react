@@ -272,7 +272,7 @@ export default function Player({
         return {
           ...prev,
           playerState: PlayerState.Frozen,
-          prevState: prev.playerState
+          prevState: prev.playerState === PlayerState.Frozen ? prev.prevState : prev.playerState
         }
       })
     },
@@ -479,7 +479,11 @@ export default function Player({
       if (appState.playerState === PlayerState.Playing && type === 'blur') {
         freeze()
       }
-      if (appState.playerState === PlayerState.Frozen && type === 'focus') {
+      if (
+        appState.playerState === PlayerState.Frozen &&
+        appState.prevState === PlayerState.Playing &&
+        type === 'focus'
+      ) {
         play()
       }
     },

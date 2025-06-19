@@ -167,21 +167,6 @@ export default function Controls({
     },
 
     /**
-     * Handles click and drag actions on the progress track.
-     */
-    handleSeekChange = ({ target }: React.ChangeEvent) => {
-      if (
-        !(target instanceof HTMLInputElement) ||
-        !animationItem.current ||
-        isNaN(Number(target.value))
-      ) {
-        return
-      }
-
-      seek(Math.round(Number(target.value) / 100 * animationItem.current.totalFrames))
-    },
-
-    /**
      * Handle blur.
      */
     handleBlur = () => {
@@ -279,8 +264,8 @@ export default function Controls({
         data-simple={appState.simple}
       >
         <input
-          className={styles.seeker}
           type="range"
+          className={styles.seeker}
           min={0}
           max={100}
           step={1}
@@ -290,8 +275,14 @@ export default function Controls({
           aria-valuenow={appState.seeker}
           tabIndex={0}
           aria-label="Slider for search"
-          onChange={handleSeekChange}
           onMouseDown={freeze}
+          onChange={({ target }) => {
+            if (!animationItem.current) {
+              return
+            }
+
+            seek(Math.round(Number(target.value) / 100 * animationItem.current.totalFrames))
+          }}
         />
         <progress className={styles.progress} max="100" value={appState.seeker}></progress>
       </form>
