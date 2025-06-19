@@ -698,6 +698,10 @@ export default function Player({
       }))
     }, [setAppState]),
 
+    getIsVisible = useCallback(() => {
+      return state.isVisible
+    }, [state.isVisible]),
+
     load = useCallback(async (src: string | null) => {
       if (!src) {
         return
@@ -883,6 +887,7 @@ export default function Player({
       return {
         addAnimation,
         convert,
+        getIsVisible,
         load,
         next,
         pause,
@@ -899,6 +904,7 @@ export default function Player({
         stop
       }
     }, [
+      getIsVisible,
       load,
       next,
       pause,

@@ -2,7 +2,7 @@ import type {
   AnimationData, AnimationDirection, AnimationSegment, AnimationSettings, LottieManifest
 } from '@aarsteinmedia/lottie-web'
 
-export interface AnimationAttributes extends AnimationSettings {
+interface AnimationAttributes extends AnimationSettings {
   id: string
   url: string
 }
@@ -48,6 +48,7 @@ export interface Result {
 export interface DotLottieMethods {
   addAnimation: (params: AddAnimationParams) => Promise<Result>
   convert: (params: ConvertParams) => Promise<Result>
+  getIsVisible: () => boolean
   load: (src: string | null) => Promise<void>
   next: () => void
   pause: () => void
