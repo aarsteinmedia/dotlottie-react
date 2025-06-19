@@ -1,6 +1,6 @@
 {
   "name": "@aarsteinmedia/dotlottie-react",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
   "main": "./dist/dotlottie-react.js",
@@ -51,6 +51,7 @@
     "jiti": "^2.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "rollup-preserve-directives": "^1.1.3",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
     "vite": "^6.3.5",

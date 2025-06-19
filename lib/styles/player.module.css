@@ -1,4 +1,4 @@
-.dotLottie {
+:root {
   --lottie-player-toolbar-height: 35px;
   --lottie-player-toolbar-background-color: #fff;
   --lottie-player-toolbar-icon-color: #000;
@@ -7,7 +7,9 @@
   --lottie-player-seeker-track-color: rgb(0 0 0 / 20%);
   --lottie-player-seeker-thumb-color: #4285f4;
   --lottie-player-seeker-display: block;
+}
 
+.dotLottie {
   position: relative;
 
   width: 100%;
@@ -57,7 +59,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .dotlottie {
+  :root {
     --lottie-player-toolbar-background-color: #000;
     --lottie-player-toolbar-icon-color: #fff;
     --lottie-player-toolbar-icon-hover-color: #fff;
