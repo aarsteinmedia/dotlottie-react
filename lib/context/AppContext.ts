@@ -1,3 +1,4 @@
+'use client'
 import type {
   AnimationData,
   AnimationSettings, LottieManifest, Vector2
