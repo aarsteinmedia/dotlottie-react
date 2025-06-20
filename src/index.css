@@ -44,3 +44,139 @@ header {
     }
   }
 }
+
+figure {
+  &.aligncenter,
+  &.alignleft,
+  &.alignright {
+    margin: 20px;
+    padding: 0;
+    border: 0;
+    display: block;
+  }
+
+  &.alignright,
+  &.alignleft {
+    max-width: calc(50% - 20px);
+  }
+
+  &.alignleft {
+    float: left;
+    margin-left: 0;
+    clear: left;
+  }
+
+  &.alignright {
+    float: right;
+    margin-right: 0;
+    clear: right;
+  }
+
+  &.aligncenter {
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+  }
+
+  &.size-medium {
+    width: 250px;
+    max-width: 250px;
+  }
+
+  &.size-small {
+    width: 150px;
+    max-width: 150px;
+  }
+
+  & img {
+    display: block;
+  }
+}
+
+@media only screen and (width >= 1041px) {
+  figure:not(.no-offset) {
+    &.alignleft,
+    &.alignright {
+      max-width: calc(60% - 20px);
+    }
+
+    &.alignright {
+      margin-right: -10%;
+    }
+
+    &.alignleft {
+      margin-left: -10%;
+    }
+
+    &.aligncenter:not(.size-medium, .size-small) {
+      width: 120% !important;
+      max-width: 120%;
+      margin-left: -10%;
+      margin-right: -10%;
+    }
+  }
+}
+
+@media only screen and (width >= 1201px) {
+  figure:not(.no-offset) {
+    &.alignright,
+    &.alignleft {
+      max-width: calc(70% - 20px);
+    }
+
+    &.alignright {
+      margin-right: -20%;
+    }
+
+    &.alignleft {
+      margin-left: -20%;
+    }
+
+    &.aligncenter:not(.size-medium, .size-small) {
+      width: 140% !important;
+      max-width: 140%;
+      margin-left: -20%;
+      margin-right: -20%;
+    }
+  }
+}
+
+@media only screen and (width <= 980px) {
+  figure {
+    &.alignright,
+    &.alignleft,
+    &.aligncenter {
+      width: 100%;
+      border: 0;
+
+      &:not(.size-medium, .size-small) {
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      &:not(.size-small) {
+        float: none;
+        display: block;
+      }
+
+      &.size-medium {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+  }
+}
+
+@media only screen and (width <= 760px) {
+  figure:not(.is-type-rich, .is-style-rounded, .size-medium, .size-small) {
+    &.alignright,
+    &.alignleft,
+    &.aligncenter {
+      width: 100vw !important;
+      max-width: 100vw;
+      margin-left: -5vw;
+      margin-right: -5vw;
+    }
+  }
+}

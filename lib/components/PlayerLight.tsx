@@ -1,11 +1,13 @@
 'use client'
-import Lottie, {
-  type AnimationConfiguration,
-  type AnimationDirection,
-  type AnimationItem,
-  type AnimationSegment,
-  type AnimationSettings,
+import type {
+  AnimationConfiguration,
+  AnimationDirection,
+  AnimationItem,
+  AnimationSegment,
+  AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
+
+import Lottie from '@aarsteinmedia/lottie-web/light'
 import {
   clamp,
   createElementID,
@@ -28,8 +30,6 @@ import styles from '@/styles/player.module.css'
 import {
   aspectRatio, handleErrors, isLottie
 } from '@/utils'
-import addAnimation from '@/utils/addAnimation'
-import convert from '@/utils/convert'
 import { type ObjectFit, PlayerState } from '@/utils/enums'
 import getAnimationData from '@/utils/getAnimationData'
 
@@ -38,9 +38,9 @@ const dataReady = () => {
 }
 
 /**
- * DotLottie Player.
+ * Light DotLottie Player.
  */
-export default function Player({
+export default function PlayerLight({
   background,
   count = 0,
   description,
@@ -64,7 +64,7 @@ export default function Player({
   renderer?: RendererType
   speed?: number,
   subframe?: boolean
-  ref?: React.RefObject<DotLottieMethods | null>
+  ref?: React.RefObject<Omit<DotLottieMethods, 'addAnimation' | 'convert'> | null>
 }){
 
   const { appState, setAppState } = use(AppContext),
@@ -889,8 +889,6 @@ export default function Player({
   useImperativeHandle(
     ref, () => {
       return {
-        addAnimation,
-        convert,
         getIsVisible,
         load,
         next,
