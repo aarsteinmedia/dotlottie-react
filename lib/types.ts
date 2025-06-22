@@ -1,49 +1,9 @@
 import type {
-  AnimationData, AnimationDirection, AnimationSegment, AnimationSettings, LottieManifest
+  AddAnimationParams,
+  AnimationDirection, AnimationSegment, AnimationSettings,
+  ConvertParams,
+  Result
 } from '@aarsteinmedia/lottie-web'
-
-interface AnimationAttributes extends AnimationSettings {
-  id: string
-  url: string
-}
-
-export interface ConvertParams {
-  /** Externally added animations. */
-  animations?: AnimationData[]
-
-  currentAnimation?: number
-
-  fileName?: string
-  generator?: string
-
-  isDotLottie?: boolean
-
-  /** Externally added manifest. */
-  manifest?: LottieManifest
-
-  /** Whether to trigger a download in the browser. Defaults to true. */
-  shouldDownload?: boolean
-
-  src?: string
-
-  /** External type safety. */
-  typeCheck?: boolean
-}
-
-export interface AddAnimationParams {
-  configs: AnimationAttributes[]
-  fileName?: string
-  generator: string
-  id?: string
-  shouldDownload?: boolean
-  src?: string
-}
-
-export interface Result {
-  error?: string
-  result?: null | string | ArrayBuffer
-  success: boolean
-}
 
 export interface DotLottieMethods {
   addAnimation: (params: AddAnimationParams) => Promise<Result>

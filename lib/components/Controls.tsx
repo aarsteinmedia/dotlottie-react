@@ -1,7 +1,10 @@
 'use client'
 import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
+import { convert } from '@aarsteinmedia/lottie-web/dotlottie'
+import {
+  download, getFilename, PlayMode
+} from '@aarsteinmedia/lottie-web/utils'
 import { use, useState } from 'react'
 
 import BoomerangIcon from '@/components/icons/BoomerangIcon'
@@ -16,10 +19,7 @@ import SettingsIcon from '@/components/icons/SettingsIcon'
 import StopIcon from '@/components/icons/StopIcon'
 import AppContext from '@/context/AppContext'
 import styles from '@/styles/controls.module.css'
-import {
-  download, frameOutput, getFilename
-} from '@/utils'
-import convert from '@/utils/convert'
+import { frameOutput } from '@/utils'
 import { PlayerState } from '@/utils/enums'
 
 export default function Controls({
@@ -128,10 +128,9 @@ export default function Controls({
      * Toggle Boomerang.
      */
     toggleBoomerang = () => {
-      const curr = appState.multiAnimationSettings[appState.currentAnimation]
+      const curr = appState.multiAnimationSettings[appState.currentAnimation] ?? {}
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (curr?.mode !== undefined) {
+      if (curr.mode !== undefined) {
         if (curr.mode as PlayMode === PlayMode.Normal) {
           curr.mode = PlayMode.Bounce
 

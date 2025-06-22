@@ -32,7 +32,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.0.15",
+    "@aarsteinmedia/lottie-web": "^1.1.7",
     "fflate": "^0.8.2"
   },
   "peerDependencies": {

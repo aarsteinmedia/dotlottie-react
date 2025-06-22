@@ -7,6 +7,7 @@ import type {
   AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
 
+import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
 import Lottie from '@aarsteinmedia/lottie-web/light'
 import {
   clamp,
@@ -31,7 +32,6 @@ import {
   aspectRatio, handleErrors, isLottie
 } from '@/utils'
 import { type ObjectFit, PlayerState } from '@/utils/enums'
-import getAnimationData from '@/utils/getAnimationData'
 
 const dataReady = () => {
   dispatchEvent(new CustomEvent(PlayerEvents.Load))
