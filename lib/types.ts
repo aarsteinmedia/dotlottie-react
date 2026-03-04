@@ -1,13 +1,20 @@
 import type {
-  AddAnimationParams,
-  AnimationDirection, AnimationSegment, AnimationSettings,
-  ConvertParams,
-  Result
+  AnimationDirection,
+  AnimationSegment,
+  AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
+import type {
+  addAnimation,
+  convert,
+} from '@aarsteinmedia/lottie-web/dotlottie'
 
 export interface DotLottieMethods {
-  addAnimation: (params: AddAnimationParams) => Promise<Result>
-  convert: (params: ConvertParams) => Promise<Result>
+  addAnimation: (
+    ...args: Parameters<typeof addAnimation>
+  ) => ReturnType<typeof addAnimation>
+  convert: (
+    ...args: Parameters<typeof convert>
+  ) => ReturnType<typeof convert>
   getIsVisible: () => boolean
   load: (src: string | null) => Promise<void>
   next: () => void

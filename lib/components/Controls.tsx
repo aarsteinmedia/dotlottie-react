@@ -22,6 +22,18 @@ import styles from '@/styles/controls.module.css'
 import { frameOutput } from '@/utils'
 import { PlayerState } from '@/utils/enums'
 
+interface InlineInterface {
+  animationItem: React.RefObject<AnimationItem | null>
+  container: React.RefObject<HTMLElement | null>
+  freeze: () => void
+  next: () => void
+  pause: () => void
+  play: () => void
+  previous: () => void
+  seek: (frame: number) => void
+  setLoop: (val: boolean) => void
+  stop: () => void
+}
 export default function Controls({
   animationItem,
   container,
@@ -33,18 +45,7 @@ export default function Controls({
   seek,
   setLoop,
   stop,
-}: {
-  animationItem: React.RefObject<AnimationItem | null>
-  container: React.RefObject<HTMLElement | null>
-  freeze: () => void
-  next: () => void
-  pause: () => void
-  play: () => void
-  previous: () => void
-  seek: (frame: number) => void
-  setLoop: (val: boolean) => void
-  stop: () => void
-}) {
+}: InlineInterface) {
   const { appState, setAppState } = use(AppContext),
     [state, setState] = useState({ isSettingsOpen: false }),
 
@@ -309,7 +310,7 @@ export default function Controls({
             className={styles.button}
             aria-label="Settings"
             aria-haspopup="true"
-            aria-expanded={Boolean(state.isSettingsOpen)}
+            aria-expanded={state.isSettingsOpen}
             aria-controls={`${appState.id}-settings`}
             data-active={state.isSettingsOpen}
             onBlur={handleBlur}

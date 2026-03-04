@@ -6,6 +6,20 @@ import { useEffect, useRef } from 'react'
 
 export type EventHandler<E extends Event = Event> = (event: E) => void
 
+interface ElementOptions<T> {
+  element?:
+  | (Window & typeof globalThis)
+  | React.RefObject<T>
+  | Element
+  | ScreenOrientation
+  | Document
+  | null
+  | false
+}
+
+type EventOptions<T> = EventListenerOptions &
+  AddEventListenerOptions & ElementOptions<T>
+
 /**
  * `useEventListener` is a custom React hook that adds an event listener to a specified element.
  * It simplifies the process of handling events by managing the event listener and callback function.
@@ -14,29 +28,21 @@ export type EventHandler<E extends Event = Event> = (event: E) => void
  * @param callback - The function to execute when the event occurs.
  * @param options - The element to add the event listener to. Default is the window.
  */
+
 export default function useEventListener<
   E extends Event = Event,
   T extends Element | AnimationItem | null = Element,
 >(
   eventType: string,
   callback: EventHandler<E>,
-  options: EventListenerOptions &
-    AddEventListenerOptions & {
-      element?:
-        | React.RefObject<T>
-        | Element
-        | null
-        | false
-      document?: boolean
-    }
+  options: EventOptions<T>
 ) {
 
-  const callbackRef = useRef(callback),
-    targetElement = useRef<Element | AnimationItem | Document | Window | null>(null)
-
   if (!options.element && !isServer) {
-    targetElement.current = window
+    options.element = window
   }
+
+  const callbackRef = useRef(callback)
 
   useEffect(() => {
     callbackRef.current = callback
@@ -44,34 +50,30 @@ export default function useEventListener<
 
   useEffect(() => {
 
-    if (options.document) {
-      targetElement.current = document
-    } else if (options.element) {
-      if ('current' in options.element) {
-        targetElement.current = options.element.current
-      } else {
-        targetElement.current = options.element
-      }
-    }
+    const targetElement =
+      options.element && 'current' in options.element
+        ? options.element.current
+        : options.element
 
-    if (!targetElement.current) {
+    if (!targetElement) {
       return
     }
 
-    const handler = (e: E) => {
+    const handler = ((e: E) => {
       callbackRef.current(e)
-    }
+    }) as EventListener
 
-    // @ts-expect-error: TODO:
-    targetElement.current.addEventListener(
-      eventType, handler as EventListener, options
+    /* AnimationItem::addEventListener is not directly compatible
+    with standard Element::addEventListener, but not in a way that
+    will cause trouble */
+    ;(targetElement as Window).addEventListener(
+      eventType, handler, options
     )
 
     return () => {
-      // @ts-expect-error: TODO:
-      targetElement.current?.removeEventListener(
+      ;(targetElement as Window).removeEventListener(
         eventType,
-        handler as EventListener,
+        handler,
         options
       )
     }

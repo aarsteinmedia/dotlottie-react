@@ -14,7 +14,7 @@ export default defineConfig({
     copyPublicDir: false,
     lib: {
       entry: resolve(
-        __dirname, 'lib', 'index.tsx'
+        __dirname, 'lib', 'full.tsx'
       ),
       formats: ['es']
     },
@@ -25,7 +25,15 @@ export default defineConfig({
         'fflate',
         'react',
         'react/jsx-runtime'
-      ]
+      ],
+      input: [
+        resolve(
+          __dirname, 'lib', 'full.tsx'
+        ), resolve(
+          __dirname, 'lib', 'light.tsx'
+        )
+      ],
+      output: { preserveModules: false }
     },
     target: 'ES2023'
   },
@@ -39,5 +47,10 @@ export default defineConfig({
       tsconfigPath: './tsconfig.app.json'
     })
   ],
-  resolve: { alias: { '@': resolve(__dirname, 'lib') } },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'lib'),
+      '@src': resolve(__dirname, 'src')
+    }
+  },
 })

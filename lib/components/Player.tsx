@@ -31,7 +31,7 @@ import styles from '@/styles/player.module.css'
 import {
   aspectRatio, handleErrors, isLottie
 } from '@/utils'
-import { type ObjectFit, PlayerState } from '@/utils/enums'
+import { ObjectFit, PlayerState } from '@/utils/enums'
 
 const dataReady = () => {
   dispatchEvent(new CustomEvent(PlayerEvents.Load))
@@ -40,6 +40,19 @@ const dataReady = () => {
 /**
  * DotLottie Player.
  */
+interface InlineInterface {
+  background?: string
+  count?: number
+  description?: string
+  direction?: AnimationDirection,
+  hover?: boolean
+  intermission?: number
+  objectFit?: ObjectFit
+  ref?: React.RefObject<DotLottieMethods | null>
+  renderer?: RendererType
+  speed?: number,
+  subframe?: boolean
+}
 export default function Player({
   background,
   count = 0,
@@ -47,25 +60,13 @@ export default function Player({
   direction = 1,
   hover,
   intermission,
-  objectFit = 'contain',
+  objectFit = ObjectFit.Contain,
   ref,
   renderer = RendererType.SVG,
   speed = 1,
   subframe,
   ...rest
-}: {
-  background?: string
-  count?: number
-  description?: string
-  direction?: AnimationDirection,
-  hover?: boolean
-  intermission?: number
-  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
-  renderer?: RendererType
-  speed?: number,
-  subframe?: boolean
-  ref?: React.RefObject<DotLottieMethods | null>
-}){
+}: InlineInterface){
 
   const { appState, setAppState } = use(AppContext),
     container = useRef<HTMLElement>(null),
@@ -91,7 +92,7 @@ export default function Player({
       }
 
       const preserveAspectRatio =
-        aspectRatio(objectFit as ObjectFit),
+        aspectRatio(objectFit),
         currentAnimationSettings = appState.multiAnimationSettings.length > 0
           ? appState.multiAnimationSettings[appState.currentAnimation]
           : undefined,
@@ -482,6 +483,7 @@ export default function Player({
       if (
         appState.playerState === PlayerState.Frozen &&
         appState.prevState === PlayerState.Playing &&
+        !appState.animateOnScroll &&
         type === 'focus'
       ) {
         play()

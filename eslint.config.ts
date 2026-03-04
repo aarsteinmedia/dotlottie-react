@@ -1,9 +1,8 @@
-import type { ConfigArray } from 'typescript-eslint'
-
 import {
   sheriff, type SheriffSettings, tseslint
 } from 'eslint-config-sheriff'
 import perfectionist from 'eslint-plugin-perfectionist'
+import { defineConfig } from 'eslint/config'
 
 const sheriffOptions: SheriffSettings = {
   'astro': false,
@@ -17,7 +16,7 @@ const sheriffOptions: SheriffSettings = {
   'vitest': true
 }
 
-const config: ConfigArray = tseslint.config(
+const config = defineConfig(
   sheriff(sheriffOptions),
   {
     files: ['**/*.{ts,tsx,js}'],
@@ -29,12 +28,7 @@ const config: ConfigArray = tseslint.config(
       '**/generated/**/*',
       'vite-env.d.ts'
     ],
-    languageOptions: {
-      parserOptions: {
-        project: 'tsconfig.app.json',
-        tsconfigRootDir: import.meta.dirname
-      }
-    },
+    languageOptions: { parserOptions: { tsconfigRootDir: import.meta.dirname } },
     plugins: { perfectionist },
     rules: {
       '@stylistic/array-element-newline': ['warn', { minItems: 3 }],

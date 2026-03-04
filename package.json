@@ -1,15 +1,18 @@
 {
   "name": "@aarsteinmedia/dotlottie-react",
-  "version": "0.1.5",
+  "version": "1.0.0",
   "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
-  "main": "./dist/dotlottie-react.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/full.js",
+  "types": "./dist/full.d.ts",
   "export": {
     ".": {
-      "import": "./dist/dotlottie-react.js",
-      "node": "./dist/dotlottie-react.js",
-      "types": "./dist/index.d.ts"
+      "default": "./dist/full.js",
+      "types": "./dist/full.d.ts"
+    },
+    "./light": {
+      "default": "./dist/light.js",
+      "types": "./dist/light.d.ts"
     }
   },
   "repository": {
@@ -27,12 +30,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --p ./tsconfig.build.json && vite build",
-    "lint": "eslint ./lib",
-    "lint:fix": "eslint ./lib --fix",
+    "lint": "eslint lib",
+    "lint:fix": "eslint lib --fix",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.1.7",
+    "@aarsteinmedia/lottie-web": "^1.3.4",
     "fflate": "^0.8.2"
   },
   "peerDependencies": {
@@ -40,21 +43,22 @@
     "react-dom": "^19.x"
   },
   "devDependencies": {
-    "@types/node": "^24.0.3",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react-swc": "^3.10.2",
-    "eslint": "^9.29.0",
-    "eslint-config-sheriff": "^28.0.0",
-    "eslint-plugin-perfectionist": "^4.15.0",
-    "globals": "^16.2.0",
-    "jiti": "^2.4.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react-swc": "^4.2.3",
+    "eslint": "^9.39.3",
+    "eslint-config-sheriff": "^31.3.0",
+    "eslint-plugin-perfectionist": "^5.6.0",
+    "globals": "^17.4.0",
+    "jiti": "^2.6.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "rollup-preserve-directives": "^1.1.3",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.34.1",
-    "vite": "^6.3.5",
+    "stylelint": "^17.4.0",
+    "stylelint-config-recommended": "^18.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-lib-inject-css": "^2.2.2"
   },

@@ -31,7 +31,7 @@ import styles from '@/styles/player.module.css'
 import {
   aspectRatio, handleErrors, isLottie
 } from '@/utils'
-import { type ObjectFit, PlayerState } from '@/utils/enums'
+import { ObjectFit, PlayerState } from '@/utils/enums'
 
 const dataReady = () => {
   dispatchEvent(new CustomEvent(PlayerEvents.Load))
@@ -40,6 +40,19 @@ const dataReady = () => {
 /**
  * Light DotLottie Player.
  */
+interface InlineInterface {
+  background?: string
+  count?: number
+  description?: string
+  direction?: AnimationDirection,
+  hover?: boolean
+  intermission?: number
+  objectFit?: ObjectFit
+  ref?: React.RefObject<Omit<DotLottieMethods, 'addAnimation' | 'convert'> | null>
+  renderer?: RendererType
+  speed?: number,
+  subframe?: boolean
+}
 export default function PlayerLight({
   background,
   count = 0,
@@ -47,25 +60,13 @@ export default function PlayerLight({
   direction = 1,
   hover,
   intermission,
-  objectFit = 'contain',
+  objectFit = ObjectFit.Contain,
   ref,
   renderer = RendererType.SVG,
   speed = 1,
   subframe,
   ...rest
-}: {
-  background?: string
-  count?: number
-  description?: string
-  direction?: AnimationDirection,
-  hover?: boolean
-  intermission?: number
-  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
-  renderer?: RendererType
-  speed?: number,
-  subframe?: boolean
-  ref?: React.RefObject<Omit<DotLottieMethods, 'addAnimation' | 'convert'> | null>
-}){
+}: InlineInterface){
 
   const { appState, setAppState } = use(AppContext),
     container = useRef<HTMLElement>(null),
@@ -91,7 +92,7 @@ export default function PlayerLight({
       }
 
       const preserveAspectRatio =
-        aspectRatio(objectFit as ObjectFit),
+        aspectRatio(objectFit),
         currentAnimationSettings = appState.multiAnimationSettings.length > 0
           ? appState.multiAnimationSettings[appState.currentAnimation]
           : undefined,
@@ -482,6 +483,7 @@ export default function PlayerLight({
       if (
         appState.playerState === PlayerState.Frozen &&
         appState.prevState === PlayerState.Playing &&
+        !appState.animateOnScroll &&
         type === 'focus'
       ) {
         play()
@@ -516,6 +518,7 @@ export default function PlayerLight({
 
         const { mode: playMode } = appState.multiAnimationSettings[currentAnimation] ?? {}
 
+        // @ts-expect-error: TODO:
         animationItem.current = Lottie.loadAnimation({
           ...getOptions(),
           animationData: appState.animations[currentAnimation],
@@ -537,7 +540,7 @@ export default function PlayerLight({
           appState.autoplay
         ) {
           if (appState.animateOnScroll) {
-            animationItem.current.goToAndStop(0, true)
+            animationItem.current?.goToAndStop(0, true)
 
             setAppState(prev => {
               return {
@@ -549,7 +552,7 @@ export default function PlayerLight({
             return
           }
 
-          animationItem.current.goToAndPlay(0, true)
+          animationItem.current?.goToAndPlay(0, true)
           setAppState(prev => {
             return {
               ...prev,
@@ -560,7 +563,7 @@ export default function PlayerLight({
           return
         }
 
-        animationItem.current.goToAndStop(0, true)
+        animationItem.current?.goToAndStop(0, true)
         setAppState(prev => {
           return {
             ...prev,
@@ -775,6 +778,7 @@ export default function PlayerLight({
 
         // Clear previous animation, if any
         animationItem.current?.destroy()
+        // @ts-expect-error: TODO:
         animationItem.current = Lottie.loadAnimation({
           ...getOptions(),
           animationData: animations[appState.currentAnimation]
