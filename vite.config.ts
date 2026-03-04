@@ -1,6 +1,8 @@
 import react from '@vitejs/plugin-react-swc'
+import autoprefixer from 'autoprefixer'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import flexbugsFixes from 'postcss-flexbugs-fixes'
 import preserveDirectives from 'rollup-preserve-directives'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
@@ -13,15 +15,20 @@ export default defineConfig({
   build: {
     copyPublicDir: false,
     lib: {
-      entry: resolve(
-        __dirname, 'lib', 'full.tsx'
-      ),
-      formats: ['es']
+      entry: [
+        resolve(
+          __dirname, 'lib', 'full.tsx'
+        ), resolve(
+          __dirname, 'lib', 'light.tsx'
+        )],
+      formats: ['es'],
     },
     rollupOptions: {
       external: [
         '@aarsteinmedia/lottie-web',
+        '@aarsteinmedia/lottie-web/light',
         '@aarsteinmedia/lottie-web/utils',
+        '@aarsteinmedia/lottie-web/dotlottie',
         'fflate',
         'react',
         'react/jsx-runtime'
@@ -36,6 +43,14 @@ export default defineConfig({
       output: { preserveModules: false }
     },
     target: 'ES2023'
+  },
+  css: {
+    // modules: { scopeBehaviour: 'local' },
+    postcss: {
+      plugins: [
+        autoprefixer({ flexbox: 'no-2009' }), flexbugsFixes(),
+      ]
+    },
   },
   plugins: [
     react(),
