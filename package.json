@@ -35,7 +35,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.4.0"
+    "@aarsteinmedia/lottie-web": "^1.4.2"
   },
   "peerDependencies": {
     "react": "^19.x"
