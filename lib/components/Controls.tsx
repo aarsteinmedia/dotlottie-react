@@ -5,7 +5,7 @@ import { convert } from '@aarsteinmedia/lottie-web/dotlottie'
 import {
   download, getFilename, PlayMode
 } from '@aarsteinmedia/lottie-web/utils'
-import { use, useState } from 'react'
+import { useState } from 'react'
 
 import BoomerangIcon from '@/components/icons/BoomerangIcon'
 import ConvertIcon from '@/components/icons/ConvertIcon'
@@ -17,7 +17,7 @@ import PlayIcon from '@/components/icons/PlayIcon'
 import PreviousIcon from '@/components/icons/PreviousIcon'
 import SettingsIcon from '@/components/icons/SettingsIcon'
 import StopIcon from '@/components/icons/StopIcon'
-import AppContext from '@/context/AppContext'
+import useApp from '@/hooks/useApp'
 import styles from '@/styles/controls.module.css'
 import { frameOutput } from '@/utils'
 import { PlayerState } from '@/utils/enums'
@@ -46,7 +46,7 @@ export default function Controls({
   setLoop,
   stop,
 }: InlineInterface) {
-  const { appState, setAppState } = use(AppContext),
+  const { appState, setAppState } = useApp(),
     [state, setState] = useState({ isSettingsOpen: false }),
 
     /**
@@ -132,7 +132,7 @@ export default function Controls({
       const curr = appState.multiAnimationSettings[appState.currentAnimation] ?? {}
 
       if (curr.mode !== undefined) {
-        if (curr.mode as PlayMode === PlayMode.Normal) {
+        if (curr.mode === PlayMode.Normal) {
           curr.mode = PlayMode.Bounce
 
           setAppState(prev => ({

@@ -9,11 +9,11 @@ import {
   PlayerEvents, PlayMode
 } from '@aarsteinmedia/lottie-web/utils'
 import {
-  use, useCallback, useRef, useState
+  useCallback, useRef, useState
 } from 'react'
 
 import ErrorMessage from '@/components/ErrorMessage'
-import AppContext from '@/context/AppContext'
+import useApp from '@/hooks/useApp'
 import useEventListener from '@/hooks/useEventListener'
 import useIntersectionObserver from '@/hooks/useIntersectionObserver'
 import useIsVisible from '@/hooks/useIsVisible'
@@ -44,7 +44,7 @@ export default function BasePlayer({
   ...rest
 }: InlineInterface) {
 
-  const { appState, setAppState } = use(AppContext),
+  const { appState, setAppState } = useApp(),
     container = useRef<HTMLElement>(null),
     animationItem = useRef<AnimationItem>(null),
     isVisible = useIsVisible(container.current),

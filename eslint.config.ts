@@ -12,7 +12,7 @@ const sheriffOptions: SheriffSettings = {
   'playwright': false,
   'react': true,
   'remeda': false,
-  'storybook': true,
+  'storybook': false,
   'vitest': true
 }
 
@@ -133,6 +133,7 @@ const config = defineConfig(
       'arrow-return-style/arrow-return-style': 0,
       'fsecond/prefer-destructured-optionals': 0,
       'func-style': 0,
+      'import/no-default-export': 0,
       'no-plusplus': 'off',
       'no-restricted-globals': ['error',
         'event',

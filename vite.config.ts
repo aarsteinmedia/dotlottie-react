@@ -14,13 +14,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   build: {
     copyPublicDir: false,
+    cssTarget: 'es2022',
     lib: {
-      entry: [
-        resolve(
+      entry: {
+        full: resolve(
           __dirname, 'lib', 'full.tsx'
-        ), resolve(
+        ),
+        light: resolve(
           __dirname, 'lib', 'light.tsx'
-        )],
+        )
+      },
       formats: ['es'],
     },
     rollupOptions: {
@@ -29,20 +32,15 @@ export default defineConfig({
         '@aarsteinmedia/lottie-web/light',
         '@aarsteinmedia/lottie-web/utils',
         '@aarsteinmedia/lottie-web/dotlottie',
-        'fflate',
         'react',
         'react/jsx-runtime'
       ],
-      input: [
-        resolve(
-          __dirname, 'lib', 'full.tsx'
-        ), resolve(
-          __dirname, 'lib', 'light.tsx'
-        )
-      ],
-      output: { preserveModules: false }
+      output: {
+        preserveModules: true,
+        preserveModulesRoot: 'lib'
+      }
     },
-    target: 'ES2023'
+    target: 'es2023'
   },
   css: {
     // modules: { scopeBehaviour: 'local' },
@@ -57,9 +55,10 @@ export default defineConfig({
     preserveDirectives(),
     libInjectCss(),
     dts({
+      compilerOptions: { rootDir: 'lib' },
+      entryRoot: 'lib',
       include: ['lib'],
-      rollupTypes: true,
-      tsconfigPath: './tsconfig.app.json'
+      tsconfigPath: './tsconfig.build.json'
     })
   ],
   resolve: {

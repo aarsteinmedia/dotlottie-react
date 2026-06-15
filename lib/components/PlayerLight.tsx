@@ -16,14 +16,14 @@ import {
   PlayerEvents, PlayMode, RendererType
 } from '@aarsteinmedia/lottie-web/utils'
 import {
-  use, useCallback, useEffect, useImperativeHandle, useRef, useState
+  useCallback, useEffect, useImperativeHandle, useRef, useState
 } from 'react'
 
 import type { DotLottieMethods } from '@/types'
 
 import Controls from '@/components/Controls'
 import ErrorMessage from '@/components/ErrorMessage'
-import AppContext from '@/context/AppContext'
+import useApp from '@/hooks/useApp'
 import useEventListener from '@/hooks/useEventListener'
 import useIntersectionObserver from '@/hooks/useIntersectionObserver'
 import useIsVisible from '@/hooks/useIsVisible'
@@ -68,7 +68,7 @@ export default function PlayerLight({
   ...rest
 }: InlineInterface){
 
-  const { appState, setAppState } = use(AppContext),
+  const { appState, setAppState } = useApp(),
     container = useRef<HTMLElement>(null),
     animationItem = useRef<AnimationItem>(null),
     isVisible = useIsVisible(container.current),
@@ -136,9 +136,7 @@ export default function PlayerLight({
         initialSegment = undefined
       }
 
-      const options: AnimationConfiguration<
-        RendererType.SVG | RendererType.Canvas | RendererType.HTML
-      > = {
+      const options: AnimationConfiguration = {
         autoplay: hasAutoplay,
         container: container.current,
         initialSegment,
@@ -518,7 +516,6 @@ export default function PlayerLight({
 
         const { mode: playMode } = appState.multiAnimationSettings[currentAnimation] ?? {}
 
-        // @ts-expect-error: TODO:
         animationItem.current = Lottie.loadAnimation({
           ...getOptions(),
           animationData: appState.animations[currentAnimation],
@@ -540,7 +537,7 @@ export default function PlayerLight({
           appState.autoplay
         ) {
           if (appState.animateOnScroll) {
-            animationItem.current?.goToAndStop(0, true)
+            animationItem.current.goToAndStop(0, true)
 
             setAppState(prev => {
               return {
@@ -552,7 +549,7 @@ export default function PlayerLight({
             return
           }
 
-          animationItem.current?.goToAndPlay(0, true)
+          animationItem.current.goToAndPlay(0, true)
           setAppState(prev => {
             return {
               ...prev,
@@ -563,7 +560,7 @@ export default function PlayerLight({
           return
         }
 
-        animationItem.current?.goToAndStop(0, true)
+        animationItem.current.goToAndStop(0, true)
         setAppState(prev => {
           return {
             ...prev,
@@ -778,7 +775,6 @@ export default function PlayerLight({
 
         // Clear previous animation, if any
         animationItem.current?.destroy()
-        // @ts-expect-error: TODO:
         animationItem.current = Lottie.loadAnimation({
           ...getOptions(),
           animationData: animations[appState.currentAnimation]

@@ -16,14 +16,14 @@ import {
   PlayerEvents, PlayMode, RendererType
 } from '@aarsteinmedia/lottie-web/utils'
 import {
-  use, useCallback, useEffect, useImperativeHandle, useRef, useState
+  useCallback, useEffect, useImperativeHandle, useRef, useState
 } from 'react'
 
 import type { DotLottieMethods } from '@/types'
 
 import Controls from '@/components/Controls'
 import ErrorMessage from '@/components/ErrorMessage'
-import AppContext from '@/context/AppContext'
+import useApp from '@/hooks/useApp'
 import useEventListener from '@/hooks/useEventListener'
 import useIntersectionObserver from '@/hooks/useIntersectionObserver'
 import useIsVisible from '@/hooks/useIsVisible'
@@ -68,7 +68,7 @@ export default function Player({
   ...rest
 }: InlineInterface){
 
-  const { appState, setAppState } = use(AppContext),
+  const { appState, setAppState } = useApp(),
     container = useRef<HTMLElement>(null),
     animationItem = useRef<AnimationItem>(null),
     isVisible = useIsVisible(container.current),
@@ -136,9 +136,7 @@ export default function Player({
         initialSegment = undefined
       }
 
-      const options: AnimationConfiguration<
-        RendererType.SVG | RendererType.Canvas | RendererType.HTML
-      > = {
+      const options: AnimationConfiguration = {
         autoplay: hasAutoplay,
         container: container.current,
         initialSegment,
