@@ -16,12 +16,13 @@ import {
   PlayerEvents, PlayMode, RendererType
 } from '@aarsteinmedia/lottie-web/utils'
 import {
+  lazy,
+  Suspense,
   useCallback, useEffect, useImperativeHandle, useRef, useState
 } from 'react'
 
 import type { DotLottieMethods } from '@/types'
 
-import Controls from '@/components/Controls'
 import ErrorMessage from '@/components/ErrorMessage'
 import useApp from '@/hooks/useApp'
 import useEventListener from '@/hooks/useEventListener'
@@ -34,8 +35,9 @@ import {
 import { ObjectFit, PlayerState } from '@/utils/enums'
 
 const dataReady = () => {
-  dispatchEvent(new CustomEvent(PlayerEvents.Load))
-}
+    dispatchEvent(new CustomEvent(PlayerEvents.Load))
+  },
+  Controls = lazy(() => import('@/components/Controls'))
 
 /**
  * Light DotLottie Player.
@@ -980,18 +982,20 @@ export default function PlayerLight({
         }
       </figure>
       {appState.controls &&
-        <Controls
-          animationItem={animationItem}
-          container={container}
-          freeze={freeze}
-          next={next}
-          pause={pause}
-          play={play}
-          previous={previous}
-          seek={seek}
-          setLoop={setLoop}
-          stop={stop}
-        />
+        <Suspense>
+          <Controls
+            animationItem={animationItem}
+            container={container}
+            freeze={freeze}
+            next={next}
+            pause={pause}
+            play={play}
+            previous={previous}
+            seek={seek}
+            setLoop={setLoop}
+            stop={stop}
+          />
+        </Suspense>
       }
     </div>
   )

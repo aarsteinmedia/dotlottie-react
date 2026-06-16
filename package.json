@@ -28,7 +28,7 @@
   },
   "license": "GPL-2.0-or-later",
   "scripts": {
-    "dev": "vite",
+    "dev": "BROWSER='firefox' vite --open",
     "build": "tsc --p ./tsconfig.build.json && vite build",
     "lint": "eslint lib",
     "lint:fix": "eslint lib --fix",

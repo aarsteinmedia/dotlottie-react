@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@aarsteinmedia/lottie-web':
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.4.2
+        version: 1.4.2(fflate@0.8.3)
     devDependencies:
       '@types/node':
         specifier: ^25.9.3
@@ -78,9 +78,11 @@ importers:
 
 packages:
 
-  '@aarsteinmedia/lottie-web@1.4.0':
-    resolution: {integrity: sha512-+stPKw9tR6tRHy16tlDI8GVlx77FwshGS2onpsf7DU0aJRXPaJMcJmHA1yUb36oPGOx2ROIYJ4lL38sDruHKew==}
+  '@aarsteinmedia/lottie-web@1.4.2':
+    resolution: {integrity: sha512-F1yXJEiZHBLp5VUQUr4kbUit2u+MD6F4y2GHyvWCU9vvwOUWcUCi0XkvLbRKIq/13FhQPtjIZoJpMt+RQXJ6hQ==}
     engines: {node: '>= 12.17.0'}
+    peerDependencies:
+      fflate: ^0.8.3
 
   '@ast-grep/napi-darwin-arm64@0.36.3':
     resolution: {integrity: sha512-uM0Hrm5gcHqaBL64ktmPBFMTorTlPKWsUfi0E2Cg09GJfeYWvZmicCqgd7qVtjURmQvFQdb4JSqHIkJvws6Uqw==}
@@ -1681,6 +1683,9 @@ packages:
       picomatch:
         optional: true
 
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
+
   file-entry-cache@11.1.3:
     resolution: {integrity: sha512-oMbq0PD6VIiIwMF6LIa7MEwd/l9huKwmqRKXqmrkqIZv8CvRbfowL+L0ryAl8h//HfAS0zS+4SbYoRyAoA6BJA==}
 
@@ -2936,7 +2941,9 @@ packages:
 
 snapshots:
 
-  '@aarsteinmedia/lottie-web@1.4.0': {}
+  '@aarsteinmedia/lottie-web@1.4.2(fflate@0.8.3)':
+    dependencies:
+      fflate: 0.8.3
 
   '@ast-grep/napi-darwin-arm64@0.36.3':
     optional: true
@@ -4756,6 +4763,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
+
+  fflate@0.8.3: {}
 
   file-entry-cache@11.1.3:
     dependencies:

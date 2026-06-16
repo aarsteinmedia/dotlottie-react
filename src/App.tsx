@@ -43,7 +43,19 @@ function App() {
             justifyContent: 'center',
             textAlign: 'center'
           }}>
-          <DotLottiePlayer animateOnScroll subframe src="/strengths.json" ref={animation} onMouseEnter={() => animation.current?.play} />
+          <DotLottiePlayer
+            subframe src="/strengths.json"
+            ref={animation}
+            onMouseEnter={() => {
+              animation.current?.play()
+            }}
+            onMouseLeave={() => {
+              animation.current?.stop()
+            }}
+            // onComplete={() => {
+            //   console.log('complete!')
+            // }}
+          />
         </div>
 
         <div style={{
