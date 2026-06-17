@@ -1,4 +1,3 @@
-'use client'
 import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import {

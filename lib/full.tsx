@@ -1,3 +1,5 @@
+'use client'
+
 import { loadAnimation, type AnimationDirection } from '@aarsteinmedia/lottie-web'
 import { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 

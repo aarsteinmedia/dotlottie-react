@@ -1,4 +1,3 @@
-'use client'
 import { PlayMode, createElementID } from '@aarsteinmedia/lottie-web/utils'
 import { useState } from 'react'
 
