@@ -1,7 +1,7 @@
 import { namespaceSVG, PreserveAspectRatio } from '@aarsteinmedia/lottie-web/utils'
 
-interface InlineInterface { message: string }
-export default function ErrorMessage({ message }: InlineInterface) {
+interface Props { message: string }
+export default function ErrorMessage({ message }: Props) {
   return (
     <svg
       preserveAspectRatio={PreserveAspectRatio.Cover}

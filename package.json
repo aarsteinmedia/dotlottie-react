@@ -8,11 +8,13 @@
   "exports": {
     ".": {
       "types": "./dist/full.d.ts",
-      "import": "./dist/full.js"
+      "import": "./dist/full.js",
+      "default": "./dist/full.js"
     },
     "./light": {
       "types": "./dist/light.d.ts",
-      "import": "./dist/light.js"
+      "import": "./dist/light.js",
+      "default": "./dist/light.js"
     }
   },
   "repository": {
@@ -35,10 +37,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.4.2"
+    "@aarsteinmedia/lottie-web": "^1.4.3"
   },
   "peerDependencies": {
-    "react": "^19.x"
+    "react": "^19.x",
+    "react-dom": "^19.x"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",

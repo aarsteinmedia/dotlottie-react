@@ -5,10 +5,10 @@ import type {
   AnimationItem,
   AnimationSegment,
   AnimationSettings,
+  CanvasRendererConfig,
 } from '@aarsteinmedia/lottie-web'
 
-import {
-  /*addAnimation, convert,*/ getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
+import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
 import {
   clamp,
   createElementID,
@@ -23,7 +23,6 @@ import {
 
 import type { DotLottieMethods } from '@/types'
 
-import ErrorMessage from '@/components/ErrorMessage'
 import useApp from '@/hooks/useApp'
 import useEventListener from '@/hooks/useEventListener'
 import useIntersectionObserver from '@/hooks/useIntersectionObserver'
@@ -33,17 +32,15 @@ import {
   aspectRatio, handleErrors, isLottie
 } from '@/utils'
 import { ObjectFit, PlayerState } from '@/utils/enums'
+import { getDotLottieModule } from '@/utils/getDotLottieModule'
 
-const dataReady = () => {
-    dispatchEvent(new CustomEvent(PlayerEvents.Load))
-  },
-
-  Controls = lazy(() => import('@/components/Controls'))
+const Controls = lazy(() => import('@/components/Controls')),
+  ErrorMessage = lazy(() => import('@/components/ErrorMessage'))
 
 /**
  * DotLottie Player.
  */
-interface InlineInterface {
+interface Props {
   background?: string
   count?: number
   description?: string
@@ -52,6 +49,9 @@ interface InlineInterface {
   intermission?: number
   loadAnimation: (params: AnimationConfiguration) => AnimationItem
   objectFit?: ObjectFit
+  onComplete?: () => void
+  onError?: () => void
+  onLoad?: () => void
   ref?: React.RefObject<DotLottieMethods | null>
   renderer?: RendererType
   speed?: number,
@@ -66,12 +66,15 @@ export default function Player({
   intermission,
   loadAnimation,
   objectFit = ObjectFit.Contain,
+  onComplete,
+  onError,
+  onLoad,
   ref,
   renderer = RendererType.SVG,
   speed = 1,
   subframe,
   ...rest
-}: InlineInterface){
+}: Props){
 
   const { appState, setAppState } = useApp(),
     container = useRef<HTMLElement>(null),
@@ -80,16 +83,15 @@ export default function Player({
     [state, setState] = useState<{
       errorMessage: string
       isVisible: boolean
-      scrollTimeout: null | NodeJS.Timeout
       scrollY: number
       isLoaded: boolean
     }>({
       errorMessage: 'Unknown error',
       isLoaded: false,
       isVisible,
-      scrollTimeout: null,
       scrollY: 0
     }),
+    scrollTimeout = useRef<ReturnType<typeof setTimeout>>(null),
 
     getOptions = useCallback(() => {
       if (!container.current) {
@@ -163,11 +165,10 @@ export default function Player({
         case RendererType.Canvas: {
           options.rendererSettings = {
             ...options.rendererSettings,
-            // @ts-expect-error TODO:
             clearCanvas: true,
             preserveAspectRatio,
             progressiveLoad: true,
-          }
+          } as CanvasRendererConfig
           break
         }
         case RendererType.HTML: {
@@ -198,7 +199,7 @@ export default function Player({
       }
 
       animationItem.current.stop()
-      dispatchEvent(new CustomEvent(PlayerEvents.Stop))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Stop))
       setAppState((prev) => ({
         ...prev,
         count: 0,
@@ -216,7 +217,7 @@ export default function Player({
       }
 
       animationItem.current.play()
-      dispatchEvent(new CustomEvent(PlayerEvents.Play))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Play))
       setAppState(prev => {
         return {
           ...prev,
@@ -234,7 +235,7 @@ export default function Player({
       }
 
       animationItem.current.pause()
-      dispatchEvent(new CustomEvent(PlayerEvents.Pause))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Pause))
       setAppState(prev => ({
         ...prev,
         playerState: PlayerState.Paused,
@@ -271,7 +272,7 @@ export default function Player({
       }
 
       animationItem.current.pause()
-      dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
       setAppState(prev => {
         return {
           ...prev,
@@ -304,7 +305,7 @@ export default function Player({
         : Number(matches[1]))
 
       // Set seeker to new frame number
-      setState(prev => {
+      setAppState(prev => {
         return {
           ...prev,
           seeker: frame
@@ -318,7 +319,7 @@ export default function Player({
         appState.prevState === PlayerState.Playing
       ) {
         animationItem.current.goToAndPlay(frame, true)
-        setState(prev => {
+        setAppState(prev => {
           return {
             ...prev,
             playerState: PlayerState.Playing
@@ -329,7 +330,11 @@ export default function Player({
       }
       animationItem.current.goToAndStop(frame, true)
       animationItem.current.pause()
-    }, [appState.playerState, appState.prevState]),
+    }, [
+      appState.playerState,
+      appState.prevState,
+      setAppState
+    ]),
 
     /**
      * Set loop.
@@ -372,13 +377,13 @@ export default function Player({
             playerState: PlayerState.Completed
           }))
 
-          dispatchEvent(new CustomEvent(PlayerEvents.Complete))
+          container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete))
 
           return
         }
       }
 
-      dispatchEvent(new CustomEvent(PlayerEvents.Loop))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Loop))
 
       if (appState.mode === PlayMode.Bounce) {
         animationItem.current.goToAndStop(playDirection === -1 ? inPoint : outPoint * 0.99,
@@ -417,7 +422,7 @@ export default function Player({
         }
       })
 
-      dispatchEvent(new CustomEvent(PlayerEvents.Frame, {
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Frame, {
         detail: {
           frame: currentFrame,
           seeker,
@@ -438,11 +443,11 @@ export default function Player({
         return
       }
       if (state.isVisible) {
-        if (state.scrollTimeout) {
-          clearTimeout(state.scrollTimeout)
+        if (scrollTimeout.current) {
+          clearTimeout(scrollTimeout.current)
         }
-        state.scrollTimeout = setTimeout(() => {
-          setState(prev => {
+        scrollTimeout.current = setTimeout(() => {
+          setAppState(prev => {
             return {
               ...prev,
               playerState: PlayerState.Paused
@@ -494,19 +499,25 @@ export default function Player({
     },
 
     dataFailed = () => {
-      setAppState(prev => ({
-        ...prev,
-        playerState: PlayerState.Error
-      }))
-      dispatchEvent(new CustomEvent(PlayerEvents.Error))
+      try {
+        onError?.()
+      } finally {
+        setAppState(prev => ({
+          ...prev,
+          playerState: PlayerState.Error
+        }))
+        container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
+      }
     },
 
     domLoaded = () => {
+      onLoad?.()
+
       setState(prev => ({
         ...prev,
         isLoaded: true
       }))
-      dispatchEvent(new CustomEvent(PlayerEvents.Ready))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Load))
     },
 
     switchInstance = useCallback((currentAnimation: number, isPrevious = false) => {
@@ -592,6 +603,7 @@ export default function Player({
       appState.autoplay,
       appState.multiAnimationSettings,
       getOptions,
+      loadAnimation,
       setAppState]),
 
     /**
@@ -633,6 +645,8 @@ export default function Player({
         return
       }
 
+      onComplete?.()
+
       if (appState.animations.length > 1) {
         if (
           appState.multiAnimationSettings[appState.currentAnimation + 1]?.autoplay
@@ -642,7 +656,7 @@ export default function Player({
           return
         }
         if (appState.loop && appState.currentAnimation === appState.animations.length - 1) {
-          setState((prev) => {
+          setAppState((prev) => {
             return {
               ...prev,
               currentAnimation: 0
@@ -672,6 +686,10 @@ export default function Player({
           seeker,
         },
       }))
+    },
+
+    dataReady = () => {
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Ready))
     },
 
     setSpeed = (value: number) => {
@@ -798,7 +816,7 @@ export default function Player({
           playerState: PlayerState.Error
         }))
 
-        dispatchEvent(new CustomEvent(PlayerEvents.Error))
+        container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
 
         return
       }
@@ -827,12 +845,10 @@ export default function Player({
           if (!appState.animateOnScroll) {
             play()
           }
-          setState((prev) => {
-            return {
-              ...prev,
-              isVisible: true
-            }
-          })
+          setState((prev) => ({
+            ...prev,
+            isVisible: true
+          }))
         }
       }
     }, [
@@ -843,6 +859,7 @@ export default function Player({
       appState.multiAnimationSettings,
       direction,
       getOptions,
+      loadAnimation,
       play,
       seek,
       setAppState,
@@ -894,8 +911,16 @@ export default function Player({
   useImperativeHandle(
     ref, () => {
       return {
-        addAnimation,
-        convert,
+        addAnimation: async (...args) => {
+          const { addAnimation } = await getDotLottieModule()
+
+          return addAnimation(...args)
+        },
+        convert: async (...args) => {
+          const { convert } = await getDotLottieModule()
+
+          return convert(...args)
+        },
         getIsVisible,
         load,
         next,
@@ -981,9 +1006,11 @@ export default function Player({
     >
       <figure className={styles.animation} ref={container} style={{ background }}>
         {appState.playerState === PlayerState.Error &&
-          <div className={styles.error}>
-            <ErrorMessage message={state.errorMessage} />
-          </div>
+          <Suspense>
+            <div className={styles.error}>
+              <ErrorMessage message={state.errorMessage} />
+            </div>
+          </Suspense>
         }
       </figure>
       {appState.controls &&

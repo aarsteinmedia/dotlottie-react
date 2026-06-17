@@ -1,10 +1,11 @@
 import type { AnimationDirection } from '@aarsteinmedia/lottie-web'
 
+import { loadAnimation } from '@aarsteinmedia/lottie-web/light'
 import { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 
 import type { DotLottieMethods } from '@/types'
 
-import PlayerLight from '@/components/PlayerLight'
+import Player from '@/components/Player'
 import AppProvider from '@/context/AppProvider'
 import { ObjectFit } from '@/utils/enums'
 
@@ -13,7 +14,7 @@ export { ObjectFit, PlayerState } from '@/utils/enums'
 export { PlayerEvents } from '@aarsteinmedia/lottie-web/utils'
 export { PlayMode }
 
-interface InlineInterface {
+interface Props {
   animateOnScroll?: boolean
   autoplay?: boolean
   background?: string
@@ -27,6 +28,9 @@ interface InlineInterface {
   loop?: boolean
   mode?: PlayMode,
   objectFit?: ObjectFit
+  onComplete?: () => void
+  onError?: () => void
+  onLoad?: () => void
   ref?: React.RefObject<DotLottieMethods | null>
   renderer?: RendererType
   simple?: boolean
@@ -48,6 +52,9 @@ export default function DotLottiePlayer({
   loop,
   mode = PlayMode.Normal,
   objectFit = ObjectFit.Contain,
+  onComplete,
+  onError,
+  onLoad,
   ref,
   renderer = RendererType.SVG,
   simple,
@@ -55,7 +62,7 @@ export default function DotLottiePlayer({
   src,
   subframe,
   ...rest
-}: React.HTMLAttributes<HTMLElement> & InlineInterface) {
+}: React.HTMLAttributes<HTMLElement> & Props) {
 
   return (
     <AppProvider
@@ -68,18 +75,22 @@ export default function DotLottiePlayer({
       simple={simple}
       src={src}
     >
-      <PlayerLight
+      <Player
         background={background}
         count={count}
         description={description}
         direction={direction}
         hover={hover}
         intermission={intermission}
+        loadAnimation={loadAnimation}
         objectFit={objectFit}
         renderer={renderer}
         speed={speed}
         subframe={subframe}
         ref={ref}
+        onLoad={onLoad}
+        onError={onError}
+        onComplete={onComplete}
         {...rest}
       />
     </AppProvider>

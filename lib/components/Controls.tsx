@@ -1,7 +1,6 @@
 'use client'
 import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import { convert } from '@aarsteinmedia/lottie-web/dotlottie'
 import {
   download, getFilename, PlayMode
 } from '@aarsteinmedia/lottie-web/utils'
@@ -18,11 +17,13 @@ import PreviousIcon from '@/components/icons/PreviousIcon'
 import SettingsIcon from '@/components/icons/SettingsIcon'
 import StopIcon from '@/components/icons/StopIcon'
 import useApp from '@/hooks/useApp'
+import useEventListener from '@/hooks/useEventListener'
 import styles from '@/styles/controls.module.css'
 import { frameOutput } from '@/utils'
 import { PlayerState } from '@/utils/enums'
+import { getDotLottieModule } from '@/utils/getDotLottieModule'
 
-interface InlineInterface {
+interface Props {
   animationItem: React.RefObject<AnimationItem | null>
   container: React.RefObject<HTMLElement | null>
   freeze: () => void
@@ -34,6 +35,7 @@ interface InlineInterface {
   setLoop: (val: boolean) => void
   stop: () => void
 }
+
 export default function Controls({
   animationItem,
   container,
@@ -45,7 +47,7 @@ export default function Controls({
   seek,
   setLoop,
   stop,
-}: InlineInterface) {
+}: Props) {
   const { appState, setAppState } = useApp(),
     [state, setState] = useState({ isSettingsOpen: false }),
 
@@ -129,50 +131,31 @@ export default function Controls({
      * Toggle Boomerang.
      */
     toggleBoomerang = () => {
-      const curr = appState.multiAnimationSettings[appState.currentAnimation] ?? {}
+      setAppState(prev => {
+        const curr = prev.multiAnimationSettings[prev.currentAnimation] ?? {},
+          prevMode = curr.mode ?? prev.mode,
+          newMode = prevMode === PlayMode.Normal ? PlayMode.Bounce : PlayMode.Normal
 
-      if (curr.mode !== undefined) {
-        if (curr.mode === PlayMode.Normal) {
-          curr.mode = PlayMode.Bounce
-
-          setAppState(prev => ({
+        if (curr.mode !== undefined) {
+          return {
             ...prev,
-            mode: PlayMode.Bounce
-          }))
-
-          return
+            mode: newMode,
+            multiAnimationSettings: [
+              ...prev.multiAnimationSettings.slice(0, prev.currentAnimation),
+              {
+                ...curr,
+                mode: newMode
+              },
+              ...prev.multiAnimationSettings.slice(prev.currentAnimation + 1)
+            ]
+          }
         }
-        curr.mode = PlayMode.Normal
-        setAppState(prev => ({
+
+        return {
           ...prev,
-          mode: PlayMode.Normal
-        }))
-
-        return
-      }
-
-      if (appState.mode === PlayMode.Normal) {
-        setAppState(prev => ({
-          ...prev,
-          mode: PlayMode.Bounce
-        }))
-
-        return
-      }
-
-      setAppState(prev => ({
-        ...prev,
-        mode: PlayMode.Normal
-      }))
-    },
-
-    /**
-     * Handle blur.
-     */
-    handleBlur = () => {
-      setTimeout(() => {
-        toggleSettings(false)
-      }, 200)
+          mode: newMode
+        }
+      })
     },
 
     /**
@@ -215,6 +198,27 @@ export default function Controls({
       }
     }
 
+  useEventListener(
+    'click', ({ target }) => {
+      if (!target || !container.current?.contains(target as Node)) {
+        toggleSettings(false)
+      }
+    }, {
+      capture: true,
+      passive: true
+    }
+  )
+
+  useEventListener(
+    'keydown', ({ key }: KeyboardEvent) => {
+      if (key === 'Escape') {
+        toggleSettings(false)
+      }
+    }, {
+      capture: true,
+      passive: true
+    }
+  )
 
   return (
     <div
@@ -313,7 +317,6 @@ export default function Controls({
             aria-expanded={state.isSettingsOpen}
             aria-controls={`${appState.id}-settings`}
             data-active={state.isSettingsOpen}
-            onBlur={handleBlur}
             onClick={() => {
               toggleSettings()
             }}
@@ -325,13 +328,17 @@ export default function Controls({
               className={styles.button}
               aria-label={appState.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
               onClick={() => {
-                void convert({
-                  currentAnimation: appState.currentAnimation,
-                  generator: '@aarsteinmedia/dotlottie-react',
-                  isDotLottie: appState.isDotLottie,
-                  manifest: appState.manifest,
-                  src: appState.src ?? undefined
-                })
+                void (async() => {
+                  const { convert } = await getDotLottieModule()
+
+                  await convert({
+                    currentAnimation: appState.currentAnimation,
+                    generator: '@aarsteinmedia/dotlottie-react',
+                    isDotLottie: appState.isDotLottie,
+                    manifest: appState.manifest,
+                    src: appState.src ?? undefined
+                  })
+                })()
               }}
             >
               <ConvertIcon />

@@ -52,9 +52,6 @@ function App() {
             onMouseLeave={() => {
               animation.current?.stop()
             }}
-            // onComplete={() => {
-            //   console.log('complete!')
-            // }}
           />
         </div>
 
@@ -67,7 +64,7 @@ function App() {
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <figure className='alignleft' style={{ width: '100%' }} >
-            <DotLottiePlayer autoplay controls subframe src="/am.lottie" />
+            <DotLottiePlayer autoplay controls subframe src="/care-education-combined.lottie" />
           </figure>
           <figure className='alignright' style={{ width: '100%' }} >
             <DotLottiePlayer controls subframe src="/synnove.lottie" />
