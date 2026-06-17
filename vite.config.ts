@@ -14,6 +14,19 @@ import dts from 'vite-plugin-dts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+function injectStylesImport(source: string): string {
+  if (source.includes('./styles.css')) {
+    return source
+  }
+  const useClient = /^(['"])use client\1;\s*\n/
+
+  if (useClient.test(source)) {
+    return source.replace(useClient, (match) => `${match}import "./styles.css";\n`)
+  }
+
+  return `import "./styles.css";\n${source}`
+}
+
 /**
  * CSS Modules are compiled at build time (hashed class names in JS + CSS).
  * Vite emits one combined CSS file; rename it to styles.css and wire it into the entries.
@@ -43,7 +56,7 @@ function compiledCssModules(): Plugin {
           source = await readFile(entryPath, 'utf8')
 
         if (!source.includes('./styles.css')) {
-          await writeFile(entryPath, `import "./styles.css";\n${source}`)
+          await writeFile(entryPath, injectStylesImport(source))
         }
       }
     },
