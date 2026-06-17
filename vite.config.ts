@@ -74,6 +74,9 @@ export default defineConfig({
     cssTarget: 'es2022',
     lib: {
       entry: {
+        enums: resolve(
+          __dirname, 'lib', 'enums.ts'
+        ),
         full: resolve(
           __dirname, 'lib', 'full.tsx'
         ),

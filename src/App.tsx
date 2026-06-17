@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 
-import { PlayMode, type DotLottieMethods } from '@/full'
+import type { DotLottieMethods } from '@/full'
+
+import { PlayMode } from '@/enums'
 import DotLottiePlayer from '@/light'
 
 function App() {
