@@ -1,13 +1,7 @@
-import { useRef } from 'react'
-
-import type { DotLottieMethods } from '@/full'
-
 import { PlayMode } from '@/enums'
 import DotLottiePlayer from '@/light'
 
 function App() {
-  const animation = useRef<DotLottieMethods>(null)
-
   return (
     <>
       <header>
@@ -47,14 +41,9 @@ function App() {
             textAlign: 'center'
           }}>
           <DotLottiePlayer
-            subframe src="/strengths.json"
-            ref={animation}
-            onMouseEnter={() => {
-              animation.current?.play()
-            }}
-            onMouseLeave={() => {
-              animation.current?.stop()
-            }}
+            animateOnScroll
+            subframe
+            src="/dev.lottie"
           />
         </div>
 

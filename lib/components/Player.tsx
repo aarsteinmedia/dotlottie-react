@@ -820,8 +820,6 @@ export default function Player({
         return
       }
 
-      // addEventListeners()
-
       const _speed =
         appState.multiAnimationSettings[appState.currentAnimation]?.speed ??
         speed,
