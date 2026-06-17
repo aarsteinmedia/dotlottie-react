@@ -1,14 +1,14 @@
 'use client'
-import Lottie, {
-  type AnimationConfiguration,
-  type AnimationDirection,
-  type AnimationItem,
-  type AnimationSegment,
-  type AnimationSettings,
+import type {
+  AnimationConfiguration,
+  AnimationDirection,
+  AnimationItem,
+  AnimationSegment,
+  AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
+
 import {
-  addAnimation, convert, getAnimationData
-} from '@aarsteinmedia/lottie-web/dotlottie'
+  /*addAnimation, convert,*/ getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
 import {
   clamp,
   createElementID,
@@ -50,6 +50,7 @@ interface InlineInterface {
   direction?: AnimationDirection,
   hover?: boolean
   intermission?: number
+  loadAnimation: (params: AnimationConfiguration) => AnimationItem
   objectFit?: ObjectFit
   ref?: React.RefObject<DotLottieMethods | null>
   renderer?: RendererType
@@ -63,6 +64,7 @@ export default function Player({
   direction = 1,
   hover,
   intermission,
+  loadAnimation,
   objectFit = ObjectFit.Contain,
   ref,
   renderer = RendererType.SVG,
@@ -519,7 +521,7 @@ export default function Player({
 
         const { mode: playMode } = appState.multiAnimationSettings[currentAnimation] ?? {}
 
-        animationItem.current = Lottie.loadAnimation({
+        animationItem.current = loadAnimation({
           ...getOptions(),
           animationData: appState.animations[currentAnimation],
         })
@@ -778,7 +780,7 @@ export default function Player({
 
         // Clear previous animation, if any
         animationItem.current?.destroy()
-        animationItem.current = Lottie.loadAnimation({
+        animationItem.current = loadAnimation({
           ...getOptions(),
           animationData: animations[appState.currentAnimation]
         })

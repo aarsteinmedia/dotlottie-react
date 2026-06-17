@@ -8,7 +8,7 @@ import type {
 } from '@aarsteinmedia/lottie-web'
 
 import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
-import Lottie from '@aarsteinmedia/lottie-web/light'
+import { loadAnimation } from '@aarsteinmedia/lottie-web/light'
 import {
   clamp,
   createElementID,
@@ -518,7 +518,7 @@ export default function PlayerLight({
 
         const { mode: playMode } = appState.multiAnimationSettings[currentAnimation] ?? {}
 
-        animationItem.current = Lottie.loadAnimation({
+        animationItem.current = loadAnimation({
           ...getOptions(),
           animationData: appState.animations[currentAnimation],
         })
@@ -777,7 +777,7 @@ export default function PlayerLight({
 
         // Clear previous animation, if any
         animationItem.current?.destroy()
-        animationItem.current = Lottie.loadAnimation({
+        animationItem.current = loadAnimation({
           ...getOptions(),
           animationData: animations[appState.currentAnimation]
         })

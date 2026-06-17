@@ -1,5 +1,7 @@
 allowBuilds:
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - eslint-plugin-perfectionist@5.9.1
 onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
