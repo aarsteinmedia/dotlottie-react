@@ -36,6 +36,7 @@ interface Props {
   src: string
   subframe?: boolean
 }
+
 export default function DotLottiePlayer({
   animateOnScroll,
   autoplay,
