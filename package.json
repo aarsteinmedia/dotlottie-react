@@ -1,6 +1,6 @@
 {
   "name": "@aarsteinmedia/dotlottie-react",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
   "main": "./dist/full.js",
@@ -15,7 +15,8 @@
       "types": "./dist/light.d.ts",
       "import": "./dist/light.js",
       "default": "./dist/light.js"
-    }
+    },
+    "./styles.css": "./dist/styles.css"
   },
   "repository": {
     "url": "git+https://github.com/aarsteinmedia/dotlottie-react.git",
@@ -63,11 +64,12 @@
     "stylelint-config-recommended": "^18.0.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
-    "vite-plugin-dts": "^5.0.2",
-    "vite-plugin-lib-inject-css": "^2.2.2"
+    "vite-plugin-dts": "^5.0.2"
   },
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "dist/full.js",
+    "dist/light.js"
   ],
   "engines": {
     "node": ">= 14.20.0"
