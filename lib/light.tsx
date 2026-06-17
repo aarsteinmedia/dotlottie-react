@@ -11,11 +11,6 @@ import Player from '@/components/Player'
 import AppProvider from '@/context/AppProvider'
 import { ObjectFit } from '@/utils/enums'
 
-export type { DotLottieMethods }
-export { ObjectFit, PlayerState } from '@/utils/enums'
-export { PlayerEvents } from '@aarsteinmedia/lottie-web/utils'
-export { PlayMode }
-
 interface Props {
   animateOnScroll?: boolean
   autoplay?: boolean

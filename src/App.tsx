@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 
-import DotLottiePlayer, { PlayMode, type DotLottieMethods } from '@/light'
+import { PlayMode, type DotLottieMethods } from '@/full'
+import DotLottiePlayer from '@/light'
 
 function App() {
   const animation = useRef<DotLottieMethods>(null)
