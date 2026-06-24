@@ -13,13 +13,13 @@ export interface AppState {
   animations: AnimationData[]
   autoplay?: boolean
   controls?: boolean
-  count: number
   currentAnimation: number
   errorMessage: string
   id?: string
   isDotLottie: boolean
   lang: string
   loop?: boolean
+  loopsCompleted: number
   manifest?: null | LottieManifest
   mode: PlayMode
   multiAnimationSettings: AnimationSettings[]
@@ -33,11 +33,11 @@ export interface AppState {
 
 const defaultValue: AppState = {
   animations: [],
-  count: 0,
   currentAnimation: 0,
   errorMessage: 'Failed to load file',
   isDotLottie: false,
   lang: 'en',
+  loopsCompleted: 0,
   mode: PlayMode.Normal,
   multiAnimationSettings: [],
   playerState: PlayerState.Loading,

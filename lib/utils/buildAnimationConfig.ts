@@ -7,7 +7,7 @@ import { RendererType } from '@/enums'
 import { aspectRatio } from '@/utils'
 import { hasReducedMotion } from '@/utils/constants'
 
-export default function buildAnimationConfig(
+export function buildAnimationConfig(
   container: HTMLElement,
   snapshot: AppState,
   objectFit: ObjectFit,

@@ -18,7 +18,7 @@ import {
 
 import type { DotLottieMethods } from '@/types'
 
-import useApp from '@/hooks/useApp'
+import { useApp } from '@/hooks/useApp'
 import { useGlobalEvents } from '@/hooks/useGlobalEvents'
 import { useLottieInstance } from '@/hooks/useLottieInstance'
 import { usePlayback } from '@/hooks/usePlayback'
@@ -37,15 +37,15 @@ const Controls = lazy(() => import('@/components/Controls')),
 interface Props {
   background?: string
   className?: string
-  count?: number
   description?: string
   direction?: AnimationDirection,
   hover?: boolean
   intermission?: number
   loadAnimation: (params: AnimationConfiguration) => AnimationItem
+  loopLimit?: number
   objectFit?: ObjectFit
   onComplete?: () => void
-  onError?: () => void
+  onError?: (message?: string) => void
   onLoad?: () => void
   ref?: React.RefObject<DotLottieMethods | null>
   renderer?: RendererType
@@ -55,12 +55,12 @@ interface Props {
 export default function Player({
   background,
   className = '',
-  count = 0,
   description,
   direction = 1,
   hover,
   intermission,
   loadAnimation,
+  loopLimit = 0,
   objectFit = ObjectFit.Contain,
   onComplete,
   onError: onLoadError,
@@ -145,10 +145,10 @@ export default function Player({
       })
     }, [setAppState, switchInstance]),
 
-    setCount = useCallback((value: number) => {
+    setLoopsCompleted = useCallback((value: number) => {
       setAppState(prev => ({
         ...prev,
-        count: value
+        loopsCompleted: value
       }))
     }, [setAppState]),
 
@@ -197,9 +197,9 @@ export default function Player({
         play,
         previous,
         seek,
-        setCount,
         setDirection,
         setLoop,
+        setLoopsCompleted,
         setMultiAnimationSettings,
         setSegment,
         setSpeed,
@@ -214,7 +214,7 @@ export default function Player({
       play,
       previous,
       seek,
-      setCount,
+      setLoopsCompleted,
       setDirection,
       setLoop,
       setMultiAnimationSettings,
@@ -228,9 +228,9 @@ export default function Player({
   usePlayerEvents({
     animationRef,
     containerRef,
-    count,
     hover,
     intermission,
+    loopLimit,
     next,
     onComplete,
     onError: onLoadError,

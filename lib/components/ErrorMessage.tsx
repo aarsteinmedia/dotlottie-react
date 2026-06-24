@@ -1,6 +1,6 @@
 import { namespaceSVG, PreserveAspectRatio } from '@aarsteinmedia/lottie-web/utils'
 
-import useApp from '@/hooks/useApp'
+import { useApp } from '@/hooks/useApp'
 
 export default function ErrorMessage() {
   const { appState } = useApp()

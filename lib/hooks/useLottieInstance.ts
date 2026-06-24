@@ -12,11 +12,11 @@ import {
 import type { UseLottieInstance } from '@/types'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import useApp from '@/hooks/useApp'
+import { useApp } from '@/hooks/useApp'
 import { handleErrors, isLottie } from '@/utils'
-import buildAnimationConfig from '@/utils/buildAnimationConfig'
+import { buildAnimationConfig } from '@/utils/buildAnimationConfig'
 import { hasReducedMotion } from '@/utils/constants'
-import createInstance from '@/utils/createInstance'
+import { createInstance } from '@/utils/createInstance'
 import { handleSeek } from '@/utils/handleSeek'
 
 export function useLottieInstance({

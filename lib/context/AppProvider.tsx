@@ -8,9 +8,9 @@ export default function AppProvider({
   autoplay,
   children,
   controls,
-  count = 0,
   id,
   loop,
+  loopsCompleted = 0,
   mode = PlayMode.Normal,
   simple,
   src = null
@@ -20,9 +20,9 @@ export default function AppProvider({
     animateOnScroll,
     autoplay,
     controls,
-    count,
     id: id ?? createElementID(),
     loop,
+    loopsCompleted,
     mode,
     simple,
     src

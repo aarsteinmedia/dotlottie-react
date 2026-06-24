@@ -1,70 +1,12 @@
 'use client'
 import { loadAnimation } from '@aarsteinmedia/lottie-web/light'
-import { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 
 import type { DotLottieMethods, DotLottieProps } from '@/types'
 
-import Player from '@/components/Player'
-import AppProvider from '@/context/AppProvider'
-import { ObjectFit } from '@/utils/enums'
+import { createDotLottiePlayer } from '@/utils/createDotLottiePlayer'
 
-export type { DotLottieMethods }
+export type { DotLottieMethods, DotLottieProps }
 
-export default function DotLottiePlayer({
-  animateOnScroll,
-  autoplay,
-  background,
-  controls,
-  count = 0,
-  description,
-  direction = 1,
-  hover,
-  id,
-  intermission,
-  loop,
-  mode = PlayMode.Normal,
-  objectFit = ObjectFit.Contain,
-  onComplete,
-  onError,
-  onLoad,
-  ref,
-  renderer = RendererType.SVG,
-  simple,
-  speed = 1,
-  src,
-  subframe,
-  ...rest
-}: React.HTMLAttributes<HTMLElement> & DotLottieProps) {
-
-  return (
-    <AppProvider
-      animateOnScroll={animateOnScroll}
-      autoplay={autoplay}
-      controls={controls}
-      id={id}
-      loop={loop}
-      mode={mode}
-      simple={simple}
-      src={src}
-    >
-      <Player
-        background={background}
-        count={count}
-        description={description}
-        direction={direction}
-        hover={hover}
-        intermission={intermission}
-        loadAnimation={loadAnimation}
-        objectFit={objectFit}
-        renderer={renderer}
-        speed={speed}
-        subframe={subframe}
-        ref={ref}
-        onLoad={onLoad}
-        onError={onError}
-        onComplete={onComplete}
-        {...rest}
-      />
-    </AppProvider>
-  )
+export default function DotLottiePlayer(props: React.HTMLAttributes<HTMLElement> & DotLottieProps) {
+  return createDotLottiePlayer(loadAnimation, props)
 }

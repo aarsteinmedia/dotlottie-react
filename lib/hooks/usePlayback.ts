@@ -1,7 +1,7 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import useApp from '@/hooks/useApp'
+import { useApp } from '@/hooks/useApp'
 import { handleSeek } from '@/utils/handleSeek'
 
 interface Props {
@@ -98,7 +98,7 @@ export function usePlayback({
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Stop))
       setAppState((prev) => ({
         ...prev,
-        count: 0,
+        loopsCompleted: 0,
         playerState: PlayerState.Stopped,
         prevState: prev.playerState
       }))

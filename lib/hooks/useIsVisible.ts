@@ -3,8 +3,7 @@ import {
 } from 'react'
 
 import { PlayerState } from '@/enums'
-
-import useApp from './useApp'
+import { useApp } from '@/hooks/useApp'
 
 interface Props {
   container: null | HTMLElement
@@ -12,7 +11,7 @@ interface Props {
   play: () => void
 }
 
-export default function useIsVisible({
+export function useIsVisible({
   container,
   freeze,
   play

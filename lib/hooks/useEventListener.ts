@@ -29,7 +29,7 @@ type EventOptions<T> = EventListenerOptions &
  * @param options - The element to add the event listener to. Default is the window.
  */
 
-export default function useEventListener<
+export function useEventListener<
   E extends Event = Event,
   T extends Element | AnimationItem | null = Element,
 >(

@@ -1,20 +1,21 @@
 import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
+import { useEffect, useRef } from 'react'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import useApp from '@/hooks/useApp'
-import useEventListener from '@/hooks/useEventListener'
+import { useApp } from '@/hooks/useApp'
+import { useEventListener } from '@/hooks/useEventListener'
 
 interface Props {
   animationRef: React.RefObject<AnimationItem | null>
   containerRef: React.RefObject<HTMLElement | null>
-  count: number
   hover?: boolean
   intermission?: number
+  loopLimit: number
   next: () => void
   onComplete?: () => void
-  onError?: () => void
+  onError?: (message?: string) => void
   onLoad?: () => void
   play: () => void
   stop: () => void
@@ -24,9 +25,9 @@ interface Props {
 export function usePlayerEvents({
   animationRef,
   containerRef: container,
-  count,
   hover,
   intermission,
+  loopLimit,
   next,
   onComplete,
   onError,
@@ -36,6 +37,17 @@ export function usePlayerEvents({
   switchInstance
 }: Props) {
   const { appState, setAppState } = useApp(),
+
+    intermissionTimeoutRef = useRef<null | ReturnType<typeof setTimeout>>(null),
+    animateOnScrollRef = useRef(appState.animateOnScroll),
+
+    clearIntermissionTimeout = () => {
+      if (intermissionTimeoutRef.current === null) {
+        return
+      }
+      clearTimeout(intermissionTimeoutRef.current)
+      intermissionTimeoutRef.current = null
+    },
 
     complete = () => {
       if (!animationRef.current) {
@@ -114,6 +126,25 @@ export function usePlayerEvents({
       animationRef.current?.setLoop(value)
     },
 
+    scheduleIntermissionPlay = () => {
+      clearIntermissionTimeout()
+
+      if (!intermission || intermission <= 0) {
+        if (!animateOnScrollRef.current) {
+          animationRef.current?.play()
+        }
+
+        return
+      }
+
+      intermissionTimeoutRef.current = setTimeout(() => {
+        intermissionTimeoutRef.current = null
+        if (!animateOnScrollRef.current) {
+          animationRef.current?.play()
+        }
+      }, intermission)
+    },
+
     loopComplete = () => {
       if (!animationRef.current) {
         return
@@ -121,35 +152,42 @@ export function usePlayerEvents({
 
       const {
           playDirection,
-          // firstFrame,
           totalFrames,
         } = animationRef.current,
         inPoint = appState.segment ? appState.segment[0] : 0,
         outPoint = appState.segment ? appState.segment[1] : totalFrames
 
-      if (appState.count) {
+      if (loopLimit > 0) {
+        let shouldContinue = true,
+          loopsCompleted = appState.loopsCompleted + 1
+
         if (appState.mode === PlayMode.Bounce) {
-          setAppState(prev => ({
-            ...prev,
-            count: prev.count + 0.5
-          }))
-        } else {
-          setAppState(prev => ({
-            ...prev,
-            count: prev.count + 1
-          }))
+          loopsCompleted = appState.loopsCompleted + 0.5
         }
 
-        if (appState.count >= count) {
-          setLoop(false)
+        if (loopsCompleted >= loopLimit) {
+          shouldContinue = false
+        }
 
-          setAppState(prev => ({
+        setAppState(prev => {
+          let { playerState } = prev
+
+          if (!shouldContinue) {
+            setLoop(false)
+
+            playerState = PlayerState.Completed
+
+            container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete))
+          }
+
+          return {
             ...prev,
-            playerState: PlayerState.Completed
-          }))
+            loopsCompleted,
+            playerState
+          }
+        })
 
-          container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete))
-
+        if (!shouldContinue) {
           return
         }
       }
@@ -162,21 +200,13 @@ export function usePlayerEvents({
 
         animationRef.current.setDirection((playDirection * -1) as AnimationDirection)
 
-        return setTimeout(() => {
-          if (!appState.animateOnScroll) {
-            animationRef.current?.play()
-          }
-        }, intermission)
+        scheduleIntermissionPlay()
       }
 
       animationRef.current.goToAndStop(playDirection === -1 ? outPoint * 0.99 : inPoint,
         true)
 
-      return setTimeout(() => {
-        if (!appState.animateOnScroll) {
-          animationRef.current?.play()
-        }
-      }, intermission)
+      scheduleIntermissionPlay()
     },
 
     enterFrame = () => {
@@ -243,4 +273,10 @@ export function usePlayerEvents({
   useEventListener(
     'mouseleave', mouseLeave, { element: container }
   )
+
+  useEffect(() => {
+    animateOnScrollRef.current = appState.animateOnScroll
+  }, [appState.animateOnScroll])
+
+  useEffect(() => clearIntermissionTimeout, [])
 }

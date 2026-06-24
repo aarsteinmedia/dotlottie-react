@@ -4,7 +4,7 @@ import type {
 
 import type { UseLottieInstance } from '@/types'
 
-export default function createInstance(
+export function createInstance(
   loadAnimation: UseLottieInstance['loadAnimation'],
   animationRef: React.RefObject<null | AnimationItem>,
   config: AnimationConfiguration,

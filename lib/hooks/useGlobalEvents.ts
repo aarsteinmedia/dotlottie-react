@@ -4,9 +4,9 @@ import { isServer } from '@aarsteinmedia/lottie-web/utils'
 import { useCallback, useRef } from 'react'
 
 import { PlayerState } from '@/enums'
-import useApp from '@/hooks/useApp'
-import useEventListener from '@/hooks/useEventListener'
-import useIsVisible from '@/hooks/useIsVisible'
+import { useApp } from '@/hooks/useApp'
+import { useEventListener } from '@/hooks/useEventListener'
+import { useIsVisible } from '@/hooks/useIsVisible'
 import { hasReducedMotion } from '@/utils/constants'
 
 interface Props {

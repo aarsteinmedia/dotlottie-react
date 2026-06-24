@@ -18,17 +18,17 @@ export interface DotLottieProps {
   autoplay?: boolean
   background?: string
   controls?: boolean
-  count?: number
   description?: string
   direction?: AnimationDirection
   hover?: boolean
   id?: string
   intermission?: number
   loop?: boolean
+  loopLimit?: number
   mode?: PlayMode,
   objectFit?: ObjectFit
   onComplete?: (e?: Event) => void
-  onError?: (e?: Event) => void
+  onError?: (message?: string) => void
   onLoad?: (e?: Event) => void
   ref?: React.RefObject<DotLottieMethods | null>
   renderer?: RendererType
@@ -52,9 +52,9 @@ export interface DotLottieMethods {
   play: () => void
   previous: () => void
   seek: (value: number | string) => void
-  setCount: (value: number) => void
   setDirection: (value: AnimationDirection) => void
   setLoop: (value: boolean) => void
+  setLoopsCompleted: (value: number) => void
   setMultiAnimationSettings: (settings: AnimationSettings[]) => void
   setSegment: (value: AnimationSegment) => void
   setSpeed: (value: number) => void
