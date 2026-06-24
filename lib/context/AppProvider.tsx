@@ -1,35 +1,66 @@
-import { PlayMode, createElementID } from '@aarsteinmedia/lottie-web/utils'
-import { useState } from 'react'
+/* eslint-disable @typescript-eslint/naming-convention */
+import { createElementID } from '@aarsteinmedia/lottie-web/utils'
+import { useEffect, useReducer } from 'react'
 
-import AppContext, { defaultValue, type AppState } from '@/context/AppContext'
+import AppContext, { type PlayerConfig } from '@/context/AppContext'
+import { createInitialState, playerReducer } from '@/context/playerReducer'
 
-export default function AppProvider({
-  animateOnScroll,
-  autoplay,
-  children,
-  controls,
-  id,
-  loop,
-  loopsCompleted = 0,
-  mode = PlayMode.Normal,
-  simple,
-  src = null
-}: Readonly<Partial<AppState> & { children: React.ReactNode }>) {
-  const [appState, setAppState] = useState<AppState>({
-    ...defaultValue,
+type Props = Readonly<PlayerConfig> & { children: React.ReactNode }
+
+export default function AppProvider(props: Props) {
+  const [state, dispatch] = useReducer(
+      playerReducer,
+      props,
+      initialProps => createInitialState({
+        ...initialProps,
+        id: initialProps.id ?? createElementID(),
+        src: initialProps.src ?? null
+      })
+    ),
+
+    {
+      animateOnScroll,
+      autoplay,
+      children,
+      controls,
+      id,
+      loop,
+      mode,
+      simple,
+      src
+    } = props
+
+  useEffect(() => {
+    dispatch({
+      patch: {
+        animateOnScroll,
+        autoplay,
+        controls,
+        loop,
+        mode,
+        simple,
+        src: src ?? null,
+        ...id ? { id } : {}
+      },
+      type: 'SYNC_CONFIG'
+    })
+  }, [
     animateOnScroll,
     autoplay,
     controls,
-    id: id ?? createElementID(),
+    id,
     loop,
-    loopsCompleted,
     mode,
     simple,
     src
-  })
+  ])
 
-  return <AppContext value={{
-    appState,
-    setAppState
-  }}>{children}</AppContext>
+  return (
+    <AppContext value={{
+      dispatch,
+      state
+    }}>
+      {children}
+    </AppContext>
+  )
 }

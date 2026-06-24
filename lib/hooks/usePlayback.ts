@@ -1,7 +1,7 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import { useApp } from '@/hooks/useApp'
+import { usePlayerDispatch, usePlayerPlayback } from '@/hooks/useApp'
 import { handleSeek } from '@/utils/handleSeek'
 
 interface Props {
@@ -14,13 +14,14 @@ export function usePlayback({
   containerRef,
 }: Props) {
 
-  const { appState, setAppState } = useApp(),
+  const dispatch = usePlayerDispatch(),
+    playback = usePlayerPlayback(),
 
     /**
-       * Freeze animation.
-       * This internal state pauses animation and is used to differentiate between
-       * user requested pauses and component instigated pauses.
-       */
+     * Freeze animation.
+     * This internal state pauses animation and is used to differentiate between
+     * user requested pauses and component instigated pauses.
+     */
     freeze = () => {
       if (!animationRef.current) {
         return
@@ -28,12 +29,13 @@ export function usePlayback({
 
       animationRef.current.pause()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
-      setAppState(prev => {
-        return {
-          ...prev,
+
+      dispatch({
+        patch: {
           playerState: PlayerState.Frozen,
-          prevState: prev.playerState === PlayerState.Frozen ? prev.prevState : prev.playerState
-        }
+          prevState: playback.playerState === PlayerState.Frozen ? playback.prevState : playback.playerState
+        },
+        type: 'SET_PLAYBACK'
       })
     },
 
@@ -47,11 +49,15 @@ export function usePlayback({
 
       animationRef.current.pause()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Pause))
-      setAppState(prev => ({
-        ...prev,
-        playerState: PlayerState.Paused,
-        prevState: prev.playerState
-      }))
+
+      dispatch({
+        patch: {
+          playerState: PlayerState.Paused,
+          prevState: playback.playerState
+        },
+        type: 'SET_PLAYBACK'
+      })
+
     },
 
     /**
@@ -64,11 +70,10 @@ export function usePlayback({
 
       animationRef.current.play()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Play))
-      setAppState(prev => {
-        return {
-          ...prev,
-          playerState: PlayerState.Playing
-        }
+
+      dispatch({
+        patch: { playerState: PlayerState.Playing },
+        type: 'SET_PLAYBACK'
       })
     },
 
@@ -80,8 +85,9 @@ export function usePlayback({
     seek = (value: number | string, seekOrigin?: PlayerState) => {
       handleSeek({
         animationItem: animationRef.current,
-        seekOrigin: seekOrigin ?? appState.playerState,
-        setAppState,
+        dispatch,
+        playback,
+        seekOrigin: seekOrigin ?? playback.playerState,
         value
       })
     },
@@ -96,12 +102,15 @@ export function usePlayback({
 
       animationRef.current.stop()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Stop))
-      setAppState((prev) => ({
-        ...prev,
-        loopsCompleted: 0,
-        playerState: PlayerState.Stopped,
-        prevState: prev.playerState
-      }))
+
+      dispatch({
+        patch: {
+          loopsCompleted: 0,
+          playerState: PlayerState.Stopped,
+          prevState: playback.playerState
+        },
+        type: 'SET_PLAYBACK'
+      })
     }
 
 

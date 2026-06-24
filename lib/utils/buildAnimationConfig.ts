@@ -1,6 +1,6 @@
 import type { AnimationConfiguration, CanvasRendererConfig } from '@aarsteinmedia/lottie-web'
 
-import type { AppState } from '@/context/AppContext'
+import type { PlayerSnapshot } from '@/context/AppContext'
 import type { ObjectFit } from '@/utils/enums'
 
 import { RendererType } from '@/enums'
@@ -9,7 +9,7 @@ import { hasReducedMotion } from '@/utils/constants'
 
 export function buildAnimationConfig(
   container: HTMLElement,
-  snapshot: AppState,
+  snapshot: PlayerSnapshot,
   objectFit: ObjectFit,
   renderer: RendererType
 ): AnimationConfiguration {

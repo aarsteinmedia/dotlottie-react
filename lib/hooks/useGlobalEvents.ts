@@ -4,7 +4,9 @@ import { isServer } from '@aarsteinmedia/lottie-web/utils'
 import { useCallback, useRef } from 'react'
 
 import { PlayerState } from '@/enums'
-import { useApp } from '@/hooks/useApp'
+import {
+  usePlayerConfig, usePlayerDispatch, usePlayerPlayback
+} from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
 import { useIsVisible } from '@/hooks/useIsVisible'
 import { hasReducedMotion } from '@/utils/constants'
@@ -22,7 +24,9 @@ export function useGlobalEvents({
   freeze,
   play
 }: Props) {
-  const { appState, setAppState } = useApp(),
+  const playback = usePlayerPlayback(),
+    config = usePlayerConfig(),
+    dispatch = usePlayerDispatch(),
     scrollTimeout = useRef<ReturnType<typeof setTimeout>>(null),
 
     { isVisible, scrollPos } = useIsVisible({
@@ -32,13 +36,13 @@ export function useGlobalEvents({
     }),
 
     handleWindowBlur = ({ type }: FocusEvent) => {
-      if (appState.playerState === PlayerState.Playing && type === 'blur') {
+      if (playback.playerState === PlayerState.Playing && type === 'blur') {
         freeze()
       }
       if (
-        appState.playerState === PlayerState.Frozen &&
-        appState.prevState === PlayerState.Playing &&
-        !appState.animateOnScroll &&
+        playback.playerState === PlayerState.Frozen &&
+        playback.prevState === PlayerState.Playing &&
+        !config.animateOnScroll &&
         type === 'focus'
       ) {
         play()
@@ -49,7 +53,7 @@ export function useGlobalEvents({
      * Handle scroll.
      */
     handleScroll = () => {
-      if (hasReducedMotion || !appState.animateOnScroll || !animationRef.current) {
+      if (hasReducedMotion || !config.animateOnScroll || !animationRef.current) {
         return
       }
       if (isServer) {
@@ -62,11 +66,9 @@ export function useGlobalEvents({
           clearTimeout(scrollTimeout.current)
         }
         scrollTimeout.current = setTimeout(() => {
-          setAppState(prev => {
-            return {
-              ...prev,
-              playerState: PlayerState.Paused
-            }
+          dispatch({
+            patch: { playerState: PlayerState.Paused },
+            type: 'SET_PLAYBACK'
           })
         }, 400)
 
@@ -80,19 +82,15 @@ export function useGlobalEvents({
 
         requestAnimationFrame(() => {
           if (roundedScroll < (animationRef.current?.totalFrames ?? 0)) {
-            setAppState(prev => {
-              return {
-                ...prev,
-                playerState: PlayerState.Playing
-              }
+            dispatch({
+              patch: { playerState: PlayerState.Playing },
+              type: 'SET_PLAYBACK'
             })
             animationRef.current?.goToAndStop(roundedScroll, true)
           } else {
-            setAppState(prev => {
-              return {
-                ...prev,
-                playerState: PlayerState.Paused
-              }
+            dispatch({
+              patch: { playerState: PlayerState.Paused },
+              type: 'SET_PLAYBACK'
             })
           }
         })

@@ -12,7 +12,9 @@ import {
 import type { UseLottieInstance } from '@/types'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import { useApp } from '@/hooks/useApp'
+import {
+  useApp, usePlayerDispatch, usePlayerPlayback
+} from '@/hooks/useApp'
 import { handleErrors, isLottie } from '@/utils'
 import { buildAnimationConfig } from '@/utils/buildAnimationConfig'
 import { hasReducedMotion } from '@/utils/constants'
@@ -32,6 +34,8 @@ export function useLottieInstance({
   const animationRef = useRef<null | AnimationItem>(null),
     loadGeneration = useRef(0),
     { appState, setAppState } = useApp(),
+    dispatch = usePlayerDispatch(),
+    playback = usePlayerPlayback(),
     appStateRef = useRef(appState)
 
   useEffect(() => {
@@ -75,10 +79,10 @@ export function useLottieInstance({
 
     const generation = ++loadGeneration.current
 
-    setAppState(prev => ({
-      ...prev,
-      src
-    }))
+    dispatch({
+      patch: { src },
+      type: 'SYNC_CONFIG'
+    })
 
     try {
       const {
@@ -163,8 +167,9 @@ export function useLottieInstance({
         if (animationDirection === -1) {
           handleSeek({
             animationItem: animationRef.current,
+            dispatch,
+            playback,
             seekOrigin: loadedPlayerState,
-            setAppState,
             value: '99%'
           })
         }
@@ -186,19 +191,23 @@ export function useLottieInstance({
       const { message: errorMessage } = handleErrors(error)
 
       onLoadError?.(errorMessage)
-      setAppState(prev => ({
-        ...prev,
-        errorMessage,
-        playerState: PlayerState.Error
-      }))
+      dispatch({
+        patch: {
+          errorMessage,
+          playerState: PlayerState.Error
+        },
+        type: 'SET_PLAYBACK'
+      })
 
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
     }
   }, [
     containerRef,
     direction,
+    dispatch,
     mountAtIndex,
     onLoadError,
+    playback,
     setAppState,
     speed,
     subframe
@@ -215,10 +224,10 @@ export function useLottieInstance({
       const item = mountAtIndex(state.animations, index),
         { mode: playMode } = state.multiAnimationSettings[index] ?? {}
 
-      setAppState(prev => ({
-        ...prev,
-        mode: playMode ?? PlayMode.Normal,
-      }))
+      dispatch({
+        patch: { mode: playMode ?? PlayMode.Normal },
+        type: 'SYNC_CONFIG'
+      })
 
       containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
 
@@ -229,45 +238,47 @@ export function useLottieInstance({
       if (shouldAutoplay) {
         if (state.animateOnScroll) {
           item.goToAndStop(0, true)
-          setAppState(prev => ({
-            ...prev,
-            playerState: PlayerState.Paused
-          }))
+          dispatch({
+            patch: { playerState: PlayerState.Paused },
+            type: 'SET_PLAYBACK'
+          })
 
           return
         }
 
         item.goToAndPlay(0, true)
-        setAppState(prev => ({
-          ...prev,
-          playerState: PlayerState.Playing
-        }))
+        dispatch({
+          patch: { playerState: PlayerState.Playing },
+          type: 'SET_PLAYBACK'
+        })
 
         return
       }
 
       item.goToAndStop(0, true)
-      setAppState(prev => ({
-        ...prev,
-        playerState: PlayerState.Stopped
-      }))
+      dispatch({
+        patch: { playerState: PlayerState.Stopped },
+        type: 'SET_PLAYBACK'
+      })
     } catch (error) {
       const { message: errorMessage } = handleErrors(error)
 
       onLoadError?.(errorMessage)
-      setAppState(prev => ({
-        ...prev,
-        errorMessage,
-        playerState: PlayerState.Error
-      }))
+      dispatch({
+        patch: {
+          errorMessage,
+          playerState: PlayerState.Error
+        },
+        type: 'SET_PLAYBACK'
+      })
 
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
     }
   }, [
     containerRef,
+    dispatch,
     mountAtIndex,
-    onLoadError,
-    setAppState
+    onLoadError
   ])
 
   const setLoop = (value: boolean) => {

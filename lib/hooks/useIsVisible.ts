@@ -3,7 +3,7 @@ import {
 } from 'react'
 
 import { PlayerState } from '@/enums'
-import { useApp } from '@/hooks/useApp'
+import { usePlayerConfig, usePlayerPlayback } from '@/hooks/useApp'
 
 interface Props {
   container: null | HTMLElement
@@ -16,8 +16,13 @@ export function useIsVisible({
   freeze,
   play
 }: Props) {
-  const { appState } = useApp(),
-    appStateRef = useRef(appState),
+  const playback = usePlayerPlayback(),
+    config = usePlayerConfig(),
+    appStateRef = useRef({
+      hasAnimateOnScroll: config.animateOnScroll,
+      playerState: playback.playerState,
+      prevState: playback.prevState
+    }),
     freezeRef = useRef(freeze),
     playRef = useRef(play),
     [state, setState] = useState({
@@ -26,8 +31,16 @@ export function useIsVisible({
     })
 
   useEffect(() => {
-    appStateRef.current = appState
-  }, [appState])
+    appStateRef.current = {
+      hasAnimateOnScroll: config.animateOnScroll,
+      playerState: playback.playerState,
+      prevState: playback.prevState
+    }
+  }, [
+    config.animateOnScroll,
+    playback.playerState,
+    playback.prevState
+  ])
 
   useEffect(() => {
     freezeRef.current = freeze
@@ -44,7 +57,7 @@ export function useIsVisible({
 
       for (let i = 0; i < length; i++) {
         const {
-          animateOnScroll: hasAnimateOnScroll,
+          hasAnimateOnScroll,
           playerState,
           prevState
         } = appStateRef.current

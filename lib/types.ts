@@ -3,7 +3,10 @@ import type {
   AnimationDirection,
   AnimationItem,
   AnimationSegment,
+  AnimationData,
   AnimationSettings,
+  LottieManifest,
+  Vector2
 } from '@aarsteinmedia/lottie-web'
 import type {
   addAnimation,
@@ -11,7 +14,10 @@ import type {
 } from '@aarsteinmedia/lottie-web/dotlottie'
 import type { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 
-import type { ObjectFit } from '@/utils/enums'
+import type {
+  PlayerAsset, PlayerConfig, PlayerPlayback
+} from '@/context/AppContext'
+import type { ObjectFit, PlayerState } from '@/utils/enums'
 
 export interface DotLottieProps {
   animateOnScroll?: boolean
@@ -72,3 +78,50 @@ export interface UseLottieInstance {
   speed?: number
   subframe?: boolean
 }
+
+export interface AppState {
+  asset: Readonly<PlayerAsset>
+  config: Readonly<PlayerConfig>
+  playback: Readonly<PlayerPlayback>
+}
+
+export type PlayerAction =
+  | {
+    type: 'SYNC_CONFIG'
+    patch: Partial<PlayerConfig>
+  }
+  | {
+    type: 'LOAD_START'
+    src: string
+  }
+  | {
+    type: 'LOAD_SUCCESS'
+    payload: {
+      animations: AnimationData[]
+      isDotLottie: boolean
+      manifest: LottieManifest
+      playerState: PlayerState
+      mode: PlayMode
+    }
+  }
+  | {
+    type: 'LOAD_ERROR'
+    errorMessage: string
+  }
+  | {
+    type: 'SET_PLAYBACK'
+    patch: Partial<PlayerPlayback>
+  }
+  | {
+    type: 'SET_MULTI_ANIMATION_SETTINGS'
+    settings: AnimationSettings[]
+  }
+  | {
+    type: 'SET_SEGMENT'
+    segment: Vector2
+  }
+  | {
+    type: 'SWITCH_ANIMATION'
+    currentAnimation: number
+    mode?: PlayMode
+  }

@@ -2,57 +2,52 @@ import type {
   AnimationData,
   AnimationSettings, LottieManifest, Vector2
 } from '@aarsteinmedia/lottie-web'
+import type { PlayMode } from '@aarsteinmedia/lottie-web/utils'
 
-import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import { createContext } from 'react'
 
-import { PlayerState } from '@/utils/enums'
+import type { AppState, PlayerAction } from '@/types'
+import type { PlayerState } from '@/utils/enums'
 
-export interface AppState {
+import { createInitialState } from '@/context/playerReducer'
+
+export interface PlayerConfig {
   animateOnScroll?: boolean
-  animations: AnimationData[]
   autoplay?: boolean
   controls?: boolean
-  currentAnimation: number
-  errorMessage: string
   id?: string
-  isDotLottie: boolean
   lang: string
   loop?: boolean
-  loopsCompleted: number
-  manifest?: null | LottieManifest
   mode: PlayMode
-  multiAnimationSettings: AnimationSettings[]
-  playerState: PlayerState
-  prevState: PlayerState
-  seeker: number
-  segment: null | Vector2
   simple?: boolean
   src: null | string
 }
 
-const defaultValue: AppState = {
-  animations: [],
-  currentAnimation: 0,
-  errorMessage: 'Failed to load file',
-  isDotLottie: false,
-  lang: 'en',
-  loopsCompleted: 0,
-  mode: PlayMode.Normal,
-  multiAnimationSettings: [],
-  playerState: PlayerState.Loading,
-  prevState: PlayerState.Loading,
-  seeker: 0,
-  segment: null,
-  src: null
+export interface PlayerAsset {
+  animations: AnimationData[]
+  isDotLottie: boolean
+  manifest?: null | LottieManifest
+  multiAnimationSettings: AnimationSettings[]
 }
 
+export interface PlayerPlayback {
+  currentAnimation: number
+  errorMessage: string
+  loopsCompleted: number
+  playerState: PlayerState
+  prevState: PlayerState
+  seeker: number
+  segment: null | Vector2
+}
+
+export type PlayerSnapshot = PlayerConfig & PlayerAsset & PlayerPlayback
+
 const AppContext = createContext<{
-  appState: Readonly<AppState>
-  setAppState: React.Dispatch<React.SetStateAction<AppState>>
+  state: AppState
+  dispatch: React.Dispatch<PlayerAction>
 }>({
-  appState: defaultValue,
-  setAppState: (value: React.SetStateAction<AppState>) => value,
+  dispatch: (value: React.SetStateAction<PlayerAction>) => value,
+  state: createInitialState()
 })
 
-export { AppContext as default, defaultValue }
+export default AppContext

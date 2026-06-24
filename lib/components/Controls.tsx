@@ -15,7 +15,9 @@ import PlayIcon from '@/components/icons/PlayIcon'
 import PreviousIcon from '@/components/icons/PreviousIcon'
 import SettingsIcon from '@/components/icons/SettingsIcon'
 import StopIcon from '@/components/icons/StopIcon'
-import { useApp } from '@/hooks/useApp'
+import {
+  usePlayerAsset, usePlayerConfig, usePlayerDispatch, usePlayerPlayback
+} from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
 import styles from '@/styles/controls.module.css'
 import { frameOutput } from '@/utils'
@@ -47,8 +49,11 @@ export default function Controls({
   setLoop,
   stop,
 }: Props) {
-  const { appState, setAppState } = useApp(),
-    scrubOrigin = useRef(appState.playerState),
+  const asset = usePlayerAsset(),
+    config = usePlayerConfig(),
+    playback = usePlayerPlayback(),
+    dispatch = usePlayerDispatch(),
+    scrubOrigin = useRef(playback.playerState),
     [state, setState] = useState({ isSettingsOpen: false }),
 
     /**
@@ -84,21 +89,21 @@ export default function Controls({
         currentFrame, playDirection, totalFrames
       } = animationRef.current
 
-      if (appState.playerState === PlayerState.Playing) {
+      if (playback.playerState === PlayerState.Playing) {
         pause()
 
         return
       }
-      if (appState.playerState !== PlayerState.Completed) {
+      if (playback.playerState !== PlayerState.Completed) {
         play()
 
         return
       }
-      setAppState(prev => ({
-        ...prev,
-        playerState: PlayerState.Playing
-      }))
-      if (appState.mode === PlayMode.Bounce) {
+      dispatch({
+        patch: { playerState: PlayerState.Playing },
+        type: 'SET_PLAYBACK'
+      })
+      if (config.mode === PlayMode.Bounce) {
         setDirection((playDirection * -1) as AnimationDirection)
 
         animationRef.current.goToAndPlay(currentFrame, true)
@@ -118,12 +123,12 @@ export default function Controls({
      * Toggle loop.
      */
     toggleLoop = () => {
-      const hasLoop = !appState.loop
+      const hasLoop = !config.loop
 
-      setAppState(prev => ({
-        ...prev,
-        loop: hasLoop
-      }))
+      dispatch({
+        patch: { loop: hasLoop },
+        type: 'SYNC_CONFIG'
+      })
       setLoop(hasLoop)
     },
 
@@ -131,30 +136,34 @@ export default function Controls({
      * Toggle Boomerang.
      */
     toggleBoomerang = () => {
-      setAppState(prev => {
-        const curr = prev.multiAnimationSettings[prev.currentAnimation] ?? {},
-          prevMode = curr.mode ?? prev.mode,
-          newMode = prevMode === PlayMode.Normal ? PlayMode.Bounce : PlayMode.Normal
+      const curr = asset.multiAnimationSettings[playback.currentAnimation] ?? {},
+        prevMode = curr.mode ?? config.mode,
+        newMode = prevMode === PlayMode.Normal ? PlayMode.Bounce : PlayMode.Normal
 
-        if (curr.mode !== undefined) {
-          return {
-            ...prev,
-            mode: newMode,
-            multiAnimationSettings: [
-              ...prev.multiAnimationSettings.slice(0, prev.currentAnimation),
-              {
-                ...curr,
-                mode: newMode
-              },
-              ...prev.multiAnimationSettings.slice(prev.currentAnimation + 1)
-            ]
-          }
-        }
+      if (curr.mode !== undefined) {
+        dispatch({
+          patch: { mode: newMode },
+          type: 'SYNC_CONFIG'
+        })
 
-        return {
-          ...prev,
-          mode: newMode
-        }
+        dispatch({
+          settings: [
+            ...asset.multiAnimationSettings.slice(0, playback.currentAnimation),
+            {
+              ...curr,
+              mode: newMode
+            },
+            ...asset.multiAnimationSettings.slice(playback.currentAnimation + 1)
+          ],
+          type: 'SET_MULTI_ANIMATION_SETTINGS'
+        })
+
+        return
+      }
+
+      dispatch({
+        patch: { mode: newMode },
+        type: 'SYNC_CONFIG'
       })
     },
 
@@ -186,7 +195,7 @@ export default function Controls({
         if (shouldDownload) {
           download(data, {
             mimeType: 'image/svg+xml',
-            name: `${getFilename(appState.src || name)}-${frameOutput(appState.seeker)}.svg`,
+            name: `${getFilename(config.src || name)}-${frameOutput(playback.seeker)}.svg`,
           })
         }
 
@@ -223,16 +232,16 @@ export default function Controls({
   return (
     <div
       className={styles.controls}
-      data-error={appState.playerState === PlayerState.Error}
+      data-error={playback.playerState === PlayerState.Error}
       aria-label="Lottie Animation controls"
     >
       <button
         className={styles.button}
-        data-active={appState.playerState === PlayerState.Playing || appState.playerState === PlayerState.Paused}
+        data-active={playback.playerState === PlayerState.Playing || playback.playerState === PlayerState.Paused}
         aria-label="Toggle Play/Pause"
         onClick={togglePlay}
       >
-        {appState.playerState === PlayerState.Playing ?
+        {playback.playerState === PlayerState.Playing ?
           <PauseIcon />
           :
           <PlayIcon />
@@ -241,14 +250,14 @@ export default function Controls({
 
       <button
         className={styles.button}
-        data-active={appState.playerState === PlayerState.Stopped || appState.playerState === PlayerState.Loading}
+        data-active={playback.playerState === PlayerState.Stopped || playback.playerState === PlayerState.Loading}
         aria-label="Stop"
         onClick={stop}
       >
         <StopIcon />
       </button>
       <button
-        hidden={appState.animations.length === 0 || appState.currentAnimation === 0}
+        hidden={asset.animations.length === 0 || playback.currentAnimation === 0}
         className={styles.button}
         aria-label="Previous animation"
         onClick={previous}
@@ -256,7 +265,7 @@ export default function Controls({
         <PreviousIcon />
       </button>
       <button
-        hidden={appState.animations.length === 0 || appState.currentAnimation === appState.animations.length - 1}
+        hidden={asset.animations.length === 0 || playback.currentAnimation === asset.animations.length - 1}
         className={styles.button}
         aria-label="Next animation"
         onClick={next}
@@ -265,7 +274,7 @@ export default function Controls({
       </button>
       <form
         className={styles.progressContainer}
-        data-simple={appState.simple}
+        data-simple={config.simple}
       >
         <input
           type="range"
@@ -273,27 +282,27 @@ export default function Controls({
           min={0}
           max={100}
           step={1}
-          value={appState.seeker}
+          value={playback.seeker}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuenow={appState.seeker}
+          aria-valuenow={playback.seeker}
           tabIndex={0}
           aria-label="Slider for seek"
           onPointerDown={() => {
-            scrubOrigin.current = appState.playerState
+            scrubOrigin.current = playback.playerState
             freeze()
           }}
           onChange={({ target }) => {
             seek(`${target.value}%`, scrubOrigin.current)
           }}
         />
-        <progress className={styles.progress} max="100" value={appState.seeker}></progress>
+        <progress className={styles.progress} max="100" value={playback.seeker}></progress>
       </form>
-      {!appState.simple &&
+      {!config.simple &&
         <>
           <button
             className={styles.button}
-            data-active={appState.loop}
+            data-active={config.loop}
             tabIndex={0}
             aria-label="Toggle loop"
             onClick={toggleLoop}
@@ -302,7 +311,7 @@ export default function Controls({
           </button>
           <button
             className={styles.button}
-            data-active={appState.mode === PlayMode.Bounce}
+            data-active={config.mode === PlayMode.Bounce}
             aria-label="Toggle boomerang"
             tabIndex={0}
             onClick={toggleBoomerang}
@@ -314,7 +323,7 @@ export default function Controls({
             aria-label="Settings"
             aria-haspopup="true"
             aria-expanded={state.isSettingsOpen}
-            aria-controls={`${appState.id}-settings`}
+            aria-controls={`${config.id}-settings`}
             data-active={state.isSettingsOpen}
             onClick={() => {
               toggleSettings()
@@ -322,26 +331,26 @@ export default function Controls({
           >
             <SettingsIcon />
           </button>
-          <div hidden={!state.isSettingsOpen} id={`${appState.id}-settings`} className={styles.popover}>
+          <div hidden={!state.isSettingsOpen} id={`${config.id}-settings`} className={styles.popover}>
             <button
               className={styles.button}
-              aria-label={appState.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
+              aria-label={asset.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
               onClick={() => {
                 void (async() => {
                   const { convert } = await getDotLottieModule()
 
                   await convert({
-                    currentAnimation: appState.currentAnimation,
+                    currentAnimation: playback.currentAnimation,
                     generator: '@aarsteinmedia/dotlottie-react',
-                    isDotLottie: appState.isDotLottie,
-                    manifest: appState.manifest ?? undefined,
-                    src: appState.src ?? undefined
+                    isDotLottie: asset.isDotLottie,
+                    manifest: asset.manifest ?? undefined,
+                    src: config.src ?? undefined
                   })
                 })()
               }}
             >
               <ConvertIcon />
-              {appState.isDotLottie ? 'Convert to JSON' : 'Convert to dotLottie'}
+              {asset.isDotLottie ? 'Convert to JSON' : 'Convert to dotLottie'}
             </button>
             <button
               className={styles.button}

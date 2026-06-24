@@ -1,21 +1,24 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import type { AppState } from '@/context/AppContext'
+import type { PlayerPlayback } from '@/context/AppContext'
+import type { PlayerAction } from '@/types'
 
 import { PlayerState } from '@/utils/enums'
 
 interface Props {
   animationItem: null | AnimationItem
+  dispatch: React.Dispatch<PlayerAction>
+  playback: PlayerPlayback
   /** Playback state when the scrub started (before freeze). */
   seekOrigin?: PlayerState
-  setAppState: React.Dispatch<React.SetStateAction<AppState>>
   value: number | string
 }
 
 export function handleSeek({
   animationItem,
+  dispatch,
+  playback,
   seekOrigin,
-  setAppState,
   value
 }: Props) {
   if (!animationItem) {
@@ -37,11 +40,13 @@ export function handleSeek({
 
   if (seekOrigin === PlayerState.Playing) {
     animationItem.goToAndPlay(frame, true)
-    setAppState(prev => ({
-      ...prev,
-      playerState: PlayerState.Playing,
-      seeker
-    }))
+    dispatch({
+      patch: {
+        playerState: PlayerState.Playing,
+        seeker
+      },
+      type: 'SET_PLAYBACK'
+    })
 
     return
   }
@@ -49,9 +54,11 @@ export function handleSeek({
   animationItem.goToAndStop(frame, true)
   animationItem.pause()
 
-  setAppState(prev => ({
-    ...prev,
-    playerState: seekOrigin ?? prev.playerState,
-    seeker
-  }))
+  dispatch({
+    patch: {
+      playerState: seekOrigin ?? playback.playerState,
+      seeker
+    },
+    type: 'SET_PLAYBACK'
+  })
 }

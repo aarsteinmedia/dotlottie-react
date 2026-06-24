@@ -1,9 +1,9 @@
 import { namespaceSVG, PreserveAspectRatio } from '@aarsteinmedia/lottie-web/utils'
 
-import { useApp } from '@/hooks/useApp'
+import { usePlayerPlayback } from '@/hooks/useApp'
 
 export default function ErrorMessage() {
-  const { appState } = useApp()
+  const { errorMessage } = usePlayerPlayback()
 
   return (
     <svg
@@ -34,7 +34,7 @@ export default function ErrorMessage() {
           textAlign: 'center'
         }}
       >
-        {appState.errorMessage}
+        {errorMessage}
       </text>
     </svg>
   )

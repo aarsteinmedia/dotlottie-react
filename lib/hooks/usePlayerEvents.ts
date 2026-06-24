@@ -4,7 +4,9 @@ import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import { useApp } from '@/hooks/useApp'
+import {
+  usePlayerDispatch, usePlayerPlayback, usePlayerConfig, usePlayerAsset
+} from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
 
 interface Props {
@@ -36,10 +38,13 @@ export function usePlayerEvents({
   stop,
   switchInstance
 }: Props) {
-  const { appState, setAppState } = useApp(),
+  const playback = usePlayerPlayback(),
+    dispatch = usePlayerDispatch(),
+    config = usePlayerConfig(),
+    asset = usePlayerAsset(),
 
     intermissionTimeoutRef = useRef<null | ReturnType<typeof setTimeout>>(null),
-    animateOnScrollRef = useRef(appState.animateOnScroll),
+    animateOnScrollRef = useRef(config.animateOnScroll),
 
     clearIntermissionTimeout = () => {
       if (intermissionTimeoutRef.current === null) {
@@ -56,20 +61,19 @@ export function usePlayerEvents({
 
       onComplete?.()
 
-      if (appState.animations.length > 1) {
+      if (asset.animations.length > 1) {
         if (
-          appState.multiAnimationSettings[appState.currentAnimation + 1]?.autoplay
+          asset.multiAnimationSettings[playback.currentAnimation + 1]?.autoplay
         ) {
           next()
 
           return
         }
-        if (appState.loop && appState.currentAnimation === appState.animations.length - 1) {
-          setAppState((prev) => {
-            return {
-              ...prev,
-              currentAnimation: 0
-            }
+        if (config.loop && playback.currentAnimation === asset.animations.length - 1) {
+
+          dispatch({
+            patch: { currentAnimation: 0 },
+            type: 'SET_PLAYBACK'
           })
 
           switchInstance(0)
@@ -81,12 +85,12 @@ export function usePlayerEvents({
       const { currentFrame, totalFrames } = animationRef.current,
         seeker = Math.round(currentFrame / totalFrames * 100)
 
-      setAppState(prev => {
-        return {
-          ...prev,
+      dispatch({
+        patch: {
           playerState: PlayerState.Completed,
           seeker
-        }
+        },
+        type: 'SET_PLAYBACK'
       })
 
       container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete, {
@@ -105,7 +109,7 @@ export function usePlayerEvents({
      * Handle MouseEnter.
      */
     mouseEnter = () => {
-      if (hover && appState.playerState !== PlayerState.Playing) {
+      if (hover && playback.playerState !== PlayerState.Playing) {
         play()
       }
     },
@@ -114,7 +118,7 @@ export function usePlayerEvents({
      * Handle MouseLeave.
      */
     mouseLeave = () => {
-      if (hover && appState.playerState === PlayerState.Playing) {
+      if (hover && playback.playerState === PlayerState.Playing) {
         stop()
       }
     },
@@ -154,37 +158,37 @@ export function usePlayerEvents({
           playDirection,
           totalFrames,
         } = animationRef.current,
-        inPoint = appState.segment ? appState.segment[0] : 0,
-        outPoint = appState.segment ? appState.segment[1] : totalFrames
+        inPoint = playback.segment ? playback.segment[0] : 0,
+        outPoint = playback.segment ? playback.segment[1] : totalFrames
 
       if (loopLimit > 0) {
         let shouldContinue = true,
-          loopsCompleted = appState.loopsCompleted + 1
+          loopsCompleted = playback.loopsCompleted + 1
 
-        if (appState.mode === PlayMode.Bounce) {
-          loopsCompleted = appState.loopsCompleted + 0.5
+        if (config.mode === PlayMode.Bounce) {
+          loopsCompleted = playback.loopsCompleted + 0.5
         }
 
         if (loopsCompleted >= loopLimit) {
           shouldContinue = false
         }
 
-        setAppState(prev => {
-          let { playerState } = prev
+        let { playerState } = playback
 
-          if (!shouldContinue) {
-            setLoop(false)
+        if (!shouldContinue) {
+          setLoop(false)
 
-            playerState = PlayerState.Completed
+          playerState = PlayerState.Completed
 
-            container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete))
-          }
+          container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete))
+        }
 
-          return {
-            ...prev,
+        dispatch({
+          patch: {
             loopsCompleted,
             playerState
-          }
+          },
+          type: 'SET_PLAYBACK'
         })
 
         if (!shouldContinue) {
@@ -194,7 +198,7 @@ export function usePlayerEvents({
 
       container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Loop))
 
-      if (appState.mode === PlayMode.Bounce) {
+      if (config.mode === PlayMode.Bounce) {
         animationRef.current.goToAndStop(playDirection === -1 ? inPoint : outPoint * 0.99,
           true)
 
@@ -216,11 +220,9 @@ export function usePlayerEvents({
       const { currentFrame, totalFrames } = animationRef.current,
         seeker = Math.round(currentFrame / totalFrames * 100)
 
-      setAppState(prev => {
-        return {
-          ...prev,
-          seeker
-        }
+      dispatch({
+        patch: { seeker },
+        type: 'SET_PLAYBACK'
       })
 
       container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Frame, {
@@ -235,10 +237,10 @@ export function usePlayerEvents({
       try {
         onError?.()
       } finally {
-        setAppState(prev => ({
-          ...prev,
-          playerState: PlayerState.Error
-        }))
+        dispatch({
+          patch: { playerState: PlayerState.Error },
+          type: 'SET_PLAYBACK'
+        })
         container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
       }
     },
@@ -275,8 +277,8 @@ export function usePlayerEvents({
   )
 
   useEffect(() => {
-    animateOnScrollRef.current = appState.animateOnScroll
-  }, [appState.animateOnScroll])
+    animateOnScrollRef.current = config.animateOnScroll
+  }, [config.animateOnScroll])
 
   useEffect(() => clearIntermissionTimeout, [])
 }

@@ -19,6 +19,7 @@ export function createDotLottiePlayer(loadAnimation: (params: AnimationConfigura
     hover,
     id,
     intermission,
+    lang = 'en',
     loop,
     loopLimit = 0,
     mode = PlayMode.Normal,
@@ -36,32 +37,33 @@ export function createDotLottiePlayer(loadAnimation: (params: AnimationConfigura
   }: React.HTMLAttributes<HTMLElement> & DotLottieProps) {
   return (
     <AppProvider
-      animateOnScroll= { animateOnScroll }
-      autoplay = { autoplay }
-      controls = { controls }
-      id = { id }
-      loop = { loop }
-      mode = { mode }
-      simple = { simple }
-      src = { src }
+      animateOnScroll={animateOnScroll}
+      autoplay={autoplay}
+      controls={controls}
+      id={id}
+      lang={lang}
+      loop={loop}
+      mode={mode}
+      simple={simple}
+      src={src}
     >
       <Player
-        background={ background }
-        loopLimit = { loopLimit }
-        description = { description }
-        direction = { direction }
-        hover = { hover }
-        intermission = { intermission }
-        loadAnimation = { loadAnimation }
-        objectFit = { objectFit }
-        renderer = { renderer }
-        speed = { speed }
-        subframe = { subframe }
-        ref = { ref }
-        onLoad = { onLoad }
-        onError = { onError }
-        onComplete = { onComplete }
-        {...rest }
+        background={background}
+        loopLimit={loopLimit}
+        description={description}
+        direction={direction}
+        hover={hover}
+        intermission={intermission}
+        loadAnimation={loadAnimation}
+        objectFit={objectFit}
+        renderer={renderer}
+        speed={speed}
+        subframe={subframe}
+        ref={ref}
+        onLoad={onLoad}
+        onError={onError}
+        onComplete={onComplete}
+        {...rest}
       />
     </AppProvider>
   )
