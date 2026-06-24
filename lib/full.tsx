@@ -1,40 +1,15 @@
 'use client'
 
-import { loadAnimation, type AnimationDirection } from '@aarsteinmedia/lottie-web'
+import { loadAnimation } from '@aarsteinmedia/lottie-web'
 import { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 
-import type { DotLottieMethods } from '@/types'
+import type { DotLottieMethods, DotLottieProps } from '@/types'
 
 import Player from '@/components/Player'
 import AppProvider from '@/context/AppProvider'
 import { ObjectFit } from '@/utils/enums'
 
 export type { DotLottieMethods }
-
-interface Props {
-  animateOnScroll?: boolean
-  autoplay?: boolean
-  background?: string
-  controls?: boolean
-  count?: number
-  description?: string
-  direction?: AnimationDirection
-  hover?: boolean
-  id?: string
-  intermission?: number
-  loop?: boolean
-  mode?: PlayMode,
-  objectFit?: ObjectFit
-  onComplete?: () => void
-  onError?: () => void
-  onLoad?: () => void
-  ref?: React.RefObject<DotLottieMethods | null>
-  renderer?: RendererType
-  simple?: boolean
-  speed?: number
-  src: string
-  subframe?: boolean
-}
 
 export default function DotLottiePlayer({
   animateOnScroll,
@@ -60,7 +35,7 @@ export default function DotLottiePlayer({
   src,
   subframe,
   ...rest
-}: React.HTMLAttributes<HTMLElement> & Props) {
+}: React.HTMLAttributes<HTMLElement> & DotLottieProps) {
 
   return (
     <AppProvider

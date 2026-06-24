@@ -30,7 +30,7 @@ interface Props {
   pause: () => void
   play: () => void
   previous: () => void
-  seek: (frame: number) => void
+  seek: (frame: number | string) => void
   setLoop: (val: boolean) => void
   stop: () => void
 }
@@ -167,7 +167,7 @@ export default function Controls({
         }
 
         // Get SVG element and serialize markup
-        const svgElement = container.current.querySelector('figure svg')
+        const svgElement = container.current.querySelector('svg')
 
         if (!svgElement) {
           throw new Error('Could not retrieve animation from DOM')
@@ -277,7 +277,7 @@ export default function Controls({
           aria-valuemax={100}
           aria-valuenow={appState.seeker}
           tabIndex={0}
-          aria-label="Slider for search"
+          aria-label="Slider for seek"
           onMouseDown={freeze}
           onChange={({ target }) => {
             if (!animationItem.current) {

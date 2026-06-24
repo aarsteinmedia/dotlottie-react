@@ -28,7 +28,7 @@ import useIntersectionObserver from '@/hooks/useIntersectionObserver'
 import useIsVisible from '@/hooks/useIsVisible'
 import styles from '@/styles/player.module.css'
 import {
-  aspectRatio, handleErrors, isLottie
+  aspectRatio, classnames, handleErrors, isLottie
 } from '@/utils'
 import { ObjectFit, PlayerState } from '@/utils/enums'
 import { getDotLottieModule } from '@/utils/getDotLottieModule'
@@ -41,6 +41,7 @@ const Controls = lazy(() => import('@/components/Controls')),
  */
 interface Props {
   background?: string
+  className?: string
   count?: number
   description?: string
   direction?: AnimationDirection,
@@ -58,6 +59,7 @@ interface Props {
 }
 export default function Player({
   background,
+  className = '',
   count = 0,
   description,
   direction = 1,
@@ -353,7 +355,7 @@ export default function Player({
           totalFrames,
         } = animationItem.current,
         inPoint = appState.segment ? appState.segment[0] : 0,
-        outPoint = appState.segment ? appState.segment[0] : totalFrames
+        outPoint = appState.segment ? appState.segment[1] : totalFrames
 
       if (appState.count) {
         if (appState.mode === PlayMode.Bounce) {
@@ -541,11 +543,7 @@ export default function Player({
           mode: playMode ?? PlayMode.Normal,
         }))
 
-        // Remove event listeners to new Lottie instance, and add new
-        // removeEventListeners()
-        // addEventListeners()
-
-        dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
+        container.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
 
         if (
           appState.multiAnimationSettings[currentAnimation]?.autoplay ??
@@ -595,7 +593,7 @@ export default function Player({
           errorMessage: handleErrors(error).message,
         }))
 
-        dispatchEvent(new CustomEvent(PlayerEvents.Error))
+        container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
       }
     }, [appState.animateOnScroll,
       appState.animations,
@@ -679,7 +677,7 @@ export default function Player({
         }
       })
 
-      dispatchEvent(new CustomEvent(PlayerEvents.Complete, {
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete, {
         detail: {
           frame: currentFrame,
           seeker,
@@ -775,6 +773,13 @@ export default function Player({
             playerState = PlayerState.Playing
           }
 
+          // Clear previous animation, if any
+          animationItem.current?.destroy()
+          animationItem.current = loadAnimation({
+            ...getOptions(),
+            animationData: animations[prev.currentAnimation]
+          })
+
           return {
             ...prev,
             animations,
@@ -793,13 +798,6 @@ export default function Player({
             mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
             playerState
           }
-        })
-
-        // Clear previous animation, if any
-        animationItem.current?.destroy()
-        animationItem.current = loadAnimation({
-          ...getOptions(),
-          animationData: animations[appState.currentAnimation]
         })
 
       } catch (error) {
@@ -833,7 +831,9 @@ export default function Player({
       setSubframe(Boolean(subframe))
 
       // Start playing if autoplay is enabled
-      if (appState.autoplay || appState.animateOnScroll) {
+      const hasReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+      if (!hasReducedMotion && (appState.autoplay || appState.animateOnScroll)) {
         if (direction === -1) {
           seek('99%')
         }
@@ -995,9 +995,10 @@ export default function Player({
 
   return (
     <div
-      className={styles.dotLottie}
+      className={classnames([styles.dotLottie, className])}
       lang={appState.lang}
       aria-label={description}
+      aria-hidden={!description || undefined}
       data-controls={appState.controls}
       {...rest}
     >

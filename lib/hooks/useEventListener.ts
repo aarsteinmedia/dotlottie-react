@@ -38,9 +38,8 @@ export default function useEventListener<
   options: EventOptions<T>
 ) {
 
-  if (!options.element && !isServer) {
-    options.element = window
-  }
+  const element =
+    !options.element && !isServer ? window : options.element
 
   const callbackRef = useRef(callback)
 
@@ -51,9 +50,9 @@ export default function useEventListener<
   useEffect(() => {
 
     const targetElement =
-      options.element && 'current' in options.element
-        ? options.element.current
-        : options.element
+      element && 'current' in element
+        ? element.current
+        : element
 
     if (!targetElement) {
       return
@@ -77,5 +76,9 @@ export default function useEventListener<
         options
       )
     }
-  }, [eventType, options])
+  }, [
+    eventType,
+    element,
+    options
+  ])
 }

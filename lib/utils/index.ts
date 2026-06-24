@@ -28,6 +28,10 @@ export const aspectRatio = (objectFit: ObjectFit) => {
     }
   },
 
+  classnames = (classNames: string[]) => {
+    return classNames.join(' ')
+  },
+
   handleErrors = (err: unknown) => {
     const res = {
       message: 'Unknown error',

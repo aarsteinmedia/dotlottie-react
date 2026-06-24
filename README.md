@@ -2,7 +2,7 @@
 
 ![Awesome Vector Animations](/.github/readmeBanner.svg)
 
-This is a reworked verson of [@aarsteinmedia/dotlottie-player](https://www.npmjs.com/package/@aarsteinmedia/dotlottie-player) – with the same functionality, but made to work natively with React.
+This is a reworked verison of [@aarsteinmedia/dotlottie-player](https://www.npmjs.com/package/@aarsteinmedia/dotlottie-player) – with the same functionality, but made to work natively with React.
 
 ## Installation
 

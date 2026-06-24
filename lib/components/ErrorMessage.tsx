@@ -10,6 +10,7 @@ export default function ErrorMessage({ message }: Props) {
       height="1080"
       viewBox="0 0 1920 1080"
       style={{ whiteSpace: 'preserve' }}
+      role="alert"
     >
       <path fill="#fff" d="M0 0h1920v1080H0z" />
       <path
