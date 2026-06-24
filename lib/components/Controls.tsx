@@ -3,7 +3,7 @@ import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-we
 import {
   download, getFilename, PlayMode
 } from '@aarsteinmedia/lottie-web/utils'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import BoomerangIcon from '@/components/icons/BoomerangIcon'
 import ConvertIcon from '@/components/icons/ConvertIcon'
@@ -30,7 +30,7 @@ interface Props {
   pause: () => void
   play: () => void
   previous: () => void
-  seek: (frame: number | string) => void
+  seek: (value: number | string, seekOrigin?: PlayerState) => void
   setLoop: (val: boolean) => void
   stop: () => void
 }
@@ -48,6 +48,7 @@ export default function Controls({
   stop,
 }: Props) {
   const { appState, setAppState } = useApp(),
+    scrubOrigin = useRef(appState.playerState),
     [state, setState] = useState({ isSettingsOpen: false }),
 
     /**
@@ -278,13 +279,12 @@ export default function Controls({
           aria-valuenow={appState.seeker}
           tabIndex={0}
           aria-label="Slider for seek"
-          onMouseDown={freeze}
+          onPointerDown={() => {
+            scrubOrigin.current = appState.playerState
+            freeze()
+          }}
           onChange={({ target }) => {
-            if (!animationRef.current) {
-              return
-            }
-
-            seek(Math.round(Number(target.value) / 100 * animationRef.current.totalFrames))
+            seek(`${target.value}%`, scrubOrigin.current)
           }}
         />
         <progress className={styles.progress} max="100" value={appState.seeker}></progress>

@@ -15,6 +15,7 @@ import { PlayerEvents, PlayerState } from '@/enums'
 import useApp from '@/hooks/useApp'
 import { handleErrors, isLottie } from '@/utils'
 import buildAnimationConfig from '@/utils/buildAnimationConfig'
+import { hasReducedMotion } from '@/utils/constants'
 import createInstance from '@/utils/createInstance'
 import { handleSeek } from '@/utils/handleSeek'
 
@@ -31,204 +32,266 @@ export function useLottieInstance({
   const animationRef = useRef<null | AnimationItem>(null),
     loadGeneration = useRef(0),
     { appState, setAppState } = useApp(),
-    appStateRef = useRef(appState),
+    appStateRef = useRef(appState)
 
-    mountAtIndex = useCallback((animations: AnimationData[], index: number) => {
-      appStateRef.current = appState
+  useEffect(() => {
+    appStateRef.current = appState
+  }, [appState])
 
-      const container = containerRef.current
+  const mountAtIndex = useCallback((animations: AnimationData[], index: number) => {
+    const container = containerRef.current
 
-      if (!container) {
-        throw new Error('Container not rendered')
-      }
+    if (!container) {
+      throw new Error('Container not rendered')
+    }
 
-      const options = buildAnimationConfig(
-        container,
-        {
-          ...appStateRef.current,
-          currentAnimation: index
-        },
-        objectFit,
-        renderer
-      )
-
-      return createInstance(
-        loadAnimation,
-        animationRef,
-        options,
-        animations[index]
-      )
-
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-      containerRef,
-      loadAnimation,
+    const options = buildAnimationConfig(
+      container,
+      {
+        ...appStateRef.current,
+        currentAnimation: index
+      },
       objectFit,
       renderer
-    ]),
+    )
 
-    load = useCallback(async (src: null | string) => {
-      if (!src) {
+    return createInstance(
+      loadAnimation,
+      animationRef,
+      options,
+      animations[index]
+    )
+  }, [
+    containerRef,
+    loadAnimation,
+    objectFit,
+    renderer
+  ])
+
+  const load = useCallback(async (src: null | string) => {
+    if (!src) {
+      return
+    }
+
+    const generation = ++loadGeneration.current
+
+    setAppState(prev => ({
+      ...prev,
+      src
+    }))
+
+    try {
+      const {
+        animations = [], isDotLottie, manifest
+      } = await getAnimationData(src)
+
+      if (generation !== loadGeneration.current) {
         return
       }
 
-      const generation = ++loadGeneration.current
+      if (!animations.every(isLottie)) {
+        throw new Error('Broken or corrupted file')
+      }
 
-      setAppState(prev => ({
-        ...prev,
-        src
-      }))
+      if (manifest?.animations.length === 1) {
+        manifest.animations[0].autoplay = appStateRef.current.autoplay
+        manifest.animations[0].loop = appStateRef.current.loop
+      }
 
-      try {
-        const {
-          animations = [], isDotLottie, manifest
-        } = await getAnimationData(src)
+      let nextIndex = 0,
+        playerState: PlayerState = PlayerState.Stopped,
+        settings: AnimationSettings | undefined
 
-        if (generation !== loadGeneration.current) {
-          return
+      setAppState(prev => {
+        nextIndex = prev.currentAnimation
+        settings = prev.multiAnimationSettings[nextIndex]
+
+        if (
+          !prev.animateOnScroll &&
+          (prev.autoplay ||
+            prev.multiAnimationSettings[prev.currentAnimation]?.autoplay)
+        ) {
+          playerState = PlayerState.Playing
         }
 
-        if (!animations.every(isLottie)) {
-          throw new Error('Broken or corrupted file')
+        let isBounce = prev.mode === PlayMode.Bounce
+
+        if (prev.multiAnimationSettings.length > 0 && prev.multiAnimationSettings[prev.currentAnimation]?.mode) {
+          isBounce =
+            prev.multiAnimationSettings[prev.currentAnimation].mode as PlayMode ===
+            PlayMode.Bounce
         }
 
-        let nextIndex = 0,
-          playerState = PlayerState.Stopped
+        const nextState = {
+          ...prev,
+          animations,
+          isDotLottie,
+          manifest: manifest ?? {
+            animations: [{
+              autoplay: !prev.animateOnScroll && prev.autoplay,
+              direction,
+              id: createElementID(),
+              mode: prev.mode,
+              speed
+            }]
+          },
+          mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
+          playerState
+        }
 
+        appStateRef.current = nextState
 
-        setAppState(prev => {
-          nextIndex = prev.currentAnimation
+        return nextState
+      })
 
-          if (
-            !prev.animateOnScroll &&
-            (prev.autoplay ||
-              prev.multiAnimationSettings[prev.currentAnimation]?.autoplay)
-          ) {
-            playerState = PlayerState.Playing
-          }
+      const item = mountAtIndex(animations, nextIndex),
+        animationDirection = settings?.direction ?? direction
 
-          let isBounce = prev.mode === PlayMode.Bounce
+      item.setSpeed(settings?.speed ?? speed)
+      item.setDirection(animationDirection)
+      item.setSubframe(Boolean(subframe))
 
-          if (prev.multiAnimationSettings.length > 0 && prev.multiAnimationSettings[prev.currentAnimation]?.mode) {
-            isBounce =
-              prev.multiAnimationSettings[prev.currentAnimation].mode as PlayMode ===
-              PlayMode.Bounce
-          }
+      const {
+        animateOnScroll: hasAnimateOnScroll,
+        playerState: loadedPlayerState
+      } = appStateRef.current
 
-          return {
-            ...prev,
-            animations,
-            isDotLottie,
-            manifest: manifest ?? {
-              animations: [{
-                autoplay: !prev.animateOnScroll && prev.autoplay,
-                direction,
-                id: createElementID(),
-                mode: prev.mode,
-                speed
-              }]
-            },
-            mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
-            playerState
-          }
-        })
-
-        const item = mountAtIndex(animations, nextIndex),
-          settings = appState.multiAnimationSettings[nextIndex] as AnimationSettings | undefined,
-          animationDirection = settings?.direction ?? direction
-
-        item.setSpeed(settings?.speed ?? speed)
-        item.setDirection(animationDirection)
-        item.setSubframe(Boolean(subframe))
-
+      if (
+        !hasReducedMotion &&
+        (loadedPlayerState === PlayerState.Playing || hasAnimateOnScroll)
+      ) {
         if (animationDirection === -1) {
           handleSeek({
             animationItem: animationRef.current,
+            seekOrigin: loadedPlayerState,
             setAppState,
             value: '99%'
           })
         }
 
-      } catch (error) {
-        if (generation !== loadGeneration.current) {
-          return
+        if (
+          loadedPlayerState === PlayerState.Playing &&
+          !('IntersectionObserver' in window) &&
+          !hasAnimateOnScroll
+        ) {
+          item.play()
+          containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Play))
         }
-
-        const { message: errorMessage } = handleErrors(error)
-
-        onLoadError?.(errorMessage)
-        setAppState(prev => ({
-          ...prev,
-          errorMessage,
-          playerState: PlayerState.Error
-        }))
-
-        containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
       }
-    }, [
-      appState.multiAnimationSettings,
-      containerRef,
-      direction,
-      mountAtIndex,
-      onLoadError,
-      setAppState,
-      speed,
-      subframe
-    ]),
-
-    switchInstance = useCallback((index: number, isPrevious = false) => {
-      if (!appState.animations[index]) {
+    } catch (error) {
+      if (generation !== loadGeneration.current) {
         return
       }
 
-      try {
-        mountAtIndex(appState.animations, index)
+      const { message: errorMessage } = handleErrors(error)
 
-        containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
-      } catch (error) {
-        const { message: errorMessage } = handleErrors(error)
+      onLoadError?.(errorMessage)
+      setAppState(prev => ({
+        ...prev,
+        errorMessage,
+        playerState: PlayerState.Error
+      }))
 
-        onLoadError?.(errorMessage)
-        setAppState(prev => ({
-          ...prev,
-          errorMessage,
-          playerState: PlayerState.Error
-        }))
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
+    }
+  }, [
+    containerRef,
+    direction,
+    mountAtIndex,
+    onLoadError,
+    setAppState,
+    speed,
+    subframe
+  ])
 
-        containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
-      }
-    }, [
-      appState.animations,
-      containerRef,
-      mountAtIndex,
-      onLoadError,
-      setAppState
-    ]),
+  const switchInstance = useCallback((index: number, isPrevious = false) => {
+    const state = appStateRef.current
 
-    /**
-     * Set loop.
-     */
-    setLoop = (value: boolean) => {
-      animationRef.current?.setLoop(value)
-    },
-
-    setSpeed = (value: number) => {
-      animationRef.current?.setSpeed(value)
-    },
-
-    setDirection = (value: AnimationDirection) => {
-      animationRef.current?.setDirection(value)
-    },
-
-    setSubframe = (value: boolean) => {
-      animationRef.current?.setSubframe(value)
+    if (!state.animations[index]) {
+      return
     }
 
+    try {
+      const item = mountAtIndex(state.animations, index),
+        { mode: playMode } = state.multiAnimationSettings[index] ?? {}
+
+      setAppState(prev => ({
+        ...prev,
+        mode: playMode ?? PlayMode.Normal,
+      }))
+
+      containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
+
+      const shouldAutoplay =
+        state.multiAnimationSettings[index]?.autoplay ??
+        state.autoplay
+
+      if (shouldAutoplay) {
+        if (state.animateOnScroll) {
+          item.goToAndStop(0, true)
+          setAppState(prev => ({
+            ...prev,
+            playerState: PlayerState.Paused
+          }))
+
+          return
+        }
+
+        item.goToAndPlay(0, true)
+        setAppState(prev => ({
+          ...prev,
+          playerState: PlayerState.Playing
+        }))
+
+        return
+      }
+
+      item.goToAndStop(0, true)
+      setAppState(prev => ({
+        ...prev,
+        playerState: PlayerState.Stopped
+      }))
+    } catch (error) {
+      const { message: errorMessage } = handleErrors(error)
+
+      onLoadError?.(errorMessage)
+      setAppState(prev => ({
+        ...prev,
+        errorMessage,
+        playerState: PlayerState.Error
+      }))
+
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
+    }
+  }, [
+    containerRef,
+    mountAtIndex,
+    onLoadError,
+    setAppState
+  ])
+
+  const setLoop = (value: boolean) => {
+    animationRef.current?.setLoop(value)
+  }
+
+  const setSpeed = (value: number) => {
+    animationRef.current?.setSpeed(value)
+  }
+
+  const setDirection = (value: AnimationDirection) => {
+    animationRef.current?.setDirection(value)
+  }
+
+  const setSubframe = (value: boolean) => {
+    animationRef.current?.setSubframe(value)
+  }
+
   useEffect(() => {
-    animationRef.current?.destroy()
-    // eslint-disable-next-line react-hooks/immutability
-    animationRef.current = null
+    return () => {
+      loadGeneration.current += 1
+      animationRef.current?.destroy()
+      animationRef.current = null
+    }
   }, [])
 
   return {

@@ -13,7 +13,7 @@ import {
 import {
   lazy,
   Suspense,
-  useCallback, useEffect, useImperativeHandle, useRef
+  useCallback, useEffect, useImperativeHandle, useRef, useState
 } from 'react'
 
 import type { DotLottieMethods } from '@/types'
@@ -74,6 +74,12 @@ export default function Player({
 
   const { appState, setAppState } = useApp(),
     containerRef = useRef<HTMLElement>(null),
+    [containerNode, setContainerNode] = useState<HTMLElement | null>(null),
+
+    setContainerRef = useCallback((node: HTMLElement | null) => {
+      containerRef.current = node
+      setContainerNode(node)
+    }, []),
 
     {
       animationRef,
@@ -162,7 +168,7 @@ export default function Player({
 
     { getIsVisible } = useGlobalEvents({
       animationRef,
-      container: containerRef.current,
+      container: containerNode,
       freeze,
       play
     })
@@ -243,7 +249,7 @@ export default function Player({
       data-controls={appState.controls}
       {...rest}
     >
-      <figure className={styles.animation} ref={containerRef} style={{ background }}>
+      <figure className={styles.animation} ref={setContainerRef} style={{ background }}>
         {appState.playerState === PlayerState.Error &&
           <Suspense>
             <div className={styles.error}>

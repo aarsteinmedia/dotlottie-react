@@ -1,5 +1,5 @@
 import {
-  useEffect, useState, useRef
+  useEffect, useRef, useState
 } from 'react'
 
 import { PlayerState } from '@/enums'
@@ -17,30 +17,47 @@ export default function useIsVisible({
   freeze,
   play
 }: Props) {
-  const intersectionObserver = useRef<IntersectionObserver>(null),
-    { appState } = useApp(),
+  const { appState } = useApp(),
+    appStateRef = useRef(appState),
+    freezeRef = useRef(freeze),
+    playRef = useRef(play),
     [state, setState] = useState({
       isVisible: !('IntersectionObserver' in window),
       scrollPos: 0
     })
 
   useEffect(() => {
-    if (!container || intersectionObserver.current || !('IntersectionObserver' in window)) {
+    appStateRef.current = appState
+  }, [appState])
+
+  useEffect(() => {
+    freezeRef.current = freeze
+    playRef.current = play
+  }, [freeze, play])
+
+  useEffect(() => {
+    if (!container || !('IntersectionObserver' in window)) {
       return
     }
 
-    intersectionObserver.current = new IntersectionObserver((entries) => {
+    const observer = new IntersectionObserver((entries) => {
       const { length } = entries
 
       for (let i = 0; i < length; i++) {
+        const {
+          animateOnScroll: hasAnimateOnScroll,
+          playerState,
+          prevState
+        } = appStateRef.current
+
         if (!entries[i].isIntersecting || document.hidden) {
           setState(prev => ({
             ...prev,
             isVisible: false
           }))
 
-          if (appState.playerState === PlayerState.Playing) {
-            freeze()
+          if (playerState === PlayerState.Playing) {
+            freezeRef.current()
           }
 
           continue
@@ -51,25 +68,23 @@ export default function useIsVisible({
           scrollPos: prev.scrollPos || scrollY,
         }))
 
-        if (!appState.animateOnScroll && appState.playerState === PlayerState.Frozen) {
-          play()
+        // Only resume after visibility freeze (was playing), not slider scrub freeze.
+        if (
+          !hasAnimateOnScroll &&
+          playerState === PlayerState.Frozen &&
+          prevState === PlayerState.Playing
+        ) {
+          playRef.current()
         }
       }
     })
 
-    intersectionObserver.current.observe(container)
+    observer.observe(container)
 
     return () => {
-      intersectionObserver.current?.disconnect()
+      observer.disconnect()
     }
-
-  }, [
-    appState.animateOnScroll,
-    appState.playerState,
-    container,
-    freeze,
-    play
-  ])
+  }, [container])
 
   return {
     isVisible: state.isVisible,

@@ -6,12 +6,15 @@ import { PlayerState } from '@/utils/enums'
 
 interface Props {
   animationItem: null | AnimationItem
+  /** Playback state when the scrub started (before freeze). */
+  seekOrigin?: PlayerState
   setAppState: React.Dispatch<React.SetStateAction<AppState>>
   value: number | string
 }
 
 export function handleSeek({
   animationItem,
+  seekOrigin,
   setAppState,
   value
 }: Props) {
@@ -19,46 +22,36 @@ export function handleSeek({
     return
   }
 
-  // Extract frame number from either number or percentage value
   const matches = value.toString().match(/^(\d+)(%?)$/)
 
   if (!matches) {
     return
   }
 
-  // Calculate and set the frame number
   const frame = Math.round(matches[2] === '%'
-    ? animationItem.totalFrames * Number(matches[1]) / 100
-    : Number(matches[1]))
+      ? animationItem.totalFrames * Number(matches[1]) / 100
+      : Number(matches[1])),
+    seeker = matches[2] === '%'
+      ? Number(matches[1])
+      : Math.round(frame / animationItem.totalFrames * 100)
 
-  // Set seeker to new frame number
-  setAppState(prev => {
-    return {
+  if (seekOrigin === PlayerState.Playing) {
+    animationItem.goToAndPlay(frame, true)
+    setAppState(prev => ({
       ...prev,
-      seeker: frame
-    }
-  })
+      playerState: PlayerState.Playing,
+      seeker
+    }))
 
-  // Send lottie player to the new frame
-  animationItem.goToAndPlay(frame, true)
-  setAppState(prev => {
-    if (
-      prev.playerState === PlayerState.Playing ||
-      prev.playerState === PlayerState.Frozen &&
-      prev.prevState === PlayerState.Playing
-    ) {
+    return
+  }
 
-      animationItem.goToAndPlay(frame, true)
+  animationItem.goToAndStop(frame, true)
+  animationItem.pause()
 
-      return {
-        ...prev,
-        playerState: PlayerState.Playing
-      }
-    }
-
-    animationItem.goToAndStop(frame, true)
-    animationItem.pause()
-
-    return prev
-  })
+  setAppState(prev => ({
+    ...prev,
+    playerState: seekOrigin ?? prev.playerState,
+    seeker
+  }))
 }

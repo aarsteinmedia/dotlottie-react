@@ -41,7 +41,7 @@ function App() {
           }}>
           <DotLottiePlayer
             // autoplay
-            animateOnScroll
+            // animateOnScroll
             subframe
             controls
             // direction={-1}

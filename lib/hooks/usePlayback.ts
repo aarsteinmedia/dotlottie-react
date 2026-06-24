@@ -14,7 +14,7 @@ export function usePlayback({
   containerRef,
 }: Props) {
 
-  const { setAppState } = useApp(),
+  const { appState, setAppState } = useApp(),
 
     /**
        * Freeze animation.
@@ -77,9 +77,10 @@ export function usePlayback({
      *
      * @param value - Frame to seek to.
      */
-    seek = (value: number | string) => {
+    seek = (value: number | string, seekOrigin?: PlayerState) => {
       handleSeek({
         animationItem: animationRef.current,
+        seekOrigin: seekOrigin ?? appState.playerState,
         setAppState,
         value
       })
