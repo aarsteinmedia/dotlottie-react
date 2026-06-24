@@ -23,8 +23,8 @@ import { PlayerState } from '@/utils/enums'
 import { getDotLottieModule } from '@/utils/getDotLottieModule'
 
 interface Props {
-  animationItem: React.RefObject<AnimationItem | null>
-  container: React.RefObject<HTMLElement | null>
+  animationRef: React.RefObject<AnimationItem | null>
+  containerRef: React.RefObject<HTMLElement | null>
   freeze: () => void
   next: () => void
   pause: () => void
@@ -36,8 +36,8 @@ interface Props {
 }
 
 export default function Controls({
-  animationItem,
-  container,
+  animationRef,
+  containerRef,
   freeze,
   next,
   pause,
@@ -68,20 +68,20 @@ export default function Controls({
     * @param value - Animation direction.
     */
     setDirection = (value: AnimationDirection) => {
-      animationItem.current?.setDirection(value)
+      animationRef.current?.setDirection(value)
     },
 
     /**
      * Toggle playing state.
      */
     togglePlay = () => {
-      if (!animationItem.current) {
+      if (!animationRef.current) {
         return
       }
 
       const {
         currentFrame, playDirection, totalFrames
-      } = animationItem.current
+      } = animationRef.current
 
       if (appState.playerState === PlayerState.Playing) {
         pause()
@@ -100,17 +100,17 @@ export default function Controls({
       if (appState.mode === PlayMode.Bounce) {
         setDirection((playDirection * -1) as AnimationDirection)
 
-        animationItem.current.goToAndPlay(currentFrame, true)
+        animationRef.current.goToAndPlay(currentFrame, true)
 
         return
       }
       if (playDirection === -1) {
-        animationItem.current.goToAndPlay(totalFrames, true)
+        animationRef.current.goToAndPlay(totalFrames, true)
 
         return
       }
 
-      animationItem.current.goToAndPlay(0, true)
+      animationRef.current.goToAndPlay(0, true)
     },
 
     /**
@@ -162,12 +162,12 @@ export default function Controls({
      */
     snapshot = (shouldDownload = true, name = 'AM Lottie') => {
       try {
-        if (!container.current) {
+        if (!containerRef.current) {
           throw new Error('Unknown error')
         }
 
         // Get SVG element and serialize markup
-        const svgElement = container.current.querySelector('svg')
+        const svgElement = containerRef.current.querySelector('svg')
 
         if (!svgElement) {
           throw new Error('Could not retrieve animation from DOM')
@@ -199,7 +199,7 @@ export default function Controls({
 
   useEventListener(
     'click', ({ target }) => {
-      if (!target || !container.current?.contains(target as Node)) {
+      if (!target || !containerRef.current?.contains(target as Node)) {
         toggleSettings(false)
       }
     }, {
@@ -280,11 +280,11 @@ export default function Controls({
           aria-label="Slider for seek"
           onMouseDown={freeze}
           onChange={({ target }) => {
-            if (!animationItem.current) {
+            if (!animationRef.current) {
               return
             }
 
-            seek(Math.round(Number(target.value) / 100 * animationItem.current.totalFrames))
+            seek(Math.round(Number(target.value) / 100 * animationRef.current.totalFrames))
           }}
         />
         <progress className={styles.progress} max="100" value={appState.seeker}></progress>
@@ -334,7 +334,7 @@ export default function Controls({
                     currentAnimation: appState.currentAnimation,
                     generator: '@aarsteinmedia/dotlottie-react',
                     isDotLottie: appState.isDotLottie,
-                    manifest: appState.manifest,
+                    manifest: appState.manifest ?? undefined,
                     src: appState.src ?? undefined
                   })
                 })()

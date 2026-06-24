@@ -11,7 +11,6 @@ import type {
 } from '@aarsteinmedia/lottie-web/dotlottie'
 import type { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 
-import type { AppState } from '@/context/AppContext'
 import type { ObjectFit } from '@/utils/enums'
 
 export interface DotLottieProps {
@@ -64,7 +63,6 @@ export interface DotLottieMethods {
 }
 
 export interface UseLottieInstance {
-  appState: AppState
   containerRef: React.RefObject<HTMLElement | null>
   direction?: AnimationDirection
   loadAnimation: (config: AnimationConfiguration) => AnimationItem

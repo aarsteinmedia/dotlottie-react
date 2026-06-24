@@ -1,7 +1,10 @@
 import { namespaceSVG, PreserveAspectRatio } from '@aarsteinmedia/lottie-web/utils'
 
-interface Props { message: string }
-export default function ErrorMessage({ message }: Props) {
+import useApp from '@/hooks/useApp'
+
+export default function ErrorMessage() {
+  const { appState } = useApp()
+
   return (
     <svg
       preserveAspectRatio={PreserveAspectRatio.Cover}
@@ -31,7 +34,7 @@ export default function ErrorMessage({ message }: Props) {
           textAlign: 'center'
         }}
       >
-        {message}
+        {appState.errorMessage}
       </text>
     </svg>
   )

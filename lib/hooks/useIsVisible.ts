@@ -4,7 +4,7 @@ import {
 
 export default function useIsVisible(container: null | HTMLElement) {
   const intersectionObserver = useRef<IntersectionObserver>(null),
-    [isVisible, setIsVisible] = useState(false)
+    [isVisible, setIsVisible] = useState(!('IntersectionObserver' in window))
 
   useEffect(() => {
     if (!container || intersectionObserver.current || !('IntersectionObserver' in window)) {
