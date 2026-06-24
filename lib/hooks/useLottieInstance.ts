@@ -4,6 +4,7 @@ import type {
 } from '@aarsteinmedia/lottie-web'
 
 import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
+import { createElementID, PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import {
   useCallback, useEffect, useRef
 } from 'react'
@@ -33,6 +34,8 @@ export function useLottieInstance({
     appStateRef = useRef(appState),
 
     mountAtIndex = useCallback((animations: AnimationData[], index: number) => {
+      appStateRef.current = appState
+
       const container = containerRef.current
 
       if (!container) {
@@ -57,6 +60,7 @@ export function useLottieInstance({
       )
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       containerRef,
       loadAnimation,
@@ -90,21 +94,43 @@ export function useLottieInstance({
         }
 
         let nextIndex = 0,
-          nextPlayerState = PlayerState.Stopped
+          playerState = PlayerState.Stopped
 
-        if (appState.autoplay) {
-          nextPlayerState = PlayerState.Playing
-        }
 
         setAppState(prev => {
           nextIndex = prev.currentAnimation
+
+          if (
+            !prev.animateOnScroll &&
+            (prev.autoplay ||
+              prev.multiAnimationSettings[prev.currentAnimation]?.autoplay)
+          ) {
+            playerState = PlayerState.Playing
+          }
+
+          let isBounce = prev.mode === PlayMode.Bounce
+
+          if (prev.multiAnimationSettings.length > 0 && prev.multiAnimationSettings[prev.currentAnimation]?.mode) {
+            isBounce =
+              prev.multiAnimationSettings[prev.currentAnimation].mode as PlayMode ===
+              PlayMode.Bounce
+          }
 
           return {
             ...prev,
             animations,
             isDotLottie,
-            manifest,
-            playerState: nextPlayerState
+            manifest: manifest ?? {
+              animations: [{
+                autoplay: !prev.animateOnScroll && prev.autoplay,
+                direction,
+                id: createElementID(),
+                mode: prev.mode,
+                speed
+              }]
+            },
+            mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
+            playerState
           }
         })
 
@@ -141,7 +167,6 @@ export function useLottieInstance({
         containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
       }
     }, [
-      appState.autoplay,
       appState.multiAnimationSettings,
       containerRef,
       direction,
@@ -153,14 +178,12 @@ export function useLottieInstance({
     ]),
 
     switchInstance = useCallback((index: number, isPrevious = false) => {
-      const { animations } = appState
-
-      if (!animations[index]) {
+      if (!appState.animations[index]) {
         return
       }
 
       try {
-        mountAtIndex(animations, index)
+        mountAtIndex(appState.animations, index)
 
         containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
       } catch (error) {
@@ -176,7 +199,7 @@ export function useLottieInstance({
         containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
       }
     }, [
-      appState,
+      appState.animations,
       containerRef,
       mountAtIndex,
       onLoadError,

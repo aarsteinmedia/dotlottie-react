@@ -2,9 +2,27 @@ import {
   useEffect, useState, useRef
 } from 'react'
 
-export default function useIsVisible(container: null | HTMLElement) {
+import { PlayerState } from '@/enums'
+
+import useApp from './useApp'
+
+interface Props {
+  container: null | HTMLElement
+  freeze: () => void
+  play: () => void
+}
+
+export default function useIsVisible({
+  container,
+  freeze,
+  play
+}: Props) {
   const intersectionObserver = useRef<IntersectionObserver>(null),
-    [isVisible, setIsVisible] = useState(!('IntersectionObserver' in window))
+    { appState } = useApp(),
+    [state, setState] = useState({
+      isVisible: !('IntersectionObserver' in window),
+      scrollPos: 0
+    })
 
   useEffect(() => {
     if (!container || intersectionObserver.current || !('IntersectionObserver' in window)) {
@@ -16,12 +34,26 @@ export default function useIsVisible(container: null | HTMLElement) {
 
       for (let i = 0; i < length; i++) {
         if (!entries[i].isIntersecting || document.hidden) {
-          setIsVisible(false)
+          setState(prev => ({
+            ...prev,
+            isVisible: false
+          }))
+
+          if (appState.playerState === PlayerState.Playing) {
+            freeze()
+          }
 
           continue
         }
 
-        setIsVisible(true)
+        setState(prev => ({
+          isVisible: true,
+          scrollPos: prev.scrollPos || scrollY,
+        }))
+
+        if (!appState.animateOnScroll && appState.playerState === PlayerState.Frozen) {
+          play()
+        }
       }
     })
 
@@ -31,7 +63,16 @@ export default function useIsVisible(container: null | HTMLElement) {
       intersectionObserver.current?.disconnect()
     }
 
-  }, [container])
+  }, [
+    appState.animateOnScroll,
+    appState.playerState,
+    container,
+    freeze,
+    play
+  ])
 
-  return isVisible
+  return {
+    isVisible: state.isVisible,
+    scrollPos: state.scrollPos
+  }
 }

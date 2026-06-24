@@ -1,14 +1,11 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { isServer } from '@aarsteinmedia/lottie-web/utils'
-import {
-  useCallback, useRef, useState
-} from 'react'
+import { useCallback, useRef } from 'react'
 
 import { PlayerState } from '@/enums'
 import useApp from '@/hooks/useApp'
 import useEventListener from '@/hooks/useEventListener'
-import useIntersectionObserver from '@/hooks/useIntersectionObserver'
 import useIsVisible from '@/hooks/useIsVisible'
 import { hasReducedMotion } from '@/utils/constants'
 
@@ -28,13 +25,10 @@ export function useGlobalEvents({
   const { appState, setAppState } = useApp(),
     scrollTimeout = useRef<ReturnType<typeof setTimeout>>(null),
 
-    isVisible = useIsVisible(container),
-    [state, setState] = useState<{
-      isVisible: boolean
-      scrollY: number
-    }>({
-      isVisible,
-      scrollY: 0
+    { isVisible, scrollPos } = useIsVisible({
+      container,
+      freeze,
+      play
     }),
 
     handleWindowBlur = ({ type }: FocusEvent) => {
@@ -63,7 +57,7 @@ export function useGlobalEvents({
 
         return
       }
-      if (state.isVisible) {
+      if (isVisible) {
         if (scrollTimeout.current) {
           clearTimeout(scrollTimeout.current)
         }
@@ -77,9 +71,9 @@ export function useGlobalEvents({
         }, 400)
 
         const adjustedScroll =
-          scrollY > state.scrollY
-            ? scrollY - state.scrollY
-            : state.scrollY - scrollY,
+          scrollY > scrollPos
+            ? scrollY - scrollPos
+            : scrollPos - scrollY,
           clampedScroll = Math.min(Math.max(adjustedScroll / 3, 1),
             animationRef.current.totalFrames * 3),
           roundedScroll = clampedScroll / 3
@@ -106,8 +100,8 @@ export function useGlobalEvents({
     },
 
     getIsVisible = useCallback(() => {
-      return state.isVisible
-    }, [state.isVisible])
+      return isVisible
+    }, [isVisible])
 
   useEventListener(
     'focus', handleWindowBlur, {
@@ -126,42 +120,6 @@ export function useGlobalEvents({
       capture: true,
       passive: true
     }
-  )
-
-  // Intersection Observer
-  useIntersectionObserver(
-    /**
-     * On visible.
-     */
-    () => {
-      if (!appState.animateOnScroll && appState.playerState === PlayerState.Frozen) {
-        play()
-      }
-      if (!state.scrollY) {
-        setState(prev => ({
-          ...prev,
-          scrollY
-        }))
-      }
-      setState(prev => ({
-        ...prev,
-        isVisible: true
-      }))
-    },
-    /**
-     * On hidden.
-     */
-    () => {
-      if (appState.playerState === PlayerState.Playing) {
-        freeze()
-      }
-      setState(prev => ({
-        ...prev,
-        isVisible: false
-      }))
-    },
-    // To observe.
-    container
   )
 
   return { getIsVisible }
