@@ -24,17 +24,19 @@ export function usePlayback({
      * user requested pauses and component instigated pauses.
      */
     freeze = () => {
-      if (!animationRef.current) {
+      const { current: item } = animationRef
+
+      if (!item) {
         return
       }
 
-      animationRef.current.pause()
+      item.pause()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
 
       dispatch({
         patch: {
           playerState: PlayerState.Frozen,
-          seeker: getSeeker(animationRef.current),
+          seeker: getSeeker(item),
         },
         type: 'SET_PLAYBACK'
       })
@@ -44,17 +46,19 @@ export function usePlayback({
      * Pause.
      */
     pause = () => {
-      if (!animationRef.current) {
+      const { current: item } = animationRef
+
+      if (!item) {
         return
       }
 
-      animationRef.current.pause()
+      item.pause()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Pause))
 
       dispatch({
         patch: {
           playerState: PlayerState.Paused,
-          seeker: getSeeker(animationRef.current),
+          seeker: getSeeker(item),
         },
         type: 'SET_PLAYBACK'
       })
@@ -65,11 +69,13 @@ export function usePlayback({
      * Play.
      */
     play = () => {
-      if (!animationRef.current) {
+      const { current: item } = animationRef
+
+      if (!item) {
         return
       }
 
-      animationRef.current.play()
+      item.play()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Play))
 
       dispatch({
@@ -98,11 +104,13 @@ export function usePlayback({
      * Stop.
      */
     stop = () => {
-      if (!animationRef.current) {
+      const { current: item } = animationRef
+
+      if (!item) {
         return
       }
 
-      animationRef.current.stop()
+      item.stop()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Stop))
 
       dispatch({

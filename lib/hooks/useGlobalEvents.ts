@@ -73,7 +73,7 @@ export function useGlobalEvents({
           clearTimeout(scrollTimeout.current)
         }
         scrollTimeout.current = setTimeout(() => {
-          const item = animationRef.current
+          const { current: item } = animationRef
 
           dispatch({
             patch: {
@@ -93,7 +93,7 @@ export function useGlobalEvents({
           roundedScroll = clampedScroll / 3
 
         requestAnimationFrame(() => {
-          const item = animationRef.current
+          const { current: item } = animationRef
 
           if (!item) {
             return

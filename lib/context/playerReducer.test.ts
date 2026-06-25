@@ -53,10 +53,17 @@ describe('playerReducer', () => {
     const next = playerReducer(state, {
       payload: {
         animations: [{
+          assets: [],
+          chars: [],
+          ddd: 0,
           fr: 30,
+          h: 100,
           ip: 0,
+          layers: [],
+          nm: '',
           op: 60,
-          v: '5.5.7'
+          v: '5.5.7',
+          w: 100
         }],
         isDotLottie: true,
         manifest: {
