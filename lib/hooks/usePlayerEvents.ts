@@ -262,7 +262,7 @@ export function usePlayerEvents({
     'enterFrame', enterFrame, { element: animationRef }
   )
   useEventListener(
-    'complete', complete, { element: animationRef }
+    PlayerEvents.Complete, complete, { element: animationRef }
   )
   useEventListener(
     'loopComplete', loopComplete, { element: animationRef }

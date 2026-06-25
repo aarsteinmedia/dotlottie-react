@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable fsecond/valid-event-listener */
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { isServer } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
 export type EventHandler<E extends Event = Event> = (event: E) => void
+
+function isRefObject<T>(value: unknown): value is React.RefObject<T> {
+  return value !== null && typeof value === 'object' && 'current' in value
+}
 
 interface ElementOptions<T> {
   element?:
@@ -45,6 +48,9 @@ export function useEventListener<
     element =
     elementOptions === undefined && !isServer ? window : elementOptions,
 
+    isElementRef = isRefObject(element),
+    resolvedElement = isElementRef ? element.current : element,
+
     callbackRef = useRef(callback)
 
   useEffect(() => {
@@ -56,43 +62,70 @@ export function useEventListener<
       return
     }
 
-    const targetElement =
-      element && typeof element === 'object' && 'current' in element
-        ? element.current
-        : element
+    let removeListener: (() => void) | undefined,
+      cancelled = false,
+      frameId = 0
 
-    if (!targetElement) {
-      return
+    const attach = () => {
+      const targetElement = isElementRef ? element.current : element
+
+      if (!targetElement) {
+        return false
+      }
+
+      const listenerOptions = {
+          capture: isCapture,
+          passive: isPassive
+        },
+        handler = ((e: E) => {
+          callbackRef.current(e)
+        }) as EventListener
+
+      /* AnimationItem::addEventListener is not directly compatible
+      with standard Element::addEventListener, but not in a way that
+      will cause trouble */
+      ;(targetElement as Window).addEventListener(
+        eventType, handler, listenerOptions
+      )
+
+      removeListener = () => {
+        ;(targetElement as Window).removeEventListener(
+          eventType,
+          handler,
+          listenerOptions
+        )
+      }
+
+      return true
     }
 
-    const listenerOptions = {
-        capture: isCapture,
-        passive: isPassive
-      },
-      handler = ((e: E) => {
-        callbackRef.current(e)
-      }) as EventListener
+    if (!attach() && isElementRef) {
+      const waitForElement = () => {
+        if (cancelled) {
+          return
+        }
+        if (attach()) {
+          return
+        }
+        frameId = requestAnimationFrame(waitForElement)
+      }
 
-    /* AnimationItem::addEventListener is not directly compatible
-    with standard Element::addEventListener, but not in a way that
-    will cause trouble */
-    ;(targetElement as Window).addEventListener(
-      eventType, handler, listenerOptions
-    )
+      frameId = requestAnimationFrame(waitForElement)
+    }
 
     return () => {
-      ;(targetElement as Window).removeEventListener(
-        eventType,
-        handler,
-        listenerOptions
-      )
+      cancelled = true
+      cancelAnimationFrame(frameId)
+      removeListener?.()
     }
   }, [
     element,
     eventType,
     isCapture,
+    isElementRef,
     isEnabled,
-    isPassive
+    isPassive,
+    resolvedElement
   ])
 }
 
