@@ -1,6 +1,5 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import type { PlayerPlayback } from '@/context/AppContext'
 import type { PlayerAction } from '@/types'
 
 import { PlayerState } from '@/utils/enums'
@@ -8,7 +7,6 @@ import { PlayerState } from '@/utils/enums'
 interface Props {
   animationItem: null | AnimationItem
   dispatch: React.Dispatch<PlayerAction>
-  playback: PlayerPlayback
   /** Playback state when the scrub started (before freeze). */
   seekOrigin?: PlayerState
   value: number | string
@@ -17,7 +15,6 @@ interface Props {
 export function handleSeek({
   animationItem,
   dispatch,
-  playback,
   seekOrigin,
   value
 }: Props) {
@@ -56,7 +53,7 @@ export function handleSeek({
 
   dispatch({
     patch: {
-      playerState: seekOrigin ?? playback.playerState,
+      playerState: seekOrigin ?? PlayerState.Paused,
       seeker
     },
     type: 'SET_PLAYBACK'

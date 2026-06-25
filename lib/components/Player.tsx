@@ -18,7 +18,9 @@ import {
 
 import type { DotLottieMethods } from '@/types'
 
-import { useApp } from '@/hooks/useApp'
+import {
+  usePlayerAsset, usePlayerConfig, usePlayerDispatch, usePlayerPlayback
+} from '@/hooks/useApp'
 import { useGlobalEvents } from '@/hooks/useGlobalEvents'
 import { useLottieInstance } from '@/hooks/useLottieInstance'
 import { usePlayback } from '@/hooks/usePlayback'
@@ -72,7 +74,10 @@ export default function Player({
   ...rest
 }: Props){
 
-  const { appState, setAppState } = useApp(),
+  const dispatch = usePlayerDispatch(),
+    playback = usePlayerPlayback(),
+    config = usePlayerConfig(),
+    asset = usePlayerAsset(),
     containerRef = useRef<HTMLElement>(null),
     [containerNode, setContainerNode] = useState<HTMLElement | null>(null),
 
@@ -115,56 +120,57 @@ export default function Player({
      * Skip to previous animation.
      */
     previous = useCallback(() => {
-      setAppState((prev) => {
-        const currentAnimation = clamp(prev.currentAnimation - 1, 0)
+      const currentAnimation = clamp(playback.currentAnimation - 1, 0)
 
-        switchInstance(currentAnimation, true)
+      switchInstance(currentAnimation, true)
 
-        return {
-          ...prev,
-          currentAnimation
-        }
+      dispatch({
+        patch: { currentAnimation },
+        type: 'SET_PLAYBACK'
       })
-    }, [setAppState, switchInstance]),
+    }, [dispatch,
+      playback.currentAnimation,
+      switchInstance]),
 
     /**
      * Skip to next animation.
      */
     next = useCallback(() => {
-      setAppState((prev) => {
-        const currentAnimation = clamp(
-          prev.currentAnimation + 1, 0, prev.animations.length
-        )
+      const currentAnimation = clamp(playback.currentAnimation + 1, asset.animations.length)
 
-        switchInstance(currentAnimation)
+      switchInstance(currentAnimation)
 
-        return {
-          ...prev,
-          currentAnimation
-        }
+      dispatch({
+        patch: { currentAnimation },
+        type: 'SET_PLAYBACK'
       })
-    }, [setAppState, switchInstance]),
+    }, [
+      asset.animations.length,
+      dispatch,
+      playback.currentAnimation,
+      switchInstance
+    ]),
 
     setLoopsCompleted = useCallback((value: number) => {
-      setAppState(prev => ({
-        ...prev,
-        loopsCompleted: value
-      }))
-    }, [setAppState]),
+      dispatch({
+        patch: { loopsCompleted: value },
+        type: 'SET_PLAYBACK'
+      })
+    }, [dispatch]),
 
     setMultiAnimationSettings = useCallback((settings: AnimationSettings[]) => {
-      setAppState(prev => ({
-        ...prev,
-        multiAnimationSettings: settings
-      }))
-    }, [setAppState]),
+      dispatch({
+        settings,
+        type: 'SET_MULTI_ANIMATION_SETTINGS'
+      })
+    }, [dispatch]),
 
     setSegment = useCallback((segment: AnimationSegment) => {
-      setAppState(prev => ({
-        ...prev,
-        segment
-      }))
-    }, [setAppState]),
+      dispatch({
+        segment,
+        type: 'SET_SEGMENT'
+      })
+    }, [dispatch]),
 
     { getIsVisible } = useGlobalEvents({
       animationRef,
@@ -174,8 +180,8 @@ export default function Player({
     })
 
   useEffect(() => {
-    void load(appState.src)
-  }, [appState.src, load])
+    void load(config.src)
+  }, [config.src, load])
 
   useImperativeHandle(
     ref, () => {
@@ -243,14 +249,14 @@ export default function Player({
   return (
     <div
       className={classnames([styles.dotLottie, className])}
-      lang={appState.lang}
+      lang={config.lang}
       aria-label={description}
       aria-hidden={!description || undefined}
-      data-controls={appState.controls}
+      data-controls={config.controls}
       {...rest}
     >
       <figure className={styles.animation} ref={setContainerRef} style={{ background }}>
-        {appState.playerState === PlayerState.Error &&
+        {playback.playerState === PlayerState.Error &&
           <Suspense>
             <div className={styles.error}>
               <ErrorMessage />
@@ -258,7 +264,7 @@ export default function Player({
           </Suspense>
         }
       </figure>
-      {appState.controls &&
+      {config.controls &&
         <Suspense>
           <Controls
             animationRef={animationRef}

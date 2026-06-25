@@ -1,6 +1,6 @@
 import type { AnimationConfiguration, CanvasRendererConfig } from '@aarsteinmedia/lottie-web'
 
-import type { PlayerSnapshot } from '@/context/AppContext'
+import type { PlayerSnapshot } from '@/types'
 import type { ObjectFit } from '@/utils/enums'
 
 import { RendererType } from '@/enums'

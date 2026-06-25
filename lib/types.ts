@@ -85,6 +85,24 @@ export interface AppState {
   playback: Readonly<PlayerPlayback>
 }
 
+// export type PlayerSnapshot = PlayerConfig & PlayerAsset & PlayerPlayback
+export type PlayerSnapshot = Omit<Payload, 'manifest'> & {
+  animateOnScroll?: boolean
+  autoplay?: boolean
+  currentAnimation: number
+  loop?: boolean
+  multiAnimationSettings: AnimationSettings[]
+  segment?: Vector2
+  manifest?: null | LottieManifest
+}
+export interface Payload {
+  animations: AnimationData[];
+  isDotLottie: boolean;
+  manifest: LottieManifest;
+  mode: PlayMode;
+  playerState: PlayerState
+}
+
 export type PlayerAction =
   | {
     type: 'SYNC_CONFIG'

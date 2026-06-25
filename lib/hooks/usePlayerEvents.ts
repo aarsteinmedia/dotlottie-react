@@ -72,8 +72,8 @@ export function usePlayerEvents({
         if (config.loop && playback.currentAnimation === asset.animations.length - 1) {
 
           dispatch({
-            patch: { currentAnimation: 0 },
-            type: 'SET_PLAYBACK'
+            currentAnimation: 0,
+            type: 'SWITCH_ANIMATION'
           })
 
           switchInstance(0)
@@ -205,6 +205,8 @@ export function usePlayerEvents({
         animationRef.current.setDirection((playDirection * -1) as AnimationDirection)
 
         scheduleIntermissionPlay()
+
+        return
       }
 
       animationRef.current.goToAndStop(playDirection === -1 ? outPoint * 0.99 : inPoint,

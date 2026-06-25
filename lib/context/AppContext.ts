@@ -40,8 +40,6 @@ export interface PlayerPlayback {
   segment: null | Vector2
 }
 
-export type PlayerSnapshot = PlayerConfig & PlayerAsset & PlayerPlayback
-
 const AppContext = createContext<{
   state: AppState
   dispatch: React.Dispatch<PlayerAction>

@@ -1,6 +1,6 @@
 import type {
   AnimationData, AnimationDirection, AnimationItem,
-  AnimationSettings
+  AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
 
 import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
@@ -9,11 +9,13 @@ import {
   useCallback, useEffect, useRef
 } from 'react'
 
-import type { UseLottieInstance } from '@/types'
+import type {
+  Payload, PlayerSnapshot, UseLottieInstance
+} from '@/types'
 
 import { PlayerEvents, PlayerState } from '@/enums'
 import {
-  useApp, usePlayerDispatch, usePlayerPlayback
+  usePlayerAsset, usePlayerConfig, usePlayerDispatch, usePlayerPlayback
 } from '@/hooks/useApp'
 import { handleErrors, isLottie } from '@/utils'
 import { buildAnimationConfig } from '@/utils/buildAnimationConfig'
@@ -33,14 +35,48 @@ export function useLottieInstance({
 }: UseLottieInstance) {
   const animationRef = useRef<null | AnimationItem>(null),
     loadGeneration = useRef(0),
-    { appState, setAppState } = useApp(),
     dispatch = usePlayerDispatch(),
     playback = usePlayerPlayback(),
-    appStateRef = useRef(appState)
+    asset = usePlayerAsset(),
+    config = usePlayerConfig(),
+    appStateRef = useRef<PlayerSnapshot>({
+      animateOnScroll: config.animateOnScroll,
+      animations: asset.animations,
+      autoplay: config.autoplay,
+      currentAnimation: playback.currentAnimation,
+      isDotLottie: asset.isDotLottie,
+      loop: config.loop,
+      manifest: asset.manifest,
+      mode: config.mode,
+      multiAnimationSettings: asset.multiAnimationSettings,
+      playerState: playback.playerState
+    })
 
   useEffect(() => {
-    appStateRef.current = appState
-  }, [appState])
+    appStateRef.current = {
+      animateOnScroll: config.animateOnScroll,
+      animations: asset.animations,
+      autoplay: config.autoplay,
+      currentAnimation: playback.currentAnimation,
+      isDotLottie: asset.isDotLottie,
+      loop: config.loop,
+      manifest: asset.manifest,
+      mode: config.mode,
+      multiAnimationSettings: asset.multiAnimationSettings,
+      playerState: playback.playerState
+    }
+  }, [
+    asset.animations,
+    asset.isDotLottie,
+    asset.manifest,
+    asset.multiAnimationSettings,
+    config.animateOnScroll,
+    config.autoplay,
+    config.loop,
+    config.mode,
+    playback.currentAnimation,
+    playback.playerState
+  ])
 
   const mountAtIndex = useCallback((animations: AnimationData[], index: number) => {
     const container = containerRef.current
@@ -80,8 +116,8 @@ export function useLottieInstance({
     const generation = ++loadGeneration.current
 
     dispatch({
-      patch: { src },
-      type: 'SYNC_CONFIG'
+      src,
+      type: 'LOAD_START'
     })
 
     try {
@@ -102,50 +138,59 @@ export function useLottieInstance({
         manifest.animations[0].loop = appStateRef.current.loop
       }
 
-      let nextIndex = 0,
-        playerState: PlayerState = PlayerState.Stopped,
-        settings: AnimationSettings | undefined
+      let { animateOnScroll: hasAnimateOnScroll } = appStateRef.current
 
-      setAppState(prev => {
-        nextIndex = prev.currentAnimation
-        settings = prev.multiAnimationSettings[nextIndex]
+      const {
+          autoplay: hasAutoplay,
+          currentAnimation,
+          mode,
+          multiAnimationSettings,
+        } = appStateRef.current,
+        nextIndex = currentAnimation,
+        settings = multiAnimationSettings[nextIndex] as AnimationSettings | undefined
 
-        if (
-          !prev.animateOnScroll &&
-          (prev.autoplay ||
-            prev.multiAnimationSettings[prev.currentAnimation]?.autoplay)
-        ) {
-          playerState = PlayerState.Playing
-        }
+      let playerState: PlayerState = PlayerState.Stopped
 
-        let isBounce = prev.mode === PlayMode.Bounce
+      if (
+        !hasAnimateOnScroll &&
+        (hasAutoplay ||
+          multiAnimationSettings[currentAnimation]?.autoplay)
+      ) {
+        playerState = PlayerState.Playing
+      }
 
-        if (prev.multiAnimationSettings.length > 0 && prev.multiAnimationSettings[prev.currentAnimation]?.mode) {
-          isBounce =
-            prev.multiAnimationSettings[prev.currentAnimation].mode as PlayMode ===
-            PlayMode.Bounce
-        }
+      let isBounce = mode === PlayMode.Bounce
 
-        const nextState = {
-          ...prev,
-          animations,
-          isDotLottie,
-          manifest: manifest ?? {
-            animations: [{
-              autoplay: !prev.animateOnScroll && prev.autoplay,
-              direction,
-              id: createElementID(),
-              mode: prev.mode,
-              speed
-            }]
-          },
-          mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
-          playerState
-        }
+      if (multiAnimationSettings.length > 0 && multiAnimationSettings[currentAnimation]?.mode) {
+        isBounce =
+          multiAnimationSettings[currentAnimation].mode ===
+          PlayMode.Bounce
+      }
 
-        appStateRef.current = nextState
+      const payload: Payload = {
+        animations,
+        isDotLottie,
+        manifest: manifest ?? {
+          animations: [{
+            autoplay: !hasAnimateOnScroll && hasAutoplay,
+            direction,
+            id: createElementID(),
+            mode,
+            speed
+          }]
+        },
+        mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
+        playerState
+      }
 
-        return nextState
+      appStateRef.current = {
+        ...appStateRef.current,
+        ...payload,
+      }
+
+      dispatch({
+        payload,
+        type: 'LOAD_SUCCESS'
       })
 
       const item = mountAtIndex(animations, nextIndex),
@@ -155,10 +200,10 @@ export function useLottieInstance({
       item.setDirection(animationDirection)
       item.setSubframe(Boolean(subframe))
 
-      const {
-        animateOnScroll: hasAnimateOnScroll,
-        playerState: loadedPlayerState
-      } = appStateRef.current
+      // eslint-disable-next-line unicorn/consistent-destructuring
+      hasAnimateOnScroll = appStateRef.current.animateOnScroll
+
+      const { playerState: loadedPlayerState } = appStateRef.current
 
       if (
         !hasReducedMotion &&
@@ -168,7 +213,6 @@ export function useLottieInstance({
           handleSeek({
             animationItem: animationRef.current,
             dispatch,
-            playback,
             seekOrigin: loadedPlayerState,
             value: '99%'
           })
@@ -207,8 +251,6 @@ export function useLottieInstance({
     dispatch,
     mountAtIndex,
     onLoadError,
-    playback,
-    setAppState,
     speed,
     subframe
   ])
@@ -225,8 +267,9 @@ export function useLottieInstance({
         { mode: playMode } = state.multiAnimationSettings[index] ?? {}
 
       dispatch({
-        patch: { mode: playMode ?? PlayMode.Normal },
-        type: 'SYNC_CONFIG'
+        currentAnimation: index,
+        mode: playMode ?? PlayMode.Normal,
+        type: 'SWITCH_ANIMATION'
       })
 
       containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))

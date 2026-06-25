@@ -86,7 +86,6 @@ export function usePlayback({
       handleSeek({
         animationItem: animationRef.current,
         dispatch,
-        playback,
         seekOrigin: seekOrigin ?? playback.playerState,
         value
       })
