@@ -35,7 +35,6 @@ export interface PlayerPlayback {
   errorMessage: string
   loopsCompleted: number
   playerState: PlayerState
-  prevState: PlayerState
   seeker: number
   segment: null | Vector2
 }

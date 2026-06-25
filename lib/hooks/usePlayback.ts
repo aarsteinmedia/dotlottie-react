@@ -30,6 +30,12 @@ export function usePlayback({
         return
       }
 
+      const { playback } = stateRef.current
+
+      if (playback.playerState === PlayerState.Frozen) {
+        return
+      }
+
       item.pause()
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
 

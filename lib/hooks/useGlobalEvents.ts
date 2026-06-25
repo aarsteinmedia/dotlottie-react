@@ -31,6 +31,7 @@ export function useGlobalEvents({
   const stateRef = usePlayerStateRef(),
     dispatch = usePlayerDispatch(),
     scrollTimeout = useRef<ReturnType<typeof setTimeout>>(null),
+    frozenByVisibility = useRef(false),
 
     { isVisible, scrollPos } = useIsVisible({
       container,
@@ -43,14 +44,16 @@ export function useGlobalEvents({
 
       if (playback.playerState === PlayerState.Playing && type === 'blur') {
         freeze()
+        frozenByVisibility.current = true
       }
       if (
         playback.playerState === PlayerState.Frozen &&
-        playback.prevState === PlayerState.Playing &&
+        frozenByVisibility.current &&
         !config.animateOnScroll &&
         type === 'focus'
       ) {
         play()
+        frozenByVisibility.current = false
       }
     },
 

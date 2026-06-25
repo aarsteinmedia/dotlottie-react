@@ -39,7 +39,6 @@ describe('playerReducer', () => {
 
     expect(next.config.src).toBe('/animation.lottie')
     expect(next.playback.playerState).toBe(PlayerState.Loading)
-    expect(next.playback.prevState).toBe(PlayerState.Playing)
   })
 
   test('applies LOAD_SUCCESS payload and resets loop counter', () => {

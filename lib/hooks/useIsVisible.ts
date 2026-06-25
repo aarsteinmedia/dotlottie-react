@@ -20,6 +20,7 @@ export function useIsVisible({
   const stateRef = usePlayerStateRef(),
     freezeRef = useRef(freeze),
     playRef = useRef(play),
+    frozenByVisibility = useRef(false),
     [state, setState] = useState({
       isVisible: !hasIOSupport,
       scrollPos: 0
@@ -47,7 +48,9 @@ export function useIsVisible({
             isVisible: false
           }))
 
-          if (playback.playerState === PlayerState.Playing) {
+          frozenByVisibility.current = playback.playerState === PlayerState.Playing
+
+          if (frozenByVisibility.current) {
             freezeRef.current()
           }
 
@@ -63,9 +66,10 @@ export function useIsVisible({
         if (
           !config.animateOnScroll &&
           playback.playerState === PlayerState.Frozen &&
-          playback.prevState === PlayerState.Playing
+          frozenByVisibility.current
         ) {
           playRef.current()
+          frozenByVisibility.current = false
         }
       }
     })

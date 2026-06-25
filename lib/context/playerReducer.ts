@@ -28,7 +28,6 @@ export function playerReducer(state: AppState, action: PlayerAction) {
           ...state.playback,
           errorMessage: 'Failed to load file',
           playerState: PlayerState.Loading,
-          prevState: state.playback.playerState
         }
       }
     }
@@ -126,7 +125,6 @@ export function createInitialState(config: Partial<PlayerConfig> = {}): AppState
       errorMessage: 'Failed to load file',
       loopsCompleted: 0,
       playerState: PlayerState.Loading,
-      prevState: PlayerState.Loading,
       seeker: 0,
       segment: null
     }
