@@ -19,6 +19,7 @@ import {
   usePlayerAsset, usePlayerConfig, usePlayerDispatch, usePlayerPlayback
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
+import { useSeeker } from '@/hooks/useSeeker'
 import styles from '@/styles/controls.module.css'
 import { frameOutput } from '@/utils'
 import { PlayerState } from '@/utils/enums'
@@ -54,18 +55,23 @@ export default function Controls({
     playback = usePlayerPlayback(),
     dispatch = usePlayerDispatch(),
     scrubOrigin = useRef(playback.playerState),
-    [state, setState] = useState({ isSettingsOpen: false }),
+    [state, setState] = useState({
+      isScrubbing: false,
+      isSettingsOpen: false
+    }),
+
+    isLive = playback.playerState === PlayerState.Playing && !state.isScrubbing,
+    liveSeeker = useSeeker(animationRef, isLive),
+    seeker = isLive ? liveSeeker : playback.seeker,
 
     /**
      * Toggle show Settings.
      */
     toggleSettings = (flag?: boolean) => {
-      if (flag === undefined) {
-        setState(prev => ({ isSettingsOpen: !prev.isSettingsOpen }))
-
-        return
-      }
-      setState({ isSettingsOpen: flag })
+      setState(prev => ({
+        ...prev,
+        isSettingsOpen: flag ?? !prev.isSettingsOpen
+      }))
     },
 
     /**
@@ -282,21 +288,37 @@ export default function Controls({
           min={0}
           max={100}
           step={1}
-          value={playback.seeker}
+          value={seeker}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuenow={playback.seeker}
+          aria-valuenow={seeker}
           tabIndex={0}
           aria-label="Slider for seek"
           onPointerDown={() => {
             scrubOrigin.current = playback.playerState
+            setState(prev => ({
+              ...prev,
+              isScrubbing: true
+            }))
             freeze()
+          }}
+          onPointerUp={() => {
+            setState(prev => ({
+              ...prev,
+              isScrubbing: false
+            }))
+          }}
+          onPointerCancel={() => {
+            setState(prev => ({
+              ...prev,
+              isScrubbing: false
+            }))
           }}
           onChange={({ target }) => {
             seek(`${target.value}%`, scrubOrigin.current)
           }}
         />
-        <progress className={styles.progress} max="100" value={playback.seeker}></progress>
+        <progress className={styles.progress} max="100" value={seeker}></progress>
       </form>
       {!config.simple &&
         <>

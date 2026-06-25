@@ -1,9 +1,9 @@
 import { namespaceSVG, PreserveAspectRatio } from '@aarsteinmedia/lottie-web/utils'
 
-import { usePlayerPlayback } from '@/hooks/useApp'
+import { usePlayerPlaybackSelector } from '@/hooks/useApp'
 
 export default function ErrorMessage() {
-  const { errorMessage } = usePlayerPlayback()
+  const errorMessage = usePlayerPlaybackSelector(p => p.errorMessage)
 
   return (
     <svg

@@ -222,11 +222,6 @@ export function usePlayerEvents({
       const { currentFrame, totalFrames } = animationRef.current,
         seeker = Math.round(currentFrame / totalFrames * 100)
 
-      dispatch({
-        patch: { seeker },
-        type: 'SET_PLAYBACK'
-      })
-
       container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Frame, {
         detail: {
           frame: currentFrame,

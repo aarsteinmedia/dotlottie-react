@@ -40,8 +40,8 @@ function App() {
             textAlign: 'center'
           }}>
           <DotLottiePlayer
-            // autoplay
-            animateOnScroll
+            autoplay
+            // animateOnScroll
             subframe
             controls
             // direction={-1}

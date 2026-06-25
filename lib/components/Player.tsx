@@ -19,7 +19,8 @@ import {
 import type { DotLottieMethods } from '@/types'
 
 import {
-  usePlayerAsset, usePlayerConfig, usePlayerDispatch, usePlayerPlayback
+  usePlayerAsset, usePlayerConfig, usePlayerDispatch,
+  usePlayerPlaybackSelector
 } from '@/hooks/useApp'
 import { useGlobalEvents } from '@/hooks/useGlobalEvents'
 import { useLottieInstance } from '@/hooks/useLottieInstance'
@@ -75,7 +76,8 @@ export default function Player({
 }: Props){
 
   const dispatch = usePlayerDispatch(),
-    playback = usePlayerPlayback(),
+    playerState = usePlayerPlaybackSelector(p => p.playerState),
+    _currentAnimation = usePlayerPlaybackSelector(p => p.currentAnimation),
     config = usePlayerConfig(),
     asset = usePlayerAsset(),
     containerRef = useRef<HTMLElement>(null),
@@ -120,7 +122,7 @@ export default function Player({
      * Skip to previous animation.
      */
     previous = useCallback(() => {
-      const currentAnimation = clamp(playback.currentAnimation - 1, 0)
+      const currentAnimation = clamp(_currentAnimation - 1, 0)
 
       switchInstance(currentAnimation, true)
 
@@ -129,14 +131,14 @@ export default function Player({
         type: 'SET_PLAYBACK'
       })
     }, [dispatch,
-      playback.currentAnimation,
+      _currentAnimation,
       switchInstance]),
 
     /**
      * Skip to next animation.
      */
     next = useCallback(() => {
-      const currentAnimation = clamp(playback.currentAnimation + 1, asset.animations.length)
+      const currentAnimation = clamp(_currentAnimation + 1, asset.animations.length)
 
       switchInstance(currentAnimation)
 
@@ -147,7 +149,7 @@ export default function Player({
     }, [
       asset.animations.length,
       dispatch,
-      playback.currentAnimation,
+      _currentAnimation,
       switchInstance
     ]),
 
@@ -256,7 +258,7 @@ export default function Player({
       {...rest}
     >
       <figure className={styles.animation} ref={setContainerRef} style={{ background }}>
-        {playback.playerState === PlayerState.Error &&
+        {playerState === PlayerState.Error &&
           <Suspense>
             <div className={styles.error}>
               <ErrorMessage />
