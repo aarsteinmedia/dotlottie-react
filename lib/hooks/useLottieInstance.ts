@@ -11,7 +11,7 @@ import {
 
 import type { UseLottieInstance } from '@/types'
 
-import { PlayerEvents, PlayerState } from '@/enums'
+import { PlayerEvent, PlayerState } from '@/enums'
 import {
   usePlayerDispatch,
   usePlayerStateRef
@@ -186,7 +186,7 @@ export function useLottieInstance({
           !hasAnimateOnScroll
         ) {
           item.play()
-          containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Play))
+          containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Play))
         }
       }
     } catch (error) {
@@ -205,7 +205,7 @@ export function useLottieInstance({
         type: 'SET_PLAYBACK'
       })
 
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Error))
     }
   }, [
     containerRef,
@@ -235,7 +235,7 @@ export function useLottieInstance({
         type: 'SWITCH_ANIMATION'
       })
 
-      containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
+      containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvent.Previous : PlayerEvent.Next))
 
       const shouldAutoplay =
         asset.multiAnimationSettings[index]?.autoplay ??
@@ -278,7 +278,7 @@ export function useLottieInstance({
         type: 'SET_PLAYBACK'
       })
 
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Error))
     }
   }, [
     containerRef,

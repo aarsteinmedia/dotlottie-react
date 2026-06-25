@@ -3,7 +3,7 @@ import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-we
 import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
-import { PlayerEvents, PlayerState } from '@/enums'
+import { PlayerEvent, PlayerState } from '@/enums'
 import {
   usePlayerDispatch,
   usePlayerStateRef
@@ -95,7 +95,7 @@ export function usePlayerEvents({
         type: 'SET_PLAYBACK'
       })
 
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete, {
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Complete, {
         detail: {
           frame: currentFrame,
           seeker,
@@ -104,7 +104,7 @@ export function usePlayerEvents({
     },
 
     dataReady = () => {
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Ready))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Ready))
     },
 
     /**
@@ -190,7 +190,7 @@ export function usePlayerEvents({
 
           playerState = PlayerState.Completed
 
-          container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Complete))
+          container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Complete))
         }
 
         dispatch({
@@ -206,7 +206,7 @@ export function usePlayerEvents({
         }
       }
 
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Loop))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Loop))
 
       if (config.mode === PlayMode.Bounce) {
         animationRef.current.goToAndStop(playDirection === -1 ? inPoint : outPoint * 0.99,
@@ -232,7 +232,7 @@ export function usePlayerEvents({
       const { currentFrame, totalFrames } = animationRef.current,
         seeker = Math.round(currentFrame / totalFrames * 100)
 
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Frame, {
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Frame, {
         detail: {
           frame: currentFrame,
           seeker,
@@ -248,33 +248,33 @@ export function usePlayerEvents({
           errorMessage: 'Invalid or corrupt file',
           type: 'LOAD_ERROR'
         })
-        container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
+        container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Error))
       }
     },
 
     domLoaded = () => {
       onLoad?.()
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Load))
+      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Load))
     }
 
 
   useEventListener(
-    'enterFrame', enterFrame, { element: animationRef }
+    PlayerEvent.EnterFrame, enterFrame, { element: animationRef }
   )
   useEventListener(
-    PlayerEvents.Complete, complete, { element: animationRef }
+    PlayerEvent.Complete, complete, { element: animationRef }
   )
   useEventListener(
-    'loopComplete', loopComplete, { element: animationRef }
+    PlayerEvent.LoopComplete, loopComplete, { element: animationRef }
   )
   useEventListener(
-    'DOMLoaded', domLoaded, { element: animationRef }
+    PlayerEvent.DOMLoaded, domLoaded, { element: animationRef }
   )
   useEventListener(
-    'data_ready', dataReady, { element: animationRef }
+    PlayerEvent.DataReady, dataReady, { element: animationRef }
   )
   useEventListener(
-    'data_failed', dataFailed, { element: animationRef }
+    PlayerEvent.DataFailed, dataFailed, { element: animationRef }
   )
   useEventListener(
     'mouseenter', mouseEnter, { element: container }

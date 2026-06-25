@@ -1,6 +1,6 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import { PlayerEvents, PlayerState } from '@/enums'
+import { PlayerEvent, PlayerState } from '@/enums'
 import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
 import { getSeeker } from '@/utils/getSeeker'
 import { handleSeek } from '@/utils/handleSeek'
@@ -37,7 +37,7 @@ export function usePlayback({
       }
 
       item.pause()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Freeze))
 
       dispatch({
         patch: {
@@ -59,7 +59,7 @@ export function usePlayback({
       }
 
       item.pause()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Pause))
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Pause))
 
       dispatch({
         patch: {
@@ -82,7 +82,7 @@ export function usePlayback({
       }
 
       item.play()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Play))
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Play))
 
       dispatch({
         patch: { playerState: PlayerState.Playing },
@@ -117,7 +117,7 @@ export function usePlayback({
       }
 
       item.stop()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Stop))
+      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Stop))
 
       dispatch({
         patch: {
