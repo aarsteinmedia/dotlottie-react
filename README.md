@@ -1,21 +1,29 @@
-# AM LottiePlayer React
+# dotLottie React
 
 ![Awesome Vector Animations](/.github/readmeBanner.svg)
 
-This is a reworked verison of [@aarsteinmedia/dotlottie-player](https://www.npmjs.com/package/@aarsteinmedia/dotlottie-player) – with the same functionality, but made to work natively with React.
+A React player for Lottie JSON and [dotLottie](https://dotlottie.io/) files. This package is a rework of [@aarsteinmedia/dotlottie-player](https://www.npmjs.com/package/@aarsteinmedia/dotlottie-player), rebuilt for React with a modern hook-based architecture.
+
+Requires **React 19**.
 
 ## Installation
 
 ```shell
 pnpm add @aarsteinmedia/dotlottie-react
+# or: npm install @aarsteinmedia/dotlottie-react
 ```
 
-## Usage
+Import the bundled styles once in your app (required when using built-in controls):
 
-Import the component and use it in your markup, like any other React component.
+```ts
+import '@aarsteinmedia/dotlottie-react/styles.css'
+```
 
-```jsx
-import DotLottiePlayer '@aarsteinmedia/dotlottie-react'
+## Quick start
+
+```tsx
+import DotLottiePlayer from '@aarsteinmedia/dotlottie-react'
+import '@aarsteinmedia/dotlottie-react/styles.css'
 
 export default function App() {
   return (
@@ -25,82 +33,127 @@ export default function App() {
       autoplay
       controls
       loop
-      style={{
-        width: '320px',
-        margin: 'auto'
-      }}
+      style={{ width: 320, margin: 'auto' }}
     />
   )
 }
 ```
 
-### With TypeScript and `ref`
+## Entry points
 
-If you're using TypeScript and `ref` you can do something like this:
+| Import | Use when |
+| ------ | -------- |
+| `@aarsteinmedia/dotlottie-react` | Default build with full renderer support (SVG, Canvas, HTML) |
+| `@aarsteinmedia/dotlottie-react/light` | Smaller bundle; SVG renderer only |
+| `@aarsteinmedia/dotlottie-react/enums` | `PlayerState`, `ObjectFit`, `PlayMode`, `RendererType`, `PlayerEvents` |
+| `@aarsteinmedia/dotlottie-react/styles.css` | Player and control styles |
+
+```tsx
+import DotLottiePlayer from '@aarsteinmedia/dotlottie-react/light'
+```
+
+## TypeScript and refs
+
+In React 19, `ref` is a regular prop:
 
 ```tsx
 import { useRef } from 'react'
 
-import DotLottiePlayer, { type DotLottieMethods } '@aarsteinmedia/dotlottie-react'
+import DotLottiePlayer, { type DotLottieMethods } from '@aarsteinmedia/dotlottie-react'
 
 export default function App() {
-  const animation = useRef<DotLottieMethods>(null)
+  const player = useRef<DotLottieMethods>(null)
 
   return (
     <DotLottiePlayer
       src="https://storage.googleapis.com/aarsteinmedia/am.lottie"
-      ref={animation}
-      onMouseEnter={() => animation.current?.play()}
-      onMouseLeave={() => animation.current?.stop()}
+      ref={player}
+      onMouseEnter={() => player.current?.play()}
+      onMouseLeave={() => player.current?.stop()}
     />
   )
 }
 ```
 
-## Attributes
+Exported types: `DotLottieProps`, `DotLottieMethods`.
 
-| Attribute                 | Description                                                                                                                   | Type                                     | Default           |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ----------------- |
-| `animateOnScroll`         | Play animation by scrolling                                                                                                   | `boolean`                                | `false`           |
-| `autoplay`                | Play animation on load                                                                                                        | `boolean`                                | `false`           |
-| `background`              | Background color                                                                                                              | `string`                                 | `undefined`       |
-| `controls`                | Show controls                                                                                                                 | `boolean`                                | `false`           |
-| `count`                   | Number of times to loop animation                                                                                             | `number`                                 | `undefined`       |
-| `direction`               | Direction of animation                                                                                                        | `1` \| `-1`                              | `1`               |
-| `hover`                   | Whether to play on mouse hover                                                                                                | `boolean`                                | `false`           |
-| `loop`                    | Whether to loop animation                                                                                                     | `boolean`                                | `false`           |
-| `mode`                    | Play mode                                                                                                                     | `normal` \| `bounce`                     | `normal`          |
-| `objectFit`               | Resizing of animation in container                                                                                            | `contain` \| `cover` \| `fill` \| `none` | `contain`         |
-| `renderer`                | Renderer to use                                                                                                               | `svg` \| `canvas` \| `html`              | `svg`             |
-| `speed`                   | Animation speed                                                                                                               | `number`                                 | `1`               |
-| `src`                     | URL to LottieJSON or dotLottie                                                                                                | `string`                                 | `undefined`       |
-| `subframe`                | When enabled this can help to reduce flicker on some animations, especially on Safari and iOS devices.                        | `boolean`                                | `false`           |
+## Props
 
+Standard HTML attributes (for example `className`, `style`, `id`) are forwarded to the root element.
 
-## Methods
+| Prop | Description | Type | Default |
+| ---- | ----------- | ---- | ------- |
+| `src` | URL to a `.json` or `.lottie` file | `string` | — |
+| `autoplay` | Start playing when loaded | `boolean` | `false` |
+| `loop` | Loop the animation | `boolean` | `false` |
+| `loopLimit` | Stop after N loops (`0` = unlimited) | `number` | `0` |
+| `controls` | Show the built-in control bar | `boolean` | `false` |
+| `simple` | Minimal control bar (play, stop, seek only) | `boolean` | `false` |
+| `direction` | Playback direction | `1` \| `-1` | `1` |
+| `speed` | Playback speed multiplier | `number` | `1` |
+| `mode` | Normal or bounce (boomerang) playback | `normal` \| `bounce` | `normal` |
+| `renderer` | Rendering backend | `svg` \| `canvas` \| `html` | `svg` |
+| `objectFit` | How the animation fits its container | `contain` \| `cover` \| `fill` \| `none` \| `scale-down` | `contain` |
+| `background` | Background color of the animation area | `string` | — |
+| `description` | Accessible label for the player | `string` | — |
+| `hover` | Play on mouse enter, stop on mouse leave | `boolean` | `false` |
+| `intermission` | Delay in ms between bounce loops | `number` | — |
+| `animateOnScroll` | Scrub the animation based on page scroll | `boolean` | `false` |
+| `subframe` | Sub-frame rendering (can reduce flicker on Safari/iOS) | `boolean` | `false` |
+| `onLoad` | Called when the animation DOM is ready | `() => void` | — |
+| `onComplete` | Called when playback completes | `() => void` | — |
+| `onError` | Called on load or playback errors | `(message?: string) => void` | — |
+| `ref` | Imperative API (see below) | `RefObject<DotLottieMethods>` | — |
 
-The following methods are exposed via `useRef` hook.
+## Imperative methods
 
-| Method                                                          | Function
-| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `addAnimation(params: AddAnimationParams) => Promise<Result>`   | Add animation. Triggers download of new dotLottie file.                                                   |
-| `convert(params: ConvertParams) => Promise<Result>`             | If the current animation is in JSON format – convert it to dotLottie. Triggers a download in the browser. |
-| `load(src: string \| null) => Promise<void>`                    | Load animation by URL or JSON object                                                                      |
-| `next() => void`                                                | Next animation (if several in file)                                                                       |
-| `pause() => void`                                               | Pause                                                                                                     |
-| `play() => void`                                                | Play                                                                                                      |
-| `previous() => void`                                            | Previous animation (if several in file)                                                                   |
-| `seek(value: number \| string) => void`                         | Go to frame. Can be a number or a percentage string (e. g. 50%).                                          |
-| `setCount(value: number) => void`                               | Dynamically set number of loops                                                                           |
-| `setDirection(value: AnimationDirection) => void`               | Set Direction                                                                                             |
-| `setLoop(value: boolean) => void`                               | Set Looping                                                                                               |
-| `setMultiAnimationSettings(value: AnimationSettings[]) => void` | Set Multi-animation settings                                                                              |
-| `setSegment(value: AnimationSegment) => void`                   | Play only part of an animation. E. g. from frame 10 to frame 60 would be `[10, 60]`                       |
-| `setSpeed(value: number) => void`                               | Set Speed                                                                                                 |
-| `setSubframe(value: boolean) => void`                           | Set subframe                                                                                              |
-| `stop() => void`                                                | Stop                                                                                                      |
+Access via `ref`:
 
+| Method | Description |
+| ------ | ----------- |
+| `play()` | Start or resume playback |
+| `pause()` | Pause playback |
+| `stop()` | Stop and reset loop counter |
+| `seek(value)` | Jump to frame number or percentage (e.g. `"50%"`) |
+| `load(src)` | Load a new animation URL |
+| `next()` / `previous()` | Switch animation in multi-animation files |
+| `setSpeed(value)` | Set playback speed |
+| `setDirection(value)` | Set direction (`1` or `-1`) |
+| `setLoop(value)` | Enable or disable looping on the active instance |
+| `setLoopsCompleted(value)` | Set the internal loop counter |
+| `setSegment(segment)` | Play a frame range, e.g. `[10, 60]` |
+| `setSubframe(value)` | Toggle sub-frame rendering |
+| `setMultiAnimationSettings(settings)` | Per-animation settings for multi-animation files |
+| `getIsVisible()` | Whether the player is in the viewport |
+| `addAnimation(params)` | Add an animation to a dotLottie file (triggers download) |
+| `convert(params)` | Convert between JSON and dotLottie (triggers download) |
+
+## Events
+
+The player dispatches custom events on the animation container (`<figure>`). Listen with `addEventListener` on a ref to the container, or use the `PlayerEvents` enum from `@aarsteinmedia/dotlottie-react/enums`:
+
+| Event | When |
+| ----- | ---- |
+| `load` | Animation data is ready |
+| `ready` | DOM is ready |
+| `play` | Playback starts |
+| `pause` | User-initiated pause |
+| `freeze` | Programmatic pause (e.g. viewport or scrub) |
+| `stop` | Playback stops |
+| `loop` | A loop completes |
+| `complete` | Animation finishes (detail: `{ frame, seeker }`) |
+| `frame` | Each frame during playback (detail: `{ frame, seeker }`) |
+| `next` / `previous` | Multi-animation navigation |
+| `error` | Load or runtime error |
+
+```tsx
+import { PlayerEvents } from '@aarsteinmedia/dotlottie-react/enums'
+
+containerRef.current?.addEventListener(PlayerEvents.Complete, (e) => {
+  console.log((e as CustomEvent).detail)
+})
+```
 
 ## License
 
-GPL-2.0-or-later
+[GPL-2.0-or-later](LICENSE.md)

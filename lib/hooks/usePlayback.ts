@@ -2,6 +2,7 @@ import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { PlayerEvents, PlayerState } from '@/enums'
 import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
+import { getSeeker } from '@/utils/getSeeker'
 import { handleSeek } from '@/utils/handleSeek'
 
 interface Props {
@@ -31,7 +32,10 @@ export function usePlayback({
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
 
       dispatch({
-        patch: { playerState: PlayerState.Frozen },
+        patch: {
+          playerState: PlayerState.Frozen,
+          seeker: getSeeker(animationRef.current),
+        },
         type: 'SET_PLAYBACK'
       })
     },
@@ -48,7 +52,10 @@ export function usePlayback({
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Pause))
 
       dispatch({
-        patch: { playerState: PlayerState.Paused },
+        patch: {
+          playerState: PlayerState.Paused,
+          seeker: getSeeker(animationRef.current),
+        },
         type: 'SET_PLAYBACK'
       })
 
@@ -102,6 +109,7 @@ export function usePlayback({
         patch: {
           loopsCompleted: 0,
           playerState: PlayerState.Stopped,
+          seeker: 0,
         },
         type: 'SET_PLAYBACK'
       })

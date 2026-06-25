@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable fsecond/valid-event-listener */
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
@@ -18,7 +19,7 @@ interface ElementOptions<T> {
 }
 
 type EventOptions<T> = EventListenerOptions &
-  AddEventListenerOptions & ElementOptions<T>
+  AddEventListenerOptions & ElementOptions<T> & { enabled?: boolean }
 
 /**
  * `useEventListener` is a custom React hook that adds an event listener to a specified element.
@@ -37,20 +38,26 @@ export function useEventListener<
   callback: EventHandler<E>,
   options: EventOptions<T>
 ) {
+  const {
+      capture: isCapture, element: elementOptions, enabled: isEnabled = true, passive: isPassive
+    } = options,
 
-  const element =
-    !options.element && !isServer ? window : options.element
+    element =
+    elementOptions === undefined && !isServer ? window : elementOptions,
 
-  const callbackRef = useRef(callback)
+    callbackRef = useRef(callback)
 
   useEffect(() => {
     callbackRef.current = callback
   }, [callback])
 
   useEffect(() => {
+    if (!isEnabled) {
+      return
+    }
 
     const targetElement =
-      element && 'current' in element
+      element && typeof element === 'object' && 'current' in element
         ? element.current
         : element
 
@@ -58,27 +65,42 @@ export function useEventListener<
       return
     }
 
-    const handler = ((e: E) => {
-      callbackRef.current(e)
-    }) as EventListener
+    const listenerOptions = {
+        capture: isCapture,
+        passive: isPassive
+      },
+      handler = ((e: E) => {
+        callbackRef.current(e)
+      }) as EventListener
 
     /* AnimationItem::addEventListener is not directly compatible
     with standard Element::addEventListener, but not in a way that
     will cause trouble */
     ;(targetElement as Window).addEventListener(
-      eventType, handler, options
+      eventType, handler, listenerOptions
     )
 
     return () => {
       ;(targetElement as Window).removeEventListener(
         eventType,
         handler,
-        options
+        listenerOptions
       )
     }
   }, [
-    eventType,
     element,
-    options
+    eventType,
+    isCapture,
+    isEnabled,
+    isPassive
   ])
 }
+
+export const WINDOW_LISTENER_OPTS = {
+    capture: false,
+    passive: true
+  } as const,
+  SCROLL_LISTENER_OPTS = {
+    capture: true,
+    passive: true
+  } as const

@@ -8,9 +8,12 @@ import {
   usePlayerDispatch,
   usePlayerStateRef
 } from '@/hooks/useApp'
-import { useEventListener } from '@/hooks/useEventListener'
+import {
+  SCROLL_LISTENER_OPTS, useEventListener, WINDOW_LISTENER_OPTS
+} from '@/hooks/useEventListener'
 import { useIsVisible } from '@/hooks/useIsVisible'
 import { hasReducedMotion } from '@/utils/constants'
+import { getSeeker } from '@/utils/getSeeker'
 
 interface Props {
   animationRef: React.RefObject<null | AnimationItem>
@@ -70,8 +73,13 @@ export function useGlobalEvents({
           clearTimeout(scrollTimeout.current)
         }
         scrollTimeout.current = setTimeout(() => {
+          const item = animationRef.current
+
           dispatch({
-            patch: { playerState: PlayerState.Paused },
+            patch: {
+              playerState: PlayerState.Paused,
+              seeker: item ? getSeeker(item) : 0,
+            },
             type: 'SET_PLAYBACK'
           })
         }, 400)
@@ -85,15 +93,27 @@ export function useGlobalEvents({
           roundedScroll = clampedScroll / 3
 
         requestAnimationFrame(() => {
-          if (roundedScroll < (animationRef.current?.totalFrames ?? 0)) {
+          const item = animationRef.current
+
+          if (!item) {
+            return
+          }
+
+          if (roundedScroll < item.totalFrames) {
+            item.goToAndStop(roundedScroll, true)
             dispatch({
-              patch: { playerState: PlayerState.Playing },
+              patch: {
+                playerState: PlayerState.Playing,
+                seeker: getSeeker(item),
+              },
               type: 'SET_PLAYBACK'
             })
-            animationRef.current?.goToAndStop(roundedScroll, true)
           } else {
             dispatch({
-              patch: { playerState: PlayerState.Paused },
+              patch: {
+                playerState: PlayerState.Paused,
+                seeker: getSeeker(item),
+              },
               type: 'SET_PLAYBACK'
             })
           }
@@ -106,21 +126,15 @@ export function useGlobalEvents({
     }, [isVisible])
 
   useEventListener(
-    'focus', handleWindowBlur, {
-      capture: false,
-      passive: true
-    }
+    'focus', handleWindowBlur, WINDOW_LISTENER_OPTS
   )
   useEventListener(
-    'blur', handleWindowBlur, {
-      capture: false,
-      passive: true
-    }
+    'blur', handleWindowBlur, WINDOW_LISTENER_OPTS
   )
   useEventListener(
     'scroll', handleScroll, {
-      capture: true,
-      passive: true
+      ...SCROLL_LISTENER_OPTS,
+      enabled: Boolean(stateRef.current.config.animateOnScroll) && !hasReducedMotion
     }
   )
 
