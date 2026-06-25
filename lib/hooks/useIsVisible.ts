@@ -4,6 +4,7 @@ import {
 
 import { PlayerState } from '@/enums'
 import { usePlayerStateRef } from '@/hooks/useApp'
+import { hasIOSupport } from '@/utils/constants'
 
 interface Props {
   container: null | HTMLElement
@@ -20,7 +21,7 @@ export function useIsVisible({
     freezeRef = useRef(freeze),
     playRef = useRef(play),
     [state, setState] = useState({
-      isVisible: !('IntersectionObserver' in window),
+      isVisible: !hasIOSupport,
       scrollPos: 0
     })
 
@@ -30,7 +31,7 @@ export function useIsVisible({
   }, [freeze, play])
 
   useEffect(() => {
-    if (!container || !('IntersectionObserver' in window)) {
+    if (!container || !hasIOSupport) {
       return
     }
 

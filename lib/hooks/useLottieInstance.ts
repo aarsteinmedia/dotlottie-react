@@ -18,7 +18,7 @@ import {
 } from '@/hooks/useApp'
 import { handleErrors, isLottie } from '@/utils'
 import { buildAnimationConfig } from '@/utils/buildAnimationConfig'
-import { hasReducedMotion } from '@/utils/constants'
+import { hasIOSupport, hasReducedMotion } from '@/utils/constants'
 import { createInstance } from '@/utils/createInstance'
 import { handleSeek } from '@/utils/handleSeek'
 
@@ -150,14 +150,6 @@ export function useLottieInstance({
         playerState
       }
 
-      // stateRef.current = {
-      //   ...stateRef.current,
-      //   asset: {
-      //     ...stateRef.current.asset,
-
-      //   }
-      // }
-
       dispatch({
         payload,
         type: 'LOAD_SUCCESS'
@@ -190,7 +182,7 @@ export function useLottieInstance({
 
         if (
           loadedPlayerState === PlayerState.Playing &&
-          !('IntersectionObserver' in window) &&
+          !hasIOSupport &&
           !hasAnimateOnScroll
         ) {
           item.play()
