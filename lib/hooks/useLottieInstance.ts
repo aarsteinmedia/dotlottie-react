@@ -9,13 +9,12 @@ import {
   useCallback, useEffect, useRef
 } from 'react'
 
-import type {
-  Payload, PlayerSnapshot, UseLottieInstance
-} from '@/types'
+import type { UseLottieInstance } from '@/types'
 
 import { PlayerEvents, PlayerState } from '@/enums'
 import {
-  usePlayerAsset, usePlayerConfig, usePlayerDispatch, usePlayerPlayback
+  usePlayerDispatch,
+  usePlayerStateRef
 } from '@/hooks/useApp'
 import { handleErrors, isLottie } from '@/utils'
 import { buildAnimationConfig } from '@/utils/buildAnimationConfig'
@@ -36,77 +35,41 @@ export function useLottieInstance({
   const animationRef = useRef<null | AnimationItem>(null),
     loadGeneration = useRef(0),
     dispatch = usePlayerDispatch(),
-    playback = usePlayerPlayback(),
-    asset = usePlayerAsset(),
-    config = usePlayerConfig(),
-    appStateRef = useRef<PlayerSnapshot>({
-      animateOnScroll: config.animateOnScroll,
-      animations: asset.animations,
-      autoplay: config.autoplay,
-      currentAnimation: playback.currentAnimation,
-      isDotLottie: asset.isDotLottie,
-      loop: config.loop,
-      manifest: asset.manifest,
-      mode: config.mode,
-      multiAnimationSettings: asset.multiAnimationSettings,
-      playerState: playback.playerState
-    })
+    stateRef = usePlayerStateRef(),
 
-  useEffect(() => {
-    appStateRef.current = {
-      animateOnScroll: config.animateOnScroll,
-      animations: asset.animations,
-      autoplay: config.autoplay,
-      currentAnimation: playback.currentAnimation,
-      isDotLottie: asset.isDotLottie,
-      loop: config.loop,
-      manifest: asset.manifest,
-      mode: config.mode,
-      multiAnimationSettings: asset.multiAnimationSettings,
-      playerState: playback.playerState
-    }
-  }, [
-    asset.animations,
-    asset.isDotLottie,
-    asset.manifest,
-    asset.multiAnimationSettings,
-    config.animateOnScroll,
-    config.autoplay,
-    config.loop,
-    config.mode,
-    playback.currentAnimation,
-    playback.playerState
-  ])
+    mountAtIndex = useCallback((animations: AnimationData[], index: number) => {
+      const container = containerRef.current
 
-  const mountAtIndex = useCallback((animations: AnimationData[], index: number) => {
-    const container = containerRef.current
+      if (!container) {
+        throw new Error('Container not rendered')
+      }
 
-    if (!container) {
-      throw new Error('Container not rendered')
-    }
+      const options = buildAnimationConfig(
+        container,
+        {
+          ...stateRef.current,
+          playback: {
+            ...stateRef.current.playback,
+            currentAnimation: index
+          }
+        },
+        objectFit,
+        renderer
+      )
 
-    const options = buildAnimationConfig(
-      container,
-      {
-        ...appStateRef.current,
-        currentAnimation: index
-      },
-      objectFit,
-      renderer
-    )
-
-    return createInstance(
+      return createInstance(
+        loadAnimation,
+        animationRef,
+        options,
+        animations[index]
+      )
+    }, [
+      containerRef,
       loadAnimation,
-      animationRef,
-      options,
-      animations[index]
-    )
-  }, [
-    containerRef,
-    loadAnimation,
-    objectFit,
-    renderer
-  ])
+      objectFit,
+      renderer,
+      stateRef
+    ])
 
   const load = useCallback(async (src: null | string) => {
     if (!src) {
@@ -133,19 +96,23 @@ export function useLottieInstance({
         throw new Error('Broken or corrupted file')
       }
 
+      const {
+        asset, config, playback
+      } = stateRef.current
+
       if (manifest?.animations.length === 1) {
-        manifest.animations[0].autoplay = appStateRef.current.autoplay
-        manifest.animations[0].loop = appStateRef.current.loop
+        manifest.animations[0].autoplay = config.autoplay
+        manifest.animations[0].loop = config.loop
       }
 
-      let { animateOnScroll: hasAnimateOnScroll } = appStateRef.current
+      let { animateOnScroll: hasAnimateOnScroll } = config
 
       const {
           autoplay: hasAutoplay,
-          currentAnimation,
           mode,
-          multiAnimationSettings,
-        } = appStateRef.current,
+        } = config,
+        { multiAnimationSettings } = asset,
+        { currentAnimation } = playback,
         nextIndex = currentAnimation,
         settings = multiAnimationSettings[nextIndex] as AnimationSettings | undefined
 
@@ -167,7 +134,7 @@ export function useLottieInstance({
           PlayMode.Bounce
       }
 
-      const payload: Payload = {
+      const payload = {
         animations,
         isDotLottie,
         manifest: manifest ?? {
@@ -183,10 +150,13 @@ export function useLottieInstance({
         playerState
       }
 
-      appStateRef.current = {
-        ...appStateRef.current,
-        ...payload,
-      }
+      // stateRef.current = {
+      //   ...stateRef.current,
+      //   asset: {
+      //     ...stateRef.current.asset,
+
+      //   }
+      // }
 
       dispatch({
         payload,
@@ -201,9 +171,9 @@ export function useLottieInstance({
       item.setSubframe(Boolean(subframe))
 
       // eslint-disable-next-line unicorn/consistent-destructuring
-      hasAnimateOnScroll = appStateRef.current.animateOnScroll
+      hasAnimateOnScroll = config.animateOnScroll
 
-      const { playerState: loadedPlayerState } = appStateRef.current
+      const { playerState: loadedPlayerState } = playback
 
       if (
         !hasReducedMotion &&
@@ -252,19 +222,20 @@ export function useLottieInstance({
     mountAtIndex,
     onLoadError,
     speed,
+    stateRef,
     subframe
   ])
 
   const switchInstance = useCallback((index: number, isPrevious = false) => {
-    const state = appStateRef.current
+    const { asset, config } = stateRef.current
 
-    if (!state.animations[index]) {
+    if (!asset.animations[index]) {
       return
     }
 
     try {
-      const item = mountAtIndex(state.animations, index),
-        { mode: playMode } = state.multiAnimationSettings[index] ?? {}
+      const item = mountAtIndex(asset.animations, index),
+        { mode: playMode } = asset.multiAnimationSettings[index] ?? {}
 
       dispatch({
         currentAnimation: index,
@@ -275,11 +246,11 @@ export function useLottieInstance({
       containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvents.Previous : PlayerEvents.Next))
 
       const shouldAutoplay =
-        state.multiAnimationSettings[index]?.autoplay ??
-        state.autoplay
+        asset.multiAnimationSettings[index]?.autoplay ??
+        config.autoplay
 
       if (shouldAutoplay) {
-        if (state.animateOnScroll) {
+        if (config.animateOnScroll) {
           item.goToAndStop(0, true)
           dispatch({
             patch: { playerState: PlayerState.Paused },
@@ -321,7 +292,8 @@ export function useLottieInstance({
     containerRef,
     dispatch,
     mountAtIndex,
-    onLoadError
+    onLoadError,
+    stateRef
   ])
 
   const setLoop = (value: boolean) => {

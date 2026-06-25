@@ -19,8 +19,9 @@ import {
 import type { DotLottieMethods } from '@/types'
 
 import {
-  usePlayerAsset, usePlayerConfig, usePlayerDispatch,
-  usePlayerPlaybackSelector
+  usePlayerDispatch,
+  usePlayerState,
+  usePlayerStateRef
 } from '@/hooks/useApp'
 import { useGlobalEvents } from '@/hooks/useGlobalEvents'
 import { useLottieInstance } from '@/hooks/useLottieInstance'
@@ -76,10 +77,8 @@ export default function Player({
 }: Props){
 
   const dispatch = usePlayerDispatch(),
-    playerState = usePlayerPlaybackSelector(p => p.playerState),
-    _currentAnimation = usePlayerPlaybackSelector(p => p.currentAnimation),
-    config = usePlayerConfig(),
-    asset = usePlayerAsset(),
+    stateRef = usePlayerStateRef(),
+    playerState = usePlayerState(),
     containerRef = useRef<HTMLElement>(null),
     [containerNode, setContainerNode] = useState<HTMLElement | null>(null),
 
@@ -122,27 +121,23 @@ export default function Player({
      * Skip to previous animation.
      */
     previous = useCallback(() => {
-      const currentAnimation = clamp(_currentAnimation - 1, 0)
+      const { playback } = stateRef.current,
+        currentAnimation = clamp(playback.currentAnimation - 1, 0)
 
       switchInstance(currentAnimation, true)
 
-    }, [
-      _currentAnimation, switchInstance
-    ]),
+    }, [stateRef, switchInstance]),
 
     /**
      * Skip to next animation.
      */
     next = useCallback(() => {
-      const currentAnimation = clamp(_currentAnimation + 1, asset.animations.length)
+      const { asset, playback } = stateRef.current,
+        currentAnimation = clamp(playback.currentAnimation + 1, asset.animations.length)
 
       switchInstance(currentAnimation)
 
-    }, [
-      asset.animations.length,
-      _currentAnimation,
-      switchInstance
-    ]),
+    }, [stateRef, switchInstance]),
 
     setLoopsCompleted = useCallback((value: number) => {
       dispatch({
@@ -173,8 +168,8 @@ export default function Player({
     })
 
   useEffect(() => {
-    void load(config.src)
-  }, [config.src, load])
+    void load(stateRef.current.config.src)
+  }, [load, stateRef])
 
   useImperativeHandle(
     ref, () => {
@@ -242,10 +237,10 @@ export default function Player({
   return (
     <div
       className={classnames([styles.dotLottie, className])}
-      lang={config.lang}
+      lang={stateRef.current.config.lang}
       aria-label={description}
       aria-hidden={!description || undefined}
-      data-controls={config.controls}
+      data-controls={stateRef.current.config.controls}
       {...rest}
     >
       <figure className={styles.animation} ref={setContainerRef} style={{ background }}>
@@ -257,7 +252,7 @@ export default function Player({
           </Suspense>
         }
       </figure>
-      {config.controls &&
+      {stateRef.current.config.controls &&
         <Suspense>
           <Controls
             animationRef={animationRef}

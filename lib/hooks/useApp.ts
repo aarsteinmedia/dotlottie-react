@@ -1,25 +1,31 @@
 import { use } from 'react'
 
-import AppContext, { type PlayerPlayback } from '@/context/AppContext'
+import {
+  PlayerDispatchContext, PlayerStateContext, PlayerStateRefContext,
+} from '@/context/AppContext'
 
-export function usePlayerAsset() {
-  return use(AppContext).state.asset
+export function usePlayerDispatch() {
+  return use(PlayerDispatchContext)
 }
 
-export function usePlayerConfig() {
-  return use(AppContext).state.config
+export function usePlayerStateRef() {
+  return use(PlayerStateRefContext)
 }
 
 export function usePlayerPlayback() {
-  return use(AppContext).state.playback
+  return use(PlayerStateContext).playback
 }
 
-export function usePlayerDispatch() {
-  return use(AppContext).dispatch
+export function usePlayerState() {
+  return use(PlayerStateContext).playback.playerState
 }
 
-export function usePlayerPlaybackSelector<T>(selector: (playback: PlayerPlayback) => T): T {
-  const { playback } = use(AppContext).state
+// export function usePlayerPlaybackSelector<T>(selector: (playback: PlayerPlayback) => T): T {
+//   const state = use(PlayerStateContext)
 
-  return selector(playback)
-}
+//   return useSyncExternalStore(
+//     state.subscribe,
+//     () => selector(state.getSnapShot().playback),
+//     () => selector(state.getSnapShot().playback)
+//   )
+// }

@@ -3,7 +3,7 @@ import {
 } from 'react'
 
 import { PlayerState } from '@/enums'
-import { usePlayerConfig, usePlayerPlayback } from '@/hooks/useApp'
+import { usePlayerStateRef } from '@/hooks/useApp'
 
 interface Props {
   container: null | HTMLElement
@@ -16,31 +16,13 @@ export function useIsVisible({
   freeze,
   play
 }: Props) {
-  const playback = usePlayerPlayback(),
-    config = usePlayerConfig(),
-    appStateRef = useRef({
-      hasAnimateOnScroll: config.animateOnScroll,
-      playerState: playback.playerState,
-      prevState: playback.prevState
-    }),
+  const stateRef = usePlayerStateRef(),
     freezeRef = useRef(freeze),
     playRef = useRef(play),
     [state, setState] = useState({
       isVisible: !('IntersectionObserver' in window),
       scrollPos: 0
     })
-
-  useEffect(() => {
-    appStateRef.current = {
-      hasAnimateOnScroll: config.animateOnScroll,
-      playerState: playback.playerState,
-      prevState: playback.prevState
-    }
-  }, [
-    config.animateOnScroll,
-    playback.playerState,
-    playback.prevState
-  ])
 
   useEffect(() => {
     freezeRef.current = freeze
@@ -56,11 +38,7 @@ export function useIsVisible({
       const { length } = entries
 
       for (let i = 0; i < length; i++) {
-        const {
-          hasAnimateOnScroll,
-          playerState,
-          prevState
-        } = appStateRef.current
+        const { config, playback } = stateRef.current
 
         if (!entries[i].isIntersecting || document.hidden) {
           setState(prev => ({
@@ -68,7 +46,7 @@ export function useIsVisible({
             isVisible: false
           }))
 
-          if (playerState === PlayerState.Playing) {
+          if (playback.playerState === PlayerState.Playing) {
             freezeRef.current()
           }
 
@@ -82,9 +60,9 @@ export function useIsVisible({
 
         // Only resume after visibility freeze (was playing), not slider scrub freeze.
         if (
-          !hasAnimateOnScroll &&
-          playerState === PlayerState.Frozen &&
-          prevState === PlayerState.Playing
+          !config.animateOnScroll &&
+          playback.playerState === PlayerState.Frozen &&
+          playback.prevState === PlayerState.Playing
         ) {
           playRef.current()
         }
@@ -96,7 +74,7 @@ export function useIsVisible({
     return () => {
       observer.disconnect()
     }
-  }, [container])
+  }, [container, stateRef])
 
   return {
     isVisible: state.isVisible,

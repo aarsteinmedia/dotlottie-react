@@ -1,6 +1,6 @@
 import type { AnimationConfiguration, CanvasRendererConfig } from '@aarsteinmedia/lottie-web'
 
-import type { PlayerSnapshot } from '@/types'
+import type { AppState } from '@/types'
 import type { ObjectFit } from '@/utils/enums'
 
 import { RendererType } from '@/enums'
@@ -9,20 +9,23 @@ import { hasReducedMotion } from '@/utils/constants'
 
 export function buildAnimationConfig(
   container: HTMLElement,
-  snapshot: PlayerSnapshot,
+  state: AppState,
   objectFit: ObjectFit,
   renderer: RendererType
 ): AnimationConfiguration {
-  const preserveAspectRatio =
+  const {
+      asset, config, playback
+    } = state,
+    preserveAspectRatio =
     aspectRatio(objectFit),
-    currentAnimationSettings = snapshot.multiAnimationSettings.length > 0
-      ? snapshot.multiAnimationSettings[snapshot.currentAnimation]
+    currentAnimationSettings = asset.multiAnimationSettings.length > 0
+      ? asset.multiAnimationSettings[playback.currentAnimation]
       : undefined,
     currentAnimationManifest =
-      snapshot.manifest?.animations[snapshot.currentAnimation]
+      asset.manifest?.animations[playback.currentAnimation]
 
   // Loop
-  let hasLoop = Boolean(snapshot.loop)
+  let hasLoop = Boolean(config.loop)
 
   if (
     currentAnimationManifest?.loop !== undefined
@@ -34,7 +37,7 @@ export function buildAnimationConfig(
   }
 
   // Autoplay
-  let hasAutoplay = !hasReducedMotion && Boolean(snapshot.autoplay)
+  let hasAutoplay = !hasReducedMotion && Boolean(config.autoplay)
 
   if (!hasReducedMotion) {
     if (
@@ -45,18 +48,18 @@ export function buildAnimationConfig(
     if (currentAnimationSettings?.autoplay !== undefined) {
       hasAutoplay = Boolean(currentAnimationSettings.autoplay)
     }
-    if (snapshot.animateOnScroll) {
+    if (config.animateOnScroll) {
       hasAutoplay = false
     }
   }
 
   // Segment
-  let initialSegment = snapshot.segment ?? undefined
+  let initialSegment = playback.segment ?? undefined
 
-  if (snapshot.segment?.every((val) => val > 0)) {
-    initialSegment = [snapshot.segment[0] - 1, snapshot.segment[1] - 1]
+  if (playback.segment?.every((val) => val > 0)) {
+    initialSegment = [playback.segment[0] - 1, playback.segment[1] - 1]
   }
-  if (snapshot.segment?.some((val) => val < 0)) {
+  if (playback.segment?.some((val) => val < 0)) {
     initialSegment = undefined
   }
 

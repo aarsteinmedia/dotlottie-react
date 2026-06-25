@@ -1,7 +1,7 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import { usePlayerDispatch, usePlayerPlaybackSelector } from '@/hooks/useApp'
+import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
 import { handleSeek } from '@/utils/handleSeek'
 
 interface Props {
@@ -15,7 +15,7 @@ export function usePlayback({
 }: Props) {
 
   const dispatch = usePlayerDispatch(),
-    playerState = usePlayerPlaybackSelector(p => p.playerState),
+    stateRef = usePlayerStateRef(),
 
     /**
      * Freeze animation.
@@ -31,10 +31,7 @@ export function usePlayback({
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Freeze))
 
       dispatch({
-        patch: {
-          playerState: PlayerState.Frozen,
-          // prevState: playback.playerState === PlayerState.Frozen ? playback.prevState : playback.playerState
-        },
+        patch: { playerState: PlayerState.Frozen },
         type: 'SET_PLAYBACK'
       })
     },
@@ -51,10 +48,7 @@ export function usePlayback({
       containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvents.Pause))
 
       dispatch({
-        patch: {
-          playerState: PlayerState.Paused,
-          // prevState: playback.playerState
-        },
+        patch: { playerState: PlayerState.Paused },
         type: 'SET_PLAYBACK'
       })
 
@@ -83,10 +77,12 @@ export function usePlayback({
      * @param value - Frame to seek to.
      */
     seek = (value: number | string, seekOrigin?: PlayerState) => {
+      const { playback } = stateRef.current
+
       handleSeek({
         animationItem: animationRef.current,
         dispatch,
-        seekOrigin: seekOrigin ?? playerState,
+        seekOrigin: seekOrigin ?? playback.playerState,
         value
       })
     },
@@ -106,7 +102,6 @@ export function usePlayback({
         patch: {
           loopsCompleted: 0,
           playerState: PlayerState.Stopped,
-          // prevState: playback.playerState
         },
         type: 'SET_PLAYBACK'
       })

@@ -5,7 +5,8 @@ import { useCallback, useRef } from 'react'
 
 import { PlayerState } from '@/enums'
 import {
-  usePlayerConfig, usePlayerDispatch, usePlayerPlayback
+  usePlayerDispatch,
+  usePlayerStateRef
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
 import { useIsVisible } from '@/hooks/useIsVisible'
@@ -24,8 +25,7 @@ export function useGlobalEvents({
   freeze,
   play
 }: Props) {
-  const playback = usePlayerPlayback(),
-    config = usePlayerConfig(),
+  const stateRef = usePlayerStateRef(),
     dispatch = usePlayerDispatch(),
     scrollTimeout = useRef<ReturnType<typeof setTimeout>>(null),
 
@@ -36,6 +36,8 @@ export function useGlobalEvents({
     }),
 
     handleWindowBlur = ({ type }: FocusEvent) => {
+      const { config, playback } = stateRef.current
+
       if (playback.playerState === PlayerState.Playing && type === 'blur') {
         freeze()
       }
@@ -53,6 +55,8 @@ export function useGlobalEvents({
      * Handle scroll.
      */
     handleScroll = () => {
+      const { config } = stateRef.current
+
       if (hasReducedMotion || !config.animateOnScroll || !animationRef.current) {
         return
       }

@@ -5,7 +5,8 @@ import { useEffect, useRef } from 'react'
 
 import { PlayerEvents, PlayerState } from '@/enums'
 import {
-  usePlayerDispatch, usePlayerPlayback, usePlayerConfig, usePlayerAsset
+  usePlayerDispatch,
+  usePlayerStateRef
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
 
@@ -38,13 +39,10 @@ export function usePlayerEvents({
   stop,
   switchInstance
 }: Props) {
-  const playback = usePlayerPlayback(),
-    dispatch = usePlayerDispatch(),
-    config = usePlayerConfig(),
-    asset = usePlayerAsset(),
+  const dispatch = usePlayerDispatch(),
+    stateRef = usePlayerStateRef(),
 
     intermissionTimeoutRef = useRef<null | ReturnType<typeof setTimeout>>(null),
-    animateOnScrollRef = useRef(config.animateOnScroll),
 
     clearIntermissionTimeout = () => {
       if (intermissionTimeoutRef.current === null) {
@@ -60,6 +58,10 @@ export function usePlayerEvents({
       }
 
       onComplete?.()
+
+      const {
+        asset, config, playback
+      } = stateRef.current
 
       if (asset.animations.length > 1) {
         if (
@@ -109,6 +111,8 @@ export function usePlayerEvents({
      * Handle MouseEnter.
      */
     mouseEnter = () => {
+      const { playback } = stateRef.current
+
       if (hover && playback.playerState !== PlayerState.Playing) {
         play()
       }
@@ -118,6 +122,8 @@ export function usePlayerEvents({
      * Handle MouseLeave.
      */
     mouseLeave = () => {
+      const { playback } = stateRef.current
+
       if (hover && playback.playerState === PlayerState.Playing) {
         stop()
       }
@@ -133,8 +139,10 @@ export function usePlayerEvents({
     scheduleIntermissionPlay = () => {
       clearIntermissionTimeout()
 
+      const { config } = stateRef.current
+
       if (!intermission || intermission <= 0) {
-        if (!animateOnScrollRef.current) {
+        if (!config.animateOnScroll) {
           play()
         }
 
@@ -143,7 +151,7 @@ export function usePlayerEvents({
 
       intermissionTimeoutRef.current = setTimeout(() => {
         intermissionTimeoutRef.current = null
-        if (!animateOnScrollRef.current) {
+        if (!config.animateOnScroll) {
           play()
         }
       }, intermission)
@@ -154,7 +162,9 @@ export function usePlayerEvents({
         return
       }
 
-      const {
+      const { config, playback } = stateRef.current,
+
+        {
           playDirection,
           totalFrames,
         } = animationRef.current,
@@ -272,10 +282,6 @@ export function usePlayerEvents({
   useEventListener(
     'mouseleave', mouseLeave, { element: container }
   )
-
-  useEffect(() => {
-    animateOnScrollRef.current = config.animateOnScroll
-  }, [config.animateOnScroll])
 
   useEffect(() => clearIntermissionTimeout, [])
 }

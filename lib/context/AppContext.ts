@@ -4,7 +4,7 @@ import type {
 } from '@aarsteinmedia/lottie-web'
 import type { PlayMode } from '@aarsteinmedia/lottie-web/utils'
 
-import { createContext } from 'react'
+import { createContext, type Dispatch } from 'react'
 
 import type { AppState, PlayerAction } from '@/types'
 import type { PlayerState } from '@/utils/enums'
@@ -40,12 +40,8 @@ export interface PlayerPlayback {
   segment: null | Vector2
 }
 
-const AppContext = createContext<{
-  state: AppState
-  dispatch: React.Dispatch<PlayerAction>
-}>({
-  dispatch: (value: React.SetStateAction<PlayerAction>) => value,
-  state: createInitialState()
-})
-
-export default AppContext
+export const PlayerDispatchContext = createContext<Dispatch<PlayerAction>>(() => {
+  //
+  }),
+  PlayerStateContext = createContext<AppState>(createInitialState()),
+  PlayerStateRefContext = createContext<React.RefObject<AppState>>({ current: createInitialState() })
