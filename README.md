@@ -43,7 +43,7 @@ export default function App() {
 
 | Import | Use when |
 | ------ | -------- |
-| `@aarsteinmedia/dotlottie-react` | Default build with full renderer support (SVG, Canvas, HTML) |
+| `@aarsteinmedia/dotlottie-react` | Default build with full renderer support (SVG, Canvas) and support for expressions |
 | `@aarsteinmedia/dotlottie-react/light` | Smaller bundle; SVG renderer only |
 | `@aarsteinmedia/dotlottie-react/enums` | `PlayerState`, `ObjectFit`, `PlayMode`, `RendererType`, `PlayerEvents` |
 | `@aarsteinmedia/dotlottie-react/styles.css` | Player and control styles |
