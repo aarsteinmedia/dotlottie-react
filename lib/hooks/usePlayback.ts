@@ -1,7 +1,7 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { PlayerEvents, PlayerState } from '@/enums'
-import { usePlayerDispatch, usePlayerPlayback } from '@/hooks/useApp'
+import { usePlayerDispatch, usePlayerPlaybackSelector } from '@/hooks/useApp'
 import { handleSeek } from '@/utils/handleSeek'
 
 interface Props {
@@ -15,7 +15,7 @@ export function usePlayback({
 }: Props) {
 
   const dispatch = usePlayerDispatch(),
-    playback = usePlayerPlayback(),
+    playerState = usePlayerPlaybackSelector(p => p.playerState),
 
     /**
      * Freeze animation.
@@ -33,7 +33,7 @@ export function usePlayback({
       dispatch({
         patch: {
           playerState: PlayerState.Frozen,
-          prevState: playback.playerState === PlayerState.Frozen ? playback.prevState : playback.playerState
+          // prevState: playback.playerState === PlayerState.Frozen ? playback.prevState : playback.playerState
         },
         type: 'SET_PLAYBACK'
       })
@@ -53,7 +53,7 @@ export function usePlayback({
       dispatch({
         patch: {
           playerState: PlayerState.Paused,
-          prevState: playback.playerState
+          // prevState: playback.playerState
         },
         type: 'SET_PLAYBACK'
       })
@@ -86,7 +86,7 @@ export function usePlayback({
       handleSeek({
         animationItem: animationRef.current,
         dispatch,
-        seekOrigin: seekOrigin ?? playback.playerState,
+        seekOrigin: seekOrigin ?? playerState,
         value
       })
     },
@@ -106,7 +106,7 @@ export function usePlayback({
         patch: {
           loopsCompleted: 0,
           playerState: PlayerState.Stopped,
-          prevState: playback.playerState
+          // prevState: playback.playerState
         },
         type: 'SET_PLAYBACK'
       })

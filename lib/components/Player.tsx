@@ -126,13 +126,9 @@ export default function Player({
 
       switchInstance(currentAnimation, true)
 
-      dispatch({
-        patch: { currentAnimation },
-        type: 'SET_PLAYBACK'
-      })
-    }, [dispatch,
-      _currentAnimation,
-      switchInstance]),
+    }, [
+      _currentAnimation, switchInstance
+    ]),
 
     /**
      * Skip to next animation.
@@ -142,13 +138,8 @@ export default function Player({
 
       switchInstance(currentAnimation)
 
-      dispatch({
-        patch: { currentAnimation },
-        type: 'SET_PLAYBACK'
-      })
     }, [
       asset.animations.length,
-      dispatch,
       _currentAnimation,
       switchInstance
     ]),

@@ -135,7 +135,7 @@ export function usePlayerEvents({
 
       if (!intermission || intermission <= 0) {
         if (!animateOnScrollRef.current) {
-          animationRef.current?.play()
+          play()
         }
 
         return
@@ -144,7 +144,7 @@ export function usePlayerEvents({
       intermissionTimeoutRef.current = setTimeout(() => {
         intermissionTimeoutRef.current = null
         if (!animateOnScrollRef.current) {
-          animationRef.current?.play()
+          play()
         }
       }, intermission)
     },
@@ -235,8 +235,8 @@ export function usePlayerEvents({
         onError?.()
       } finally {
         dispatch({
-          patch: { playerState: PlayerState.Error },
-          type: 'SET_PLAYBACK'
+          errorMessage: 'Invalid or corrupt file',
+          type: 'LOAD_ERROR'
         })
         container.current?.dispatchEvent(new CustomEvent(PlayerEvents.Error))
       }
