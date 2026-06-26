@@ -2,9 +2,9 @@ import {
   useEffect, useRef, useState
 } from 'react'
 
-import { PlayerState } from '@/enums'
 import { usePlayerStateRef } from '@/hooks/useApp'
 import { hasIOSupport } from '@/utils/constants'
+import { PlayerState } from '@/utils/enums'
 
 interface Props {
   container: null | HTMLElement

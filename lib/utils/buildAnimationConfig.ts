@@ -1,9 +1,10 @@
 import type { AnimationConfiguration, CanvasRendererConfig } from '@aarsteinmedia/lottie-web'
 
+import { RendererType } from '@aarsteinmedia/lottie-web/utils'
+
 import type { AppState } from '@/types'
 import type { ObjectFit } from '@/utils/enums'
 
-import { RendererType } from '@/enums'
 import { aspectRatio } from '@/utils'
 import { hasReducedMotion } from '@/utils/constants'
 

@@ -1,7 +1,4 @@
 import type {
-  AnimationConfiguration,
-  AnimationDirection,
-  AnimationItem,
   AnimationSegment,
   AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
@@ -16,7 +13,7 @@ import {
   useCallback, useEffect, useImperativeHandle, useRef, useState
 } from 'react'
 
-import type { DotLottieMethods } from '@/types'
+import type { PlayerProps } from '@/types'
 
 import {
   usePlayerDispatch,
@@ -38,24 +35,6 @@ const Controls = lazy(() => import('@/components/Controls')),
 /**
  * DotLottie Player.
  */
-interface Props {
-  background?: string
-  className?: string
-  description?: string
-  direction?: AnimationDirection,
-  hover?: boolean
-  intermission?: number
-  loadAnimation: (params: AnimationConfiguration) => AnimationItem
-  loopLimit?: number
-  objectFit?: ObjectFit
-  onComplete?: () => void
-  onError?: (message?: string) => void
-  onLoad?: () => void
-  ref?: React.RefObject<DotLottieMethods | null>
-  renderer?: RendererType
-  speed?: number,
-  subframe?: boolean
-}
 export default function Player({
   background,
   className = '',
@@ -68,13 +47,15 @@ export default function Player({
   objectFit = ObjectFit.Contain,
   onComplete,
   onError: onLoadError,
+  onFrame,
   onLoad,
+  onLoop,
   ref,
   renderer = RendererType.SVG,
   speed = 1,
   subframe,
   ...rest
-}: Props){
+}: PlayerProps){
 
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
@@ -112,10 +93,7 @@ export default function Player({
       play,
       seek,
       stop
-    } = usePlayback({
-      animationRef,
-      containerRef
-    }),
+    } = usePlayback({ animationRef }),
 
     /**
      * Skip to previous animation.
@@ -124,7 +102,7 @@ export default function Player({
       const { playback } = stateRef.current,
         currentAnimation = clamp(playback.currentAnimation - 1, 0)
 
-      switchInstance(currentAnimation, true)
+      switchInstance(currentAnimation)
 
     }, [stateRef, switchInstance]),
 
@@ -230,20 +208,32 @@ export default function Player({
     next,
     onComplete,
     onError: onLoadError,
+    onFrame,
     onLoad,
+    onLoop,
     play,
     stop,
     switchInstance
   })
 
   return (
-    <section
-      className={classnames([styles.dotLottie, className])}
+    <div
       lang={config.lang}
       data-controls={config.controls}
+      role="group"
+      className={classnames([
+        styles.dotLottie,
+        'dotlottie-element',
+        className
+      ])}
       {...rest}
     >
-      <figure className={styles.animation} aria-hidden={!description && !config.controls || undefined} ref={setContainerRef} style={{ background }}>
+      <figure
+        className={styles.animation}
+        aria-hidden={!description && !config.controls || undefined}
+        ref={setContainerRef}
+        style={{ background }}
+      >
         {playerState === PlayerState.Error &&
           <Suspense>
             <div className={styles.error}>
@@ -269,6 +259,6 @@ export default function Player({
           />
         </Suspense>
       }
-    </section>
+    </div>
   )
 }

@@ -11,19 +11,13 @@ Requires **React 19**.
 ```shell
 pnpm add @aarsteinmedia/dotlottie-react
 # or: npm install @aarsteinmedia/dotlottie-react
-```
-
-Import the bundled styles once in your app (required when using built-in controls):
-
-```ts
-import '@aarsteinmedia/dotlottie-react/styles.css'
+# or: yarn add @aarsteinmedia/dotlottie-react
 ```
 
 ## Quick start
 
 ```tsx
 import DotLottiePlayer from '@aarsteinmedia/dotlottie-react'
-import '@aarsteinmedia/dotlottie-react/styles.css'
 
 export default function App() {
   return (
@@ -43,10 +37,10 @@ export default function App() {
 
 | Import | Use when |
 | ------ | -------- |
-| `@aarsteinmedia/dotlottie-react` | Default build with full renderer support (SVG, Canvas) and support for expressions |
-| `@aarsteinmedia/dotlottie-react/light` | Smaller bundle; SVG renderer only |
-| `@aarsteinmedia/dotlottie-react/enums` | `PlayerState`, `ObjectFit`, `PlayMode`, `RendererType`, `PlayerEvents` |
-| `@aarsteinmedia/dotlottie-react/styles.css` | Player and control styles |
+| `@aarsteinmedia/dotlottie-react` | Default build with full renderer support (SVG, Canvas), support for expressions and effects (blur, drop shadow, etc.) |
+| `@aarsteinmedia/dotlottie-react/light` | Smaller bundle; SVG renderer only, no expressions and no effects |
+| `@aarsteinmedia/dotlottie-react/enums` | `PlayerState`, `ObjectFit`, `PlayMode`, `RendererType` |
+| `@aarsteinmedia/dotlottie-react/styles.css` | Rarely needed directly; styles load automatically with the player entries |
 
 ```tsx
 import DotLottiePlayer from '@aarsteinmedia/dotlottie-react/light'
@@ -75,7 +69,13 @@ export default function App() {
 }
 ```
 
+For the effect in the above example you can also use the `hover` attribute.
+
 Exported types: `DotLottieProps`, `DotLottieMethods`.
+Enum types: `ObjectFit`, `PlayerState`, `PlayMode` and `RendererType` are exported from `@aarsteinmedia/dotlottie-react/enums`
+
+## Next.js (App Router)
+This is a client component, howver both entries ship with `'use client'` directive, so it is safe to use in server context.
 
 ## Props
 
@@ -85,6 +85,7 @@ Standard HTML attributes (for example `className`, `style`, `id`) are forwarded 
 | ---- | ----------- | ---- | ------- |
 | `src` | URL to a `.json` or `.lottie` file | `string` | — |
 | `autoplay` | Start playing when loaded | `boolean` | `false` |
+| `lang` | Language, for accessibility | `string` | `en` |
 | `loop` | Loop the animation | `boolean` | `false` |
 | `loopLimit` | Stop after N loops (`0` = unlimited) | `number` | `0` |
 | `controls` | Show the built-in control bar | `boolean` | `false` |
@@ -92,7 +93,7 @@ Standard HTML attributes (for example `className`, `style`, `id`) are forwarded 
 | `direction` | Playback direction | `1` \| `-1` | `1` |
 | `speed` | Playback speed multiplier | `number` | `1` |
 | `mode` | Normal or bounce (boomerang) playback | `normal` \| `bounce` | `normal` |
-| `renderer` | Rendering backend | `svg` \| `canvas` \| `html` | `svg` |
+| `renderer` | Rendering backend | `svg` \| `canvas`* | `svg` |
 | `objectFit` | How the animation fits its container | `contain` \| `cover` \| `fill` \| `none` \| `scale-down` | `contain` |
 | `background` | Background color of the animation area | `string` | — |
 | `description` | Accessible label for the player | `string` | — |
@@ -100,10 +101,14 @@ Standard HTML attributes (for example `className`, `style`, `id`) are forwarded 
 | `intermission` | Delay in ms between bounce loops | `number` | — |
 | `animateOnScroll` | Scrub the animation based on page scroll | `boolean` | `false` |
 | `subframe` | Sub-frame rendering (can reduce flicker on Safari/iOS) | `boolean` | `false` |
+| `onFrame` | Called when animation enters new frame | `(detail: {frame: number; seeker: number}) => void` | — |
 | `onLoad` | Called when the animation DOM is ready | `() => void` | — |
+| `onLoop` | Called when a loop is finished | `() => void` | — |
 | `onComplete` | Called when playback completes | `() => void` | — |
 | `onError` | Called on load or playback errors | `(message?: string) => void` | — |
-| `ref` | Imperative API (see below) | `RefObject<DotLottieMethods>` | — |
+| `ref` | Imperative API (see below) | `Ref<DotLottieMethods \| null>` | — |
+
+*`canvas` requires the default import.
 
 ## Imperative methods
 
@@ -115,7 +120,7 @@ Access via `ref`:
 | `pause()` | Pause playback |
 | `stop()` | Stop and reset loop counter |
 | `seek(value)` | Jump to frame number or percentage (e.g. `"50%"`) |
-| `load(src)` | Load a new animation URL |
+| `async load(src)` | Load a new animation URL |
 | `next()` / `previous()` | Switch animation in multi-animation files |
 | `setSpeed(value)` | Set playback speed |
 | `setDirection(value)` | Set direction (`1` or `-1`) |
@@ -128,32 +133,14 @@ Access via `ref`:
 | `addAnimation(params)` | Add an animation to a dotLottie file (triggers download) |
 | `convert(params)` | Convert between JSON and dotLottie (triggers download) |
 
-## Events
+## Styles
+Styles are included automatically when you import `@aarsteinmedia/dotlottie-react` or `@aarsteinmedia/dotlottie-react/light`. You usually do not need a separate CSS import.
+If styles are missing, import them once in your app entry or root layout:
 
-The player dispatches custom events on the animation container (`<figure>`). Listen with `addEventListener` on a ref to the container, or use the `PlayerEvents` enum from `@aarsteinmedia/dotlottie-react/enums`:
-
-| Event | When |
-| ----- | ---- |
-| `load` | Animation data is ready |
-| `ready` | DOM is ready |
-| `play` | Playback starts |
-| `pause` | User-initiated pause |
-| `freeze` | Programmatic pause (e.g. viewport or scrub) |
-| `stop` | Playback stops |
-| `loop` | A loop completes |
-| `complete` | Animation finishes (detail: `{ frame, seeker }`) |
-| `frame` | Each frame during playback (detail: `{ frame, seeker }`) |
-| `next` / `previous` | Multi-animation navigation |
-| `error` | Load or runtime error |
-
-```tsx
-import { PlayerEvents } from '@aarsteinmedia/dotlottie-react/enums'
-
-containerRef.current?.addEventListener(PlayerEvents.Complete, (e) => {
-  console.log((e as CustomEvent).detail)
-})
+```ts
+import '@aarsteinmedia/dotlottie-react/styles.css'
 ```
 
 ## License
 
-[GPL-2.0-or-later](LICENSE.md)
+This package is copyleft: [GPL-2.0-or-later](LICENSE.md)

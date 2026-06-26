@@ -23,26 +23,35 @@ export interface DotLottieProps {
   animateOnScroll?: boolean
   autoplay?: boolean
   background?: string
+  className?: string
   controls?: boolean
   description?: string
   direction?: AnimationDirection
   hover?: boolean
   id?: string
   intermission?: number
+  lang?: string
   loop?: boolean
   loopLimit?: number
   mode?: PlayMode,
   objectFit?: ObjectFit
-  onComplete?: (e?: Event) => void
+  onComplete?: () => void
   onError?: (message?: string) => void
-  onLoad?: (e?: Event) => void
-  ref?: React.RefObject<DotLottieMethods | null>
+  onFrame?: (detail: {
+    frame: number
+    seeker: number
+  }) => void
+  onLoad?: () => void
+  onLoop?: () => void
+  ref?: React.Ref<DotLottieMethods | null>
   renderer?: RendererType
   simple?: boolean
   speed?: number
   src: string
   subframe?: boolean
 }
+
+export type PlayerProps = Omit<DotLottieProps, 'src'> & { loadAnimation: (params: AnimationConfiguration) => AnimationItem }
 
 export interface DotLottieMethods {
   addAnimation: (

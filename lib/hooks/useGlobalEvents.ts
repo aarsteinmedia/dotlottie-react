@@ -3,7 +3,6 @@ import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 import { isServer } from '@aarsteinmedia/lottie-web/utils'
 import { useCallback, useRef } from 'react'
 
-import { PlayerState } from '@/enums'
 import {
   usePlayerDispatch,
   usePlayerStateRef
@@ -13,6 +12,7 @@ import {
 } from '@/hooks/useEventListener'
 import { useIsVisible } from '@/hooks/useIsVisible'
 import { hasReducedMotion } from '@/utils/constants'
+import { PlayerState } from '@/utils/enums'
 import { getSeeker } from '@/utils/getSeeker'
 
 interface Props {

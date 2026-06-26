@@ -1,14 +1,14 @@
 import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
+import { PlayerEvent, PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
-import { PlayerEvent, PlayerState } from '@/enums'
 import {
   usePlayerDispatch,
   usePlayerStateRef
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
+import { PlayerState } from '@/utils/enums'
 
 interface Props {
   animationRef: React.RefObject<AnimationItem | null>
@@ -19,7 +19,12 @@ interface Props {
   next: () => void
   onComplete?: () => void
   onError?: (message?: string) => void
+  onFrame?: (detail: {
+    frame: number
+    seeker: number
+  }) => void
   onLoad?: () => void
+  onLoop?: () => void
   play: () => void
   stop: () => void
   switchInstance: (index: number, isPrevious?: boolean) => void
@@ -34,7 +39,9 @@ export function usePlayerEvents({
   next,
   onComplete,
   onError,
+  onFrame,
   onLoad,
+  onLoop,
   play,
   stop,
   switchInstance
@@ -94,17 +101,6 @@ export function usePlayerEvents({
         },
         type: 'SET_PLAYBACK'
       })
-
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Complete, {
-        detail: {
-          frame: currentFrame,
-          seeker,
-        },
-      }))
-    },
-
-    dataReady = () => {
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Ready))
     },
 
     /**
@@ -189,8 +185,6 @@ export function usePlayerEvents({
           setLoop(false)
 
           playerState = PlayerState.Completed
-
-          container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Complete))
         }
 
         dispatch({
@@ -201,12 +195,12 @@ export function usePlayerEvents({
           type: 'SET_PLAYBACK'
         })
 
+        onLoop?.()
+
         if (!shouldContinue) {
           return
         }
       }
-
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Loop))
 
       if (config.mode === PlayMode.Bounce) {
         animationRef.current.goToAndStop(playDirection === -1 ? inPoint : outPoint * 0.99,
@@ -232,12 +226,10 @@ export function usePlayerEvents({
       const { currentFrame, totalFrames } = animationRef.current,
         seeker = Math.round(currentFrame / totalFrames * 100)
 
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Frame, {
-        detail: {
-          frame: currentFrame,
-          seeker,
-        },
-      }))
+      onFrame?.({
+        frame: currentFrame,
+        seeker
+      })
     },
 
     dataFailed = () => {
@@ -248,13 +240,11 @@ export function usePlayerEvents({
           errorMessage: 'Invalid or corrupt file',
           type: 'LOAD_ERROR'
         })
-        container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Error))
       }
     },
 
     domLoaded = () => {
       onLoad?.()
-      container.current?.dispatchEvent(new CustomEvent(PlayerEvent.Load))
     }
 
 
@@ -269,9 +259,6 @@ export function usePlayerEvents({
   )
   useEventListener(
     PlayerEvent.DOMLoaded, domLoaded, { element: animationRef }
-  )
-  useEventListener(
-    PlayerEvent.DataReady, dataReady, { element: animationRef }
   )
   useEventListener(
     PlayerEvent.DataFailed, dataFailed, { element: animationRef }

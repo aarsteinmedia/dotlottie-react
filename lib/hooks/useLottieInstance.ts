@@ -11,7 +11,6 @@ import {
 
 import type { UseLottieInstance } from '@/types'
 
-import { PlayerEvent, PlayerState } from '@/enums'
 import {
   usePlayerDispatch,
   usePlayerStateRef
@@ -20,6 +19,7 @@ import { handleErrors, isLottie } from '@/utils'
 import { buildAnimationConfig } from '@/utils/buildAnimationConfig'
 import { hasIOSupport, hasReducedMotion } from '@/utils/constants'
 import { createInstance } from '@/utils/createInstance'
+import { PlayerState } from '@/utils/enums'
 import { handleSeek } from '@/utils/handleSeek'
 
 export function useLottieInstance({
@@ -186,7 +186,6 @@ export function useLottieInstance({
           !hasAnimateOnScroll
         ) {
           item.play()
-          containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Play))
         }
       }
     } catch (error) {
@@ -204,11 +203,8 @@ export function useLottieInstance({
         },
         type: 'SET_PLAYBACK'
       })
-
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Error))
     }
   }, [
-    containerRef,
     direction,
     dispatch,
     mountAtIndex,
@@ -218,7 +214,7 @@ export function useLottieInstance({
     subframe
   ])
 
-  const switchInstance = useCallback((index: number, isPrevious = false) => {
+  const switchInstance = useCallback((index: number) => {
     const { asset, config } = stateRef.current
 
     if (!asset.animations[index]) {
@@ -234,8 +230,6 @@ export function useLottieInstance({
         mode: playMode ?? PlayMode.Normal,
         type: 'SWITCH_ANIMATION'
       })
-
-      containerRef.current?.dispatchEvent(new CustomEvent(isPrevious ? PlayerEvent.Previous : PlayerEvent.Next))
 
       const shouldAutoplay =
         asset.multiAnimationSettings[index]?.autoplay ??
@@ -277,11 +271,8 @@ export function useLottieInstance({
         },
         type: 'SET_PLAYBACK'
       })
-
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Error))
     }
   }, [
-    containerRef,
     dispatch,
     mountAtIndex,
     onLoadError,

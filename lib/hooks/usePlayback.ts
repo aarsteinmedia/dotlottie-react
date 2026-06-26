@@ -1,19 +1,13 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import { PlayerEvent, PlayerState } from '@/enums'
 import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
+import { PlayerState } from '@/utils/enums'
 import { getSeeker } from '@/utils/getSeeker'
 import { handleSeek } from '@/utils/handleSeek'
 
-interface Props {
-  animationRef: React.RefObject<AnimationItem | null>
-  containerRef: React.RefObject<HTMLElement | null>
-}
+interface Props {animationRef: React.RefObject<AnimationItem | null>}
 
-export function usePlayback({
-  animationRef,
-  containerRef,
-}: Props) {
+export function usePlayback({ animationRef }: Props) {
 
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
@@ -37,7 +31,6 @@ export function usePlayback({
       }
 
       item.pause()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Freeze))
 
       dispatch({
         patch: {
@@ -59,7 +52,6 @@ export function usePlayback({
       }
 
       item.pause()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Pause))
 
       dispatch({
         patch: {
@@ -82,7 +74,6 @@ export function usePlayback({
       }
 
       item.play()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Play))
 
       dispatch({
         patch: { playerState: PlayerState.Playing },
@@ -117,7 +108,6 @@ export function usePlayback({
       }
 
       item.stop()
-      containerRef.current?.dispatchEvent(new CustomEvent(PlayerEvent.Stop))
 
       dispatch({
         patch: {
