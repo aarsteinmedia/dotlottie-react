@@ -45,7 +45,7 @@ header {
   }
 }
 
-figure {
+div {
   &.aligncenter,
   &.alignleft,
   &.alignright {

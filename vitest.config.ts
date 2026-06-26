@@ -14,9 +14,25 @@ export default defineConfig({
     },
   },
   test: {
-    environment: 'jsdom',
-    globals: false,
-    include: ['lib/**/*.{test,spec}.{ts,tsx}'],
-    setupFiles: [resolve(__dirname, 'vitest.setup.ts')],
+    projects: [
+      {
+        extends: true,
+        test: {
+          environment: 'jsdom',
+          exclude: ['lib/**/*.ssr.{test,spec}.{ts,tsx}'],
+          globals: false,
+          include: ['lib/**/*.{test,spec}.{ts,tsx}'],
+          name: 'unit',
+          setupFiles: [resolve(__dirname, 'vitest.setup.ts')],
+        }
+      }, {
+        extends: true,
+        test: {
+          environment: 'node',
+          include: ['lib/**/*.ssr.{test,spec}.{ts,tsx}'],
+          name: 'ssr'
+        }
+      }
+    ]
   },
 })

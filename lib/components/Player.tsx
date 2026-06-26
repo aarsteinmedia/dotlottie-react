@@ -165,11 +165,13 @@ export default function Player({
       container: containerNode,
       freeze,
       play
-    })
+    }),
+
+    { config } = stateRef.current
 
   useEffect(() => {
-    void load(stateRef.current.config.src)
-  }, [load, stateRef])
+    void load(config.src)
+  }, [config.src, load])
 
   useImperativeHandle(
     ref, () => {
@@ -235,15 +237,13 @@ export default function Player({
   })
 
   return (
-    <div
+    <section
       className={classnames([styles.dotLottie, className])}
-      lang={stateRef.current.config.lang}
-      aria-label={description}
-      aria-hidden={!description || undefined}
-      data-controls={stateRef.current.config.controls}
+      lang={config.lang}
+      data-controls={config.controls}
       {...rest}
     >
-      <figure className={styles.animation} ref={setContainerRef} style={{ background }}>
+      <figure className={styles.animation} aria-hidden={!description && !config.controls || undefined} ref={setContainerRef} style={{ background }}>
         {playerState === PlayerState.Error &&
           <Suspense>
             <div className={styles.error}>
@@ -251,8 +251,9 @@ export default function Player({
             </div>
           </Suspense>
         }
+        {description && <figcaption>{description}</figcaption>}
       </figure>
-      {stateRef.current.config.controls &&
+      {config.controls &&
         <Suspense>
           <Controls
             animationRef={animationRef}
@@ -268,6 +269,6 @@ export default function Player({
           />
         </Suspense>
       }
-    </div>
+    </section>
   )
 }
