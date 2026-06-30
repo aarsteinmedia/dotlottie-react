@@ -37,7 +37,7 @@
   "license": "GPL-2.0-or-later",
   "scripts": {
     "dev": "BROWSER='firefox' vite --open",
-    "build": "tsc --p ./tsconfig.build.json && vite build",
+    "build": "vite build",
     "lint": "eslint lib",
     "lint:fix": "eslint lib --fix",
     "lint:css": "npx stylelint lib/**/*.css",
@@ -74,7 +74,7 @@
     "stylelint": "^17.14.0",
     "stylelint-config-recommended": "^18.0.0",
     "typescript": "^6.0.3",
-    "vite": "^8.1.0",
+    "vite": "^8.1.2",
     "vite-plugin-dts": "^5.0.3",
     "vitest": "^4.1.9"
   },
