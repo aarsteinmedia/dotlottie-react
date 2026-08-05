@@ -20,7 +20,7 @@ function App() {
               Select file to preview:<br />
               {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
               <select autoFocus name="path">
-                <option disabled value="assets/am.lottie">Path to file</option>
+                <option disabled value="/am.lottie">Path to file</option>
               </select>
             </label>
           </form>

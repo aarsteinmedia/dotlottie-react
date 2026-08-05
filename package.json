@@ -1,6 +1,6 @@
 {
   "name": "@aarsteinmedia/dotlottie-react",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
   "main": "./dist/full.js",
@@ -48,7 +48,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.5.1"
+    "@aarsteinmedia/lottie-web": "^1.5.3"
   },
   "peerDependencies": {
     "react": "^19.x",
@@ -56,16 +56,16 @@
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.1.2",
     "@types/postcss-flexbugs-fixes": "^5.0.3",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
     "autoprefixer": "^10.5.4",
     "eslint": "^9.39.5",
     "eslint-config-sheriff": "^31.4.0",
-    "eslint-plugin-perfectionist": "^5.10.0",
-    "globals": "^17.7.0",
+    "eslint-plugin-perfectionist": "^5.10.1",
+    "globals": "^17.9.0",
     "jiti": "^2.7.0",
     "jsdom": "^29.1.1",
     "postcss-flexbugs-fixes": "^5.0.2",
@@ -75,7 +75,7 @@
     "stylelint": "^17.14.1",
     "stylelint-config-recommended": "^18.0.0",
     "typescript": "^6.0.3",
-    "vite": "^8.1.5",
+    "vite": "^8.2.0",
     "vite-plugin-dts": "^5.0.3",
     "vitest": "^4.1.10"
   },
@@ -113,6 +113,6 @@
   },
   "funding": {
     "type": "paypal",
-    "url": "https://www.paypal.com/donate/?hosted_button_id=E7C7DMN8KSQ6A"
+    "url": "https://www.paypal.me/aarsteinmedia"
   }
 }
