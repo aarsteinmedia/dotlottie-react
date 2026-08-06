@@ -20,7 +20,7 @@ function App() {
               Select file to preview:<br />
               {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
               <select autoFocus name="path">
-                <option disabled value="/am.lottie">Path to file</option>
+                <option disabled value="/assets/am.lottie">Path to file</option>
               </select>
             </label>
           </form>
@@ -48,7 +48,7 @@ function App() {
             controls
             // direction={-1}
             className="test"
-            src="/dev.lottie"
+            src="/assets/dev.lottie"
           />
         </div>
 
@@ -61,10 +61,10 @@ function App() {
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <div className='alignleft' style={{ width: '100%' }} >
-            <DotLottiePlayer animateOnScroll subframe src="/care-education-combined.lottie" />
+            <DotLottiePlayer animateOnScroll subframe src="/assets/care-education-combined.lottie" />
           </div>
           <div className='alignright' style={{ width: '100%' }} >
-            <DotLottiePlayer autoplay loop subframe description='Synnøve Finden hopper og spretter!' mode={PlayMode.Bounce} src="/synnove.lottie" />
+            <DotLottiePlayer autoplay loop subframe description='Synnøve Finden hopper og spretter!' mode={PlayMode.Bounce} src="/assets/synnove.lottie" />
           </div>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
