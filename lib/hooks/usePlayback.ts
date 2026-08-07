@@ -17,10 +17,16 @@ export function usePlayback({ animationRef }: Props) {
      * This internal state pauses animation and is used to differentiate between
      * user requested pauses and component instigated pauses.
      */
+    isPlaybackLocked = () => {
+      const { playerState } = stateRef.current.playback
+
+      return playerState === PlayerState.Error || playerState === PlayerState.Loading
+    },
+
     freeze = () => {
       const { current: item } = animationRef
 
-      if (!item) {
+      if (!item || isPlaybackLocked()) {
         return
       }
 
@@ -47,7 +53,7 @@ export function usePlayback({ animationRef }: Props) {
     pause = () => {
       const { current: item } = animationRef
 
-      if (!item) {
+      if (!item || isPlaybackLocked()) {
         return
       }
 
@@ -69,7 +75,7 @@ export function usePlayback({ animationRef }: Props) {
     play = () => {
       const { current: item } = animationRef
 
-      if (!item) {
+      if (!item || isPlaybackLocked()) {
         return
       }
 
@@ -87,6 +93,10 @@ export function usePlayback({ animationRef }: Props) {
      * @param value - Frame to seek to.
      */
     seek = (value: number | string, seekOrigin?: PlayerState) => {
+      if (isPlaybackLocked()) {
+        return
+      }
+
       const { playback } = stateRef.current
 
       handleSeek({
@@ -103,7 +113,7 @@ export function usePlayback({ animationRef }: Props) {
     stop = () => {
       const { current: item } = animationRef
 
-      if (!item) {
+      if (!item || isPlaybackLocked()) {
         return
       }
 

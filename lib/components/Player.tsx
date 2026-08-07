@@ -17,8 +17,8 @@ import type { PlayerProps } from '@/types'
 
 import {
   usePlayerDispatch,
-  usePlayerState,
-  usePlayerStateRef
+  usePlayerStateRef,
+  usePlayerStore
 } from '@/hooks/useApp'
 import { useGlobalEvents } from '@/hooks/useGlobalEvents'
 import { useLottieInstance } from '@/hooks/useLottieInstance'
@@ -59,7 +59,10 @@ export default function Player({
 
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
-    playerState = usePlayerState(),
+    {
+      config,
+      playback: { playerState }
+    } = usePlayerStore(),
     containerRef = useRef<HTMLElement>(null),
     [containerNode, setContainerNode] = useState<HTMLElement | null>(null),
 
@@ -75,7 +78,7 @@ export default function Player({
       setLoop,
       setSpeed,
       setSubframe,
-      switchInstance
+      switchInstance,
     } = useLottieInstance({
       containerRef,
       direction,
@@ -143,9 +146,7 @@ export default function Player({
       container: containerNode,
       freeze,
       play
-    }),
-
-    { config } = stateRef.current
+    })
 
   useEffect(() => {
     void load(config.src)
@@ -220,6 +221,7 @@ export default function Player({
     <div
       lang={config.lang}
       data-controls={config.controls}
+      data-renderer={renderer}
       role="group"
       className={classnames([
         styles.dotLottie,
@@ -243,7 +245,7 @@ export default function Player({
         }
         {description && <figcaption>{description}</figcaption>}
       </figure>
-      {config.controls &&
+      {config.controls && playerState !== PlayerState.Error &&
         <Suspense>
           <Controls
             animationRef={animationRef}

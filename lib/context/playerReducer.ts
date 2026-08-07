@@ -10,10 +10,17 @@ export function playerReducer(state: AppState, action: PlayerAction) {
     case 'LOAD_ERROR': {
       return {
         ...state,
+        asset: {
+          animations: [],
+          isDotLottie: false,
+          multiAnimationSettings: []
+        },
         playback: {
           ...state.playback,
+          currentAnimation: 0,
           errorMessage: action.errorMessage,
-          playerState: PlayerState.Error
+          playerState: PlayerState.Error,
+          seeker: 0,
         }
       }
     }
@@ -26,8 +33,10 @@ export function playerReducer(state: AppState, action: PlayerAction) {
         },
         playback: {
           ...state.playback,
+          currentAnimation: 0,
           errorMessage: 'Failed to load file',
           playerState: PlayerState.Loading,
+          seeker: 0,
         }
       }
     }
@@ -62,6 +71,30 @@ export function playerReducer(state: AppState, action: PlayerAction) {
       }
     }
     case 'SET_PLAYBACK': {
+      const { playerState } = state.playback,
+        nextPlayerState = action.patch.playerState
+
+      // Only LOAD_* actions may leave Loading/Error; ignore stale animation events.
+      if (
+        nextPlayerState !== undefined &&
+        nextPlayerState !== playerState &&
+        (playerState === PlayerState.Error || playerState === PlayerState.Loading)
+      ) {
+        const { playerState: _ignored, ...rest } = action.patch
+
+        if (Object.keys(rest).length === 0) {
+          return state
+        }
+
+        return {
+          ...state,
+          playback: {
+            ...state.playback,
+            ...rest
+          }
+        }
+      }
+
       return {
         ...state,
         playback: {

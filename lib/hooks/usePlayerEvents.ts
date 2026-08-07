@@ -59,8 +59,14 @@ export function usePlayerEvents({
       intermissionTimeoutRef.current = null
     },
 
+    isPlaybackLocked = () => {
+      const { playerState } = stateRef.current.playback
+
+      return playerState === PlayerState.Error || playerState === PlayerState.Loading
+    },
+
     complete = () => {
-      if (!animationRef.current) {
+      if (!animationRef.current || isPlaybackLocked()) {
         return
       }
 
@@ -154,7 +160,9 @@ export function usePlayerEvents({
     },
 
     loopComplete = () => {
-      if (!animationRef.current) {
+      if (!animationRef.current || isPlaybackLocked()) {
+        clearIntermissionTimeout()
+
         return
       }
 

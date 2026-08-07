@@ -37,6 +37,11 @@ export function useLottieInstance({
     dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
 
+    destroyAnimation = useCallback(() => {
+      animationRef.current?.destroy()
+      animationRef.current = null
+    }, []),
+
     mountAtIndex = useCallback((animations: AnimationData[], index: number) => {
       const container = containerRef.current
 
@@ -78,6 +83,9 @@ export function useLottieInstance({
 
     const generation = ++loadGeneration.current
 
+    // Stop the current instance so its events cannot race the new load.
+    animationRef.current?.pause()
+
     dispatch({
       src,
       type: 'LOAD_START'
@@ -85,14 +93,14 @@ export function useLottieInstance({
 
     try {
       const {
-        animations = [], isDotLottie, manifest
+        animations, isDotLottie, manifest
       } = await getAnimationData(src)
 
       if (generation !== loadGeneration.current) {
         return
       }
 
-      if (!animations.every(isLottie)) {
+      if (!animations?.every(isLottie)) {
         throw new Error('Broken or corrupted file')
       }
 
@@ -193,18 +201,18 @@ export function useLottieInstance({
         return
       }
 
+      destroyAnimation()
+
       const { message: errorMessage } = handleErrors(error)
 
       onLoadError?.(errorMessage)
       dispatch({
-        patch: {
-          errorMessage,
-          playerState: PlayerState.Error
-        },
-        type: 'SET_PLAYBACK'
+        errorMessage,
+        type: 'LOAD_ERROR'
       })
     }
   }, [
+    destroyAnimation,
     direction,
     dispatch,
     mountAtIndex,
@@ -261,18 +269,18 @@ export function useLottieInstance({
         type: 'SET_PLAYBACK'
       })
     } catch (error) {
+      destroyAnimation()
+
       const { message: errorMessage } = handleErrors(error)
 
       onLoadError?.(errorMessage)
       dispatch({
-        patch: {
-          errorMessage,
-          playerState: PlayerState.Error
-        },
-        type: 'SET_PLAYBACK'
+        errorMessage,
+        type: 'LOAD_ERROR'
       })
     }
   }, [
+    destroyAnimation,
     dispatch,
     mountAtIndex,
     onLoadError,
@@ -298,10 +306,9 @@ export function useLottieInstance({
   useEffect(() => {
     return () => {
       loadGeneration.current += 1
-      animationRef.current?.destroy()
-      animationRef.current = null
+      destroyAnimation()
     }
-  }, [])
+  }, [destroyAnimation])
 
   return {
     animationRef,

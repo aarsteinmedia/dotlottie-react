@@ -12,6 +12,10 @@ export function usePlayerStateRef() {
   return use(PlayerStateRefContext)
 }
 
+export function usePlayerStore() {
+  return use(PlayerStateContext)
+}
+
 export function usePlayerPlayback() {
   return use(PlayerStateContext).playback
 }
@@ -19,13 +23,3 @@ export function usePlayerPlayback() {
 export function usePlayerState() {
   return use(PlayerStateContext).playback.playerState
 }
-
-// export function usePlayerPlaybackSelector<T>(selector: (playback: PlayerPlayback) => T): T {
-//   const state = use(PlayerStateContext)
-
-//   return useSyncExternalStore(
-//     state.subscribe,
-//     () => selector(state.getSnapShot().playback),
-//     () => selector(state.getSnapShot().playback)
-//   )
-// }

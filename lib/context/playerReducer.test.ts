@@ -31,6 +31,10 @@ describe('playerReducer', () => {
 
     // @ts-expect-error: readonly property
     state.playback.playerState = PlayerState.Playing
+    // @ts-expect-error: readonly property
+    state.playback.currentAnimation = 2
+    // @ts-expect-error: readonly property
+    state.playback.seeker = 40
 
     const next = playerReducer(state, {
       src: '/animation.lottie',
@@ -39,6 +43,8 @@ describe('playerReducer', () => {
 
     expect(next.config.src).toBe('/animation.lottie')
     expect(next.playback.playerState).toBe(PlayerState.Loading)
+    expect(next.playback.currentAnimation).toBe(0)
+    expect(next.playback.seeker).toBe(0)
   })
 
   test('applies LOAD_SUCCESS payload and resets loop counter', () => {
@@ -101,6 +107,9 @@ describe('playerReducer', () => {
   test('merges playback patches', () => {
     const state = createInitialState()
 
+    // @ts-expect-error: readonly property
+    state.playback.playerState = PlayerState.Playing
+
     const next = playerReducer(state, {
       patch: {
         loopsCompleted: 2,
@@ -113,5 +122,62 @@ describe('playerReducer', () => {
     expect(next.playback.loopsCompleted).toBe(2)
     expect(next.playback.playerState).toBe(PlayerState.Paused)
     expect(next.playback.seeker).toBe(50)
+  })
+
+  test('clears assets on LOAD_ERROR', () => {
+    const state = createInitialState({ src: '/broken.lottie' })
+
+    // @ts-expect-error: readonly property
+    state.asset.animations = [{
+      assets: [],
+      chars: [],
+      ddd: 0,
+      fr: 30,
+      h: 100,
+      ip: 0,
+      layers: [],
+      nm: '',
+      op: 60,
+      v: '5.5.7',
+      w: 100
+    }]
+    // @ts-expect-error: readonly property
+    state.playback.playerState = PlayerState.Loading
+
+    const next = playerReducer(state, {
+      errorMessage: 'Broken or corrupted file',
+      type: 'LOAD_ERROR',
+    })
+
+    expect(next.asset.animations).toHaveLength(0)
+    expect(next.playback.playerState).toBe(PlayerState.Error)
+    expect(next.playback.errorMessage).toBe('Broken or corrupted file')
+  })
+
+  test('ignores playerState changes while Loading or Error', () => {
+    const loading = createInitialState()
+
+    const stillLoading = playerReducer(loading, {
+      patch: { playerState: PlayerState.Completed },
+      type: 'SET_PLAYBACK',
+    })
+
+    expect(stillLoading.playback.playerState).toBe(PlayerState.Loading)
+
+    const errored = playerReducer(loading, {
+      errorMessage: 'Broken',
+      type: 'LOAD_ERROR',
+    })
+
+    const stillErrored = playerReducer(errored, {
+      patch: {
+        playerState: PlayerState.Playing,
+        seeker: 10,
+      },
+      type: 'SET_PLAYBACK',
+    })
+
+    expect(stillErrored.playback.playerState).toBe(PlayerState.Error)
+    expect(stillErrored.playback.seeker).toBe(10)
   })
 })

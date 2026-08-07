@@ -36,6 +36,10 @@ export default function AppProvider(props: Props) {
     } = props
 
   useEffect(() => {
+    stateRef.current = state
+  }, [state])
+
+  useEffect(() => {
     dispatch({
       patch: {
         animateOnScroll,
@@ -59,9 +63,6 @@ export default function AppProvider(props: Props) {
     simple,
     src
   ])
-  useEffect(() => {
-    stateRef.current = state
-  }, [state])
 
   return (
     <PlayerDispatchContext value={dispatch}>
