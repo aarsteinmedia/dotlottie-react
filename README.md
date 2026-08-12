@@ -4,7 +4,7 @@
 
 A React player for Lottie JSON and [dotLottie](https://dotlottie.io/) files. This package is a rework of [@aarsteinmedia/dotlottie-player](https://www.npmjs.com/package/@aarsteinmedia/dotlottie-player), rebuilt for React with a modern hook-based architecture.
 
-Requires **React 19**.
+Requires **React 19**. `.lottie` files may contain multiple animations; use `next()` / `previous()` or the control bar to switch between them.
 
 ## Installation
 
@@ -40,7 +40,7 @@ export default function App() {
 | `@aarsteinmedia/dotlottie-react` | Default build with full renderer support (SVG, Canvas), support for expressions and effects (blur, drop shadow, etc.) |
 | `@aarsteinmedia/dotlottie-react/light` | Smaller bundle; SVG renderer only, no expressions and no effects |
 | `@aarsteinmedia/dotlottie-react/enums` | `PlayerState`, `ObjectFit`, `PlayMode`, `RendererType` |
-| `@aarsteinmedia/dotlottie-react/styles.css` | Rarely needed directly; styles load automatically with the player entries |
+| `@aarsteinmedia/dotlottie-react/styles.css` | Fallback CSS import (see [Styles](#styles)); usually unnecessary |
 
 ```tsx
 import DotLottiePlayer from '@aarsteinmedia/dotlottie-react/light'
@@ -69,13 +69,19 @@ export default function App() {
 }
 ```
 
-For the effect in the above example you can also use the `hover` attribute.
+For the effect in the above example you can also use the `hover` prop.
 
 Exported types: `DotLottieProps`, `DotLottieMethods`.
-Enum types: `ObjectFit`, `PlayerState`, `PlayMode` and `RendererType` are exported from `@aarsteinmedia/dotlottie-react/enums`
+Typed equivalents for string prop values (`PlayMode`, `RendererType`, `ObjectFit`, `PlayerState`) are exported from `@aarsteinmedia/dotlottie-react/enums`.
 
 ## Next.js (App Router)
-This is a client component, howver both entries ship with `'use client'` directive, so it is safe to use in server context.
+
+Both entries include the `'use client'` directive, so you can import them from Server Components; they render as Client Components.
+
+## Behavior
+
+- Playing animations freeze when scrolled out of view and resume when visible again.
+- When `prefers-reduced-motion: reduce` is set, `autoplay` and `animateOnScroll` are disabled.
 
 ## Props
 
@@ -98,7 +104,7 @@ Standard HTML attributes (for example `className`, `style`, `id`) are forwarded 
 | `background` | Background color of the animation area | `string` | — |
 | `description` | Accessible label for the player | `string` | — |
 | `hover` | Play on mouse enter, stop on mouse leave | `boolean` | `false` |
-| `intermission` | Delay in ms between bounce loops | `number` | — |
+| `intermission` | Delay in ms between loops (including bounce) | `number` | — |
 | `animateOnScroll` | Scrub the animation based on page scroll | `boolean` | `false` |
 | `subframe` | Sub-frame rendering (can reduce flicker on Safari/iOS) | `boolean` | `false` |
 | `onFrame` | Called when animation enters new frame | `(detail: {frame: number; seeker: number}) => void` | — |
@@ -134,6 +140,7 @@ Access via `ref`:
 | `convert(params)` | Convert between JSON and dotLottie (triggers download) |
 
 ## Styles
+
 Styles are included automatically when you import `@aarsteinmedia/dotlottie-react` or `@aarsteinmedia/dotlottie-react/light`. You usually do not need a separate CSS import.
 If styles are missing, import them once in your app entry or root layout:
 
