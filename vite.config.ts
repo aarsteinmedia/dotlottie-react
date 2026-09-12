@@ -100,7 +100,7 @@ export default defineConfig({
         preserveModulesRoot: 'lib'
       }
     },
-    target: 'es2023'
+    target: 'es2024'
   },
   css: {
     // modules: { scopeBehaviour: 'local' },
