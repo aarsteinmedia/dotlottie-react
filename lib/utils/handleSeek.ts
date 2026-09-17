@@ -22,7 +22,7 @@ export function handleSeek({
     return
   }
 
-  const matches = value.toString().match(/^(\d+)(%?)$/)
+  const matches = RegExp(/^(\d+)(%?)$/).exec(value.toString())
 
   if (!matches) {
     return

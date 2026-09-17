@@ -12,13 +12,13 @@ function isRefObject<T>(value: unknown): value is React.RefObject<T> {
 
 interface ElementOptions<T> {
   element?:
-  | (Window & typeof globalThis)
-  | React.RefObject<T>
-  | Element
-  | ScreenOrientation
-  | Document
-  | null
-  | false
+    | Window & typeof globalThis
+    | React.RefObject<T>
+    | Element
+    | ScreenOrientation
+    | Document
+    | null
+    | false
 }
 
 type EventOptions<T> = EventListenerOptions &
@@ -46,7 +46,7 @@ export function useEventListener<
     } = options,
 
     element =
-    elementOptions === undefined && !isServer ? window : elementOptions,
+      elementOptions === undefined && !isServer ? window : elementOptions,
 
     isElementRef = isRefObject(element),
     resolvedElement = isElementRef ? element.current : element,

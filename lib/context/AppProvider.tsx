@@ -32,7 +32,8 @@ export default function AppProvider(props: Props) {
       loop,
       mode,
       simple,
-      src
+      src,
+      subframe
     } = props
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function AppProvider(props: Props) {
         mode,
         simple,
         src: src ?? null,
+        subframe,
         ...id ? { id } : {}
       },
       type: 'SYNC_CONFIG'
@@ -61,7 +63,8 @@ export default function AppProvider(props: Props) {
     loop,
     mode,
     simple,
-    src
+    src,
+    subframe
   ])
 
   return (

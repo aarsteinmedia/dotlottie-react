@@ -5,7 +5,7 @@ import { PlayerState } from '@/utils/enums'
 import { getSeeker } from '@/utils/getSeeker'
 import { handleSeek } from '@/utils/handleSeek'
 
-interface Props {animationRef: React.RefObject<AnimationItem | null>}
+interface Props { animationRef: React.RefObject<AnimationItem | null> }
 
 export function usePlayback({ animationRef }: Props) {
 

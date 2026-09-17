@@ -50,7 +50,7 @@ export default function Controls({
   seek,
   setLoop,
   stop,
-}: Props) {
+}: Readonly<Props>) {
   const stateRef = usePlayerStateRef(),
     playback = usePlayerPlayback(),
     dispatch = usePlayerDispatch(),

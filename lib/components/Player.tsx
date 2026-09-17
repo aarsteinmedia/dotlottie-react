@@ -10,17 +10,22 @@ import {
 import {
   lazy,
   Suspense,
-  useCallback, useEffect, useImperativeHandle, useRef, useState
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState
 } from 'react'
 
 import type { PlayerProps } from '@/types'
 
+import { useAnimateOnScroll } from '@/hooks/useAnimateOnScroll'
 import {
   usePlayerDispatch,
   usePlayerStateRef,
   usePlayerStore
 } from '@/hooks/useApp'
-import { useGlobalEvents } from '@/hooks/useGlobalEvents'
+// import { useGlobalEvents } from '@/hooks/useGlobalEvents'
 import { useLottieInstance } from '@/hooks/useLottieInstance'
 import { usePlayback } from '@/hooks/usePlayback'
 import { usePlayerEvents } from '@/hooks/usePlayerEvents'
@@ -55,7 +60,7 @@ export default function Player({
   speed = 1,
   subframe,
   ...rest
-}: PlayerProps){
+}: PlayerProps) {
 
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
@@ -139,14 +144,16 @@ export default function Player({
         segment,
         type: 'SET_SEGMENT'
       })
-    }, [dispatch]),
+    }, [dispatch])
 
-    { getIsVisible } = useGlobalEvents({
-      animationRef,
-      container: containerNode,
-      freeze,
-      play
-    })
+  // { getIsVisible } = useGlobalEvents({
+  //   animationRef,
+  //   container: containerNode,
+  //   freeze,
+  //   play
+  // })
+
+  useAnimateOnScroll(containerRef, animationRef)
 
   useEffect(() => {
     void load(config.src)
@@ -165,7 +172,7 @@ export default function Player({
 
           return convert(...args)
         },
-        getIsVisible,
+        // getIsVisible,
         load,
         next,
         pause,
@@ -182,7 +189,7 @@ export default function Player({
         stop
       }
     }, [
-      getIsVisible,
+      // getIsVisible,
       load,
       next,
       pause,

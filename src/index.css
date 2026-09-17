@@ -61,6 +61,11 @@ header {
   }
 }
 
+.lorem-ipsum {
+  margin: 40px auto;
+  max-width: 600px;
+}
+
 div {
   &.aligncenter,
   &.alignleft,

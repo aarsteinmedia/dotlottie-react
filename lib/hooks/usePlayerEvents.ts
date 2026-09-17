@@ -3,6 +3,8 @@ import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-we
 import { PlayerEvent, PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
+import type { PlayerConfig, PlayerPlayback } from '@/context/AppContext'
+
 import {
   usePlayerDispatch,
   usePlayerStateRef
@@ -159,6 +161,40 @@ export function usePlayerEvents({
       }, intermission)
     },
 
+    handleLoopLimit = (config: PlayerConfig,
+      playback: PlayerPlayback) => {
+      let shouldContinue = true,
+        loopsCompleted = playback.loopsCompleted + 1
+
+      if (config.mode === PlayMode.Bounce) {
+        loopsCompleted = playback.loopsCompleted + 0.5
+      }
+
+      if (loopsCompleted >= loopLimit) {
+        shouldContinue = false
+      }
+
+      let { playerState } = playback
+
+      if (!shouldContinue) {
+        setLoop(false)
+
+        playerState = PlayerState.Completed
+      }
+
+      dispatch({
+        patch: {
+          loopsCompleted,
+          playerState
+        },
+        type: 'SET_PLAYBACK'
+      })
+
+      onLoop?.()
+
+      return shouldContinue
+    },
+
     loopComplete = () => {
       if (!animationRef.current || isPlaybackLocked()) {
         clearIntermissionTimeout()
@@ -176,34 +212,7 @@ export function usePlayerEvents({
         outPoint = playback.segment ? playback.segment[1] : totalFrames
 
       if (loopLimit > 0) {
-        let shouldContinue = true,
-          loopsCompleted = playback.loopsCompleted + 1
-
-        if (config.mode === PlayMode.Bounce) {
-          loopsCompleted = playback.loopsCompleted + 0.5
-        }
-
-        if (loopsCompleted >= loopLimit) {
-          shouldContinue = false
-        }
-
-        let { playerState } = playback
-
-        if (!shouldContinue) {
-          setLoop(false)
-
-          playerState = PlayerState.Completed
-        }
-
-        dispatch({
-          patch: {
-            loopsCompleted,
-            playerState
-          },
-          type: 'SET_PLAYBACK'
-        })
-
-        onLoop?.()
+        const shouldContinue = handleLoopLimit(config, playback)
 
         if (!shouldContinue) {
           return

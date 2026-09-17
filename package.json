@@ -40,8 +40,8 @@
     "predev": "pnpm assets",
     "dev": "BROWSER='firefox' vite --open",
     "build": "vite build",
-    "lint": "eslint lib",
-    "lint:fix": "eslint lib --fix",
+    "lint": "eslint --flag unstable_native_nodejs_ts_config lib",
+    "lint:fix": "eslint --flag unstable_native_nodejs_ts_config lib --fix",
     "lint:css": "npx stylelint lib/**/*.css",
     "lint:css:fix": "npx stylelint lib/**/*.css --fix",
     "pretest": "pnpm build",
@@ -50,42 +50,61 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.5.10"
+    "@aarsteinmedia/lottie-web": "^1.6.0"
   },
   "peerDependencies": {
     "react": "^19.x",
     "react-dom": "^19.x"
   },
   "devDependencies": {
+    "@eslint-react/eslint-plugin": "^5.19.1",
+    "@eslint/compat": "^2.1.1",
+    "@eslint/core": "^1.2.1",
+    "@eslint/js": "^10.0.1",
+    "@regru/eslint-plugin-prefer-early-return": "^1.0.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@testing-library/react": "^16.3.3",
-    "@types/node": "^26.5.1",
+    "@types/eslint-plugin-jsx-a11y": "^6.10.1",
+    "@types/node": "^26.6.1",
     "@types/postcss-flexbugs-fixes": "^5.0.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "autoprefixer": "^10.6.0",
-    "eslint": "^9.39.5",
-    "eslint-config-sheriff": "^31.4.0",
-    "eslint-plugin-perfectionist": "^5.11.0",
+    "@vitest/eslint-plugin": "^1.6.27",
+    "autoprefixer": "^10.6.1",
+    "eslint": "^10.10.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-no-restricted": "^0.1.2",
+    "eslint-plugin-fsecond": "^1.5.0",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-perfectionist": "^5.11.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "eslint-plugin-react-you-might-not-need-an-effect": "^1.0.2",
+    "eslint-plugin-regexp": "^3.3.0",
+    "eslint-plugin-sonarjs": "^4.2.1",
+    "eslint-plugin-unicorn": "^75.0.0",
     "globals": "^17.12.0",
-    "jiti": "^2.7.0",
     "jsdom": "^30.0.1",
     "postcss-flexbugs-fixes": "^5.0.2",
+    "prettier": "^3.9.7",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "rollup-preserve-directives": "^1.1.3",
     "stylelint": "^17.15.0",
     "stylelint-config-recommended": "^18.0.0",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0",
     "vite": "^8.3.0",
     "vite-plugin-dts": "^5.1.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   },
   "sideEffects": [
     "**/*.css"
   ],
   "engines": {
-    "node": ">= 14.20.0"
+    "node": ">= 20.20.2"
   },
   "files": [
     "dist",

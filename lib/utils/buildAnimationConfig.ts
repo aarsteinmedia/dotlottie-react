@@ -18,7 +18,7 @@ export function buildAnimationConfig(
       asset, config, playback
     } = state,
     preserveAspectRatio =
-    aspectRatio(objectFit),
+      aspectRatio(objectFit),
     currentAnimationSettings = asset.multiAnimationSettings.length > 0
       ? asset.multiAnimationSettings[playback.currentAnimation]
       : undefined,

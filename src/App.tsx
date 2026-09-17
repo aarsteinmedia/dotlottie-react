@@ -5,23 +5,13 @@ import { useState } from 'react'
 import { RendererType } from '@/enums'
 import DotLottiePlayer from '@/full'
 
-function App() {
+export default function App() {
   const [state, setState] = useState({
     aspectRatio: '1',
     asset: localStorage.getItem('asset') ?? 'am.lottie',
+    attributes: localStorage.getItem('attributes') ?? 'autoplay',
     renderer: localStorage.getItem('renderer') ?? RendererType.SVG
   })
-
-  // useEffect(() => {
-  //   void (async () => {
-  //     const { animations = [] } = await getAnimationData(`/assets/${state.asset}`)
-
-  //     setState(prev => ({
-  //       ...prev,
-  //       aspectRatio: `${(animations[0]?.w ?? 1) / (animations[0]?.h ?? 1)}`
-  //     }))
-  //   })()
-  // }, [state.asset])
 
   return (
     <>
@@ -29,6 +19,26 @@ function App() {
         <div className="header-inner">
           <h1 style={{ margin: '0' }}>dotlottie-react</h1>
           <form id="preview">
+            <label>
+              Attributes:<br />
+              <select
+                name="attributes"
+                value={state.attributes}
+                onChange={({ target: { value } }) => {
+                  setState(prev => ({
+                    ...prev,
+                    attributes: value
+                  }))
+                  localStorage.setItem('attributes', value)
+                }}
+              >
+                <option value="animateOnScroll">Animate on scroll</option>
+                <option value="autoplay">Autoplay</option>
+                <option value="playOnClick">Play on click</option>
+                <option value="playOnVisible">Play on visible</option>
+                <option value="hover">Play on hover</option>
+              </select>
+            </label>
             <label>
               Choose renderer:<br />
               <select
@@ -78,13 +88,22 @@ function App() {
           style={{
             alignItems: 'center',
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'column',
             gap: '1em',
             justifyContent: 'center',
-            textAlign: 'center'
           }}>
+          <div className="lorem-ipsum" hidden={state.attributes !== 'animateOnScroll'}>
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p>
+          </div>
           <DotLottiePlayer
-            autoplay
+            autoplay={state.attributes === 'autoplay'}
+            animateOnScroll={state.attributes === 'animateOnScroll'}
             loop
             subframe
             controls
@@ -94,10 +113,90 @@ function App() {
             background="rgba(255,255,255,0.8)"
             // style={{ aspectRatio: state.aspectRatio }}
           />
+          <div className="lorem-ipsum" hidden={state.attributes !== 'animateOnScroll'}>
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <div style={{ marginBottom: '200vh' }}></div>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+          </div>
         </div>
       </div>
     </>
   )
 }
-
-export default App

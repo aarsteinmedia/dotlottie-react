@@ -36,41 +36,37 @@ export function useIsVisible({
       return
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      const { length } = entries
+    const observer = new IntersectionObserver(([{ isIntersecting }]) => {
+      const { config, playback } = stateRef.current
 
-      for (let i = 0; i < length; i++) {
-        const { config, playback } = stateRef.current
-
-        if (!entries[i].isIntersecting || document.hidden) {
-          setState(prev => ({
-            ...prev,
-            isVisible: false
-          }))
-
-          frozenByVisibility.current = playback.playerState === PlayerState.Playing
-
-          if (frozenByVisibility.current) {
-            freezeRef.current()
-          }
-
-          continue
-        }
-
+      if (!isIntersecting || document.hidden) {
         setState(prev => ({
-          isVisible: true,
-          scrollPos: prev.scrollPos || scrollY,
+          ...prev,
+          isVisible: false
         }))
 
-        // Only resume after visibility freeze (was playing), not slider scrub freeze.
-        if (
-          !config.animateOnScroll &&
-          playback.playerState === PlayerState.Frozen &&
-          frozenByVisibility.current
-        ) {
-          playRef.current()
-          frozenByVisibility.current = false
+        frozenByVisibility.current = playback.playerState === PlayerState.Playing
+
+        if (frozenByVisibility.current) {
+          freezeRef.current()
         }
+
+        return
+      }
+
+      setState(prev => ({
+        isVisible: true,
+        scrollPos: prev.scrollPos || scrollY,
+      }))
+
+      // Only resume after visibility freeze (was playing), not slider scrub freeze.
+      if (
+        !config.animateOnScroll &&
+        playback.playerState === PlayerState.Frozen &&
+        frozenByVisibility.current
+      ) {
+        playRef.current()
+        frozenByVisibility.current = false
       }
     })
 

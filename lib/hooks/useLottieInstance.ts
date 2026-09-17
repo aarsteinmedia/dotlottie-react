@@ -9,7 +9,7 @@ import {
   useCallback, useEffect, useRef
 } from 'react'
 
-import type { UseLottieInstance } from '@/types'
+import type { AppState, UseLottieInstance } from '@/types'
 
 import {
   usePlayerDispatch,
@@ -21,6 +21,64 @@ import { hasIOSupport, hasReducedMotion } from '@/utils/constants'
 import { createInstance } from '@/utils/createInstance'
 import { PlayerState } from '@/utils/enums'
 import { handleSeek } from '@/utils/handleSeek'
+
+const buildPayload = ({
+  animationData: {
+    animations = [], isDotLottie, manifest
+  },
+  appState: {
+    asset, config, playback
+  },
+  direction,
+  speed
+}: Readonly<{
+  animationData: Awaited<ReturnType<typeof getAnimationData>>
+  appState: AppState
+  speed: number
+  direction: AnimationDirection
+}>) => {
+  const {
+      animateOnScroll: hasAnimateOnScroll,
+      autoplay: hasAutoplay,
+      mode,
+    } = config,
+    { multiAnimationSettings } = asset,
+    { currentAnimation } = playback
+
+  let playerState: PlayerState = PlayerState.Stopped
+
+  if (
+    !hasAnimateOnScroll &&
+    (hasAutoplay ||
+      multiAnimationSettings[currentAnimation]?.autoplay)
+  ) {
+    playerState = PlayerState.Playing
+  }
+
+  let isBounce = mode === PlayMode.Bounce
+
+  if (multiAnimationSettings.length > 0 && multiAnimationSettings[currentAnimation]?.mode) {
+    isBounce =
+      multiAnimationSettings[currentAnimation].mode ===
+      PlayMode.Bounce
+  }
+
+  return {
+    animations,
+    isDotLottie,
+    manifest: manifest ?? {
+      animations: [{
+        autoplay: !hasAnimateOnScroll && hasAutoplay,
+        direction,
+        id: createElementID(),
+        mode,
+        speed
+      }]
+    },
+    mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
+    playerState
+  }
+}
 
 export function useLottieInstance({
   containerRef,
@@ -104,59 +162,26 @@ export function useLottieInstance({
         throw new Error('Broken or corrupted file')
       }
 
-      const {
-        asset, config, playback
-      } = stateRef.current
-
       if (manifest?.animations.length === 1) {
-        manifest.animations[0].autoplay = config.autoplay
-        manifest.animations[0].loop = config.loop
+        manifest.animations[0].autoplay = stateRef.current.config.autoplay
+        manifest.animations[0].loop = stateRef.current.config.loop
       }
 
-      let { animateOnScroll: hasAnimateOnScroll } = config
-
-      const {
-          autoplay: hasAutoplay,
-          mode,
-        } = config,
-        { multiAnimationSettings } = asset,
-        { currentAnimation } = playback,
+      const { multiAnimationSettings } = stateRef.current.asset,
+        { currentAnimation } = stateRef.current.playback,
         nextIndex = currentAnimation,
         settings = multiAnimationSettings[nextIndex] as AnimationSettings | undefined
 
-      let playerState: PlayerState = PlayerState.Stopped
-
-      if (
-        !hasAnimateOnScroll &&
-        (hasAutoplay ||
-          multiAnimationSettings[currentAnimation]?.autoplay)
-      ) {
-        playerState = PlayerState.Playing
-      }
-
-      let isBounce = mode === PlayMode.Bounce
-
-      if (multiAnimationSettings.length > 0 && multiAnimationSettings[currentAnimation]?.mode) {
-        isBounce =
-          multiAnimationSettings[currentAnimation].mode ===
-          PlayMode.Bounce
-      }
-
-      const payload = {
-        animations,
-        isDotLottie,
-        manifest: manifest ?? {
-          animations: [{
-            autoplay: !hasAnimateOnScroll && hasAutoplay,
-            direction,
-            id: createElementID(),
-            mode,
-            speed
-          }]
+      const payload = buildPayload({
+        animationData: {
+          animations,
+          isDotLottie,
+          manifest
         },
-        mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
-        playerState
-      }
+        appState: stateRef.current,
+        direction,
+        speed
+      })
 
       dispatch({
         payload,
@@ -170,31 +195,30 @@ export function useLottieInstance({
       item.setDirection(animationDirection)
       item.setSubframe(Boolean(subframe))
 
-      // eslint-disable-next-line unicorn/consistent-destructuring
-      hasAnimateOnScroll = config.animateOnScroll
-
-      const { playerState: loadedPlayerState } = playback
+      const { animateOnScroll: hasAnimateOnScroll } = stateRef.current.config,
+        { playerState: loadedPlayerState } = stateRef.current.playback
 
       if (
-        !hasReducedMotion &&
-        (loadedPlayerState === PlayerState.Playing || hasAnimateOnScroll)
+        hasReducedMotion ||
+        loadedPlayerState !== PlayerState.Playing && !hasAnimateOnScroll
       ) {
-        if (animationDirection === -1) {
-          handleSeek({
-            animationItem: animationRef.current,
-            dispatch,
-            seekOrigin: loadedPlayerState,
-            value: '99%'
-          })
-        }
+        return
+      }
+      if (animationDirection === -1) {
+        handleSeek({
+          animationItem: animationRef.current,
+          dispatch,
+          seekOrigin: loadedPlayerState,
+          value: '99%'
+        })
+      }
 
-        if (
-          loadedPlayerState === PlayerState.Playing &&
-          !hasIOSupport &&
-          !hasAnimateOnScroll
-        ) {
-          item.play()
-        }
+      if (
+        loadedPlayerState === PlayerState.Playing &&
+        !hasIOSupport &&
+        !hasAnimateOnScroll
+      ) {
+        item.play()
       }
     } catch (error) {
       if (generation !== loadGeneration.current) {

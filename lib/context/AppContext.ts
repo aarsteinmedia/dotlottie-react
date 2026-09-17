@@ -21,6 +21,7 @@ export interface PlayerConfig {
   mode: PlayMode
   simple?: boolean
   src: null | string
+  subframe?: boolean
 }
 
 export interface PlayerAsset {
