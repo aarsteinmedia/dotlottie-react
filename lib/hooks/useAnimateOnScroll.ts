@@ -3,9 +3,13 @@ import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 import { clamp } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
-import { usePlayerStateRef } from '@/hooks/useApp'
+import {
+  usePlayerDispatch, usePlayerStateRef, usePlayerStore
+} from '@/hooks/useApp'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
+import { usePlayback } from '@/hooks/usePlayback'
 import { hasVTSupport } from '@/utils/constants'
+import { getSeeker } from '@/utils/getSeeker'
 
 const getScrollProgress = (container: HTMLElement | null, scrollProbe: React.RefObject<Animation | null>) => {
   if (!container) {
@@ -39,9 +43,21 @@ export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | n
     scrollLoopId = useRef<number>(null),
     scrollProbe = useRef<Animation>(null),
     prevFrame = useRef(0),
-    { current: { config } } = usePlayerStateRef(),
+    stateRef = usePlayerStateRef(),
+    dispatch = usePlayerDispatch(),
+    { pause, play } = usePlayback({ animationRef }),
+
+    /**
+     * Subscribed to – rather than read from the state ref – so that the loop
+     * reacts to `animateOnScroll` being toggled after the initial render.
+     */
+    { config: { animateOnScroll: hasAnimateOnScroll, autoplay: hasAutoplay } } = usePlayerStore(),
+    hadAnimateOnScroll = useRef(hasAnimateOnScroll),
+
     applyScrollProgress = () => {
-      if (!config.animateOnScroll) {
+      const { config } = stateRef.current
+
+      if (!config.animateOnScroll || !animationRef.current) {
         return
       }
 
@@ -51,7 +67,7 @@ export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | n
         return
       }
 
-      const { totalFrames = 0 } = animationRef.current ?? {},
+      const { totalFrames } = animationRef.current,
         newFrame = progress * (totalFrames - 1),
         epsilon = config.subframe ? 0.1 : 0.5
 
@@ -60,7 +76,11 @@ export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | n
       }
 
       prevFrame.current = newFrame
-      animationRef.current?.goToAndStop(newFrame, true)
+      animationRef.current.goToAndStop(newFrame, true)
+      dispatch({
+        patch: { seeker: getSeeker(animationRef.current) },
+        type: 'SET_PLAYBACK'
+      })
     },
     scrollLoop = () => {
       scrollLoopId.current = requestAnimationFrame(scrollLoop)
@@ -78,13 +98,59 @@ export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | n
       scrollLoopId.current = null
 
       applyScrollProgress()
+    }),
+    disposeScrollProbe = useRef(() => {
+      scrollProbe.current?.cancel()
+      scrollProbe.current = null
+      prevFrame.current = 0
+    }),
+
+    /**
+     * Hand playback over to – or back from – the scroll loop.
+     */
+    handOverPlayback = useRef((isScrollDriven: boolean, isAutoplaying: boolean) => {
+      if (!animationRef.current) {
+        return
+      }
+
+      if (isScrollDriven) {
+        // Seek on the next tick, no matter where playback left off.
+        prevFrame.current = Number.NEGATIVE_INFINITY
+        pause()
+
+        return
+      }
+
+      disposeScrollProbe.current()
+
+      if (isAutoplaying) {
+        play()
+      }
     })
 
   useEffect(() => {
-    if (isInView) {
-      startScrollLoop.current()
-    } else {
-      stopScrollLoop.current()
+    if (hadAnimateOnScroll.current === hasAnimateOnScroll) {
+      return
     }
-  }, [isInView])
+
+    hadAnimateOnScroll.current = hasAnimateOnScroll
+
+    handOverPlayback.current(hasAnimateOnScroll ?? false, hasAutoplay ?? false)
+  }, [hasAnimateOnScroll, hasAutoplay])
+
+  useEffect(() => {
+    const stop = stopScrollLoop.current
+
+    if (!hasAnimateOnScroll || !isInView) {
+      stop()
+
+      return
+    }
+
+    startScrollLoop.current()
+
+    return stop
+  }, [hasAnimateOnScroll, isInView])
+
+  useEffect(() => disposeScrollProbe.current, [])
 }
