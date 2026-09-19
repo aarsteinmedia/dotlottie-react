@@ -1,9 +1,7 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { clamp } from '@aarsteinmedia/lottie-web/utils'
-import {
-  useCallback, useEffect, useRef
-} from 'react'
+import { useEffect, useRef } from 'react'
 
 import { usePlayerStateRef } from '@/hooks/useApp'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
@@ -68,10 +66,10 @@ export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | n
       scrollLoopId.current = requestAnimationFrame(scrollLoop)
       applyScrollProgress()
     },
-    startScrollLoop = useCallback(() => {
+    startScrollLoop = useRef(() => {
       scrollLoopId.current ??= requestAnimationFrame(scrollLoop)
-    }, []),
-    stopScrollLoop = useCallback(() => {
+    }),
+    stopScrollLoop = useRef(() => {
       if (scrollLoopId.current === null) {
         return
       }
@@ -80,15 +78,13 @@ export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | n
       scrollLoopId.current = null
 
       applyScrollProgress()
-    }, [containerRef])
+    })
 
   useEffect(() => {
     if (isInView) {
-      startScrollLoop()
+      startScrollLoop.current()
     } else {
-      stopScrollLoop()
+      stopScrollLoop.current()
     }
-  }, [isInView,
-    startScrollLoop,
-    stopScrollLoop])
+  }, [isInView])
 }

@@ -1,6 +1,6 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import { useCallback, useRef } from 'react'
+import { useRef } from 'react'
 
 import { usePlayerStateRef } from '@/hooks/useApp'
 import { useEventListener, WINDOW_LISTENER_OPTS } from '@/hooks/useEventListener'
@@ -42,9 +42,9 @@ export function useVisibility({
       }
     },
 
-    getIsVisible = useCallback(() => {
+    getIsVisible = () => {
       return isVisible
-    }, [isVisible])
+    }
 
   useEventListener(
     'focus', handleWindowBlur, WINDOW_LISTENER_OPTS

@@ -57,7 +57,7 @@ export default function App() {
               </select>
             </label>
             <label>
-              Select file to preview:<br />
+              Select file:<br />
               <select
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
@@ -104,7 +104,6 @@ export default function App() {
           <DotLottiePlayer
             autoplay={state.attributes === 'autoplay'}
             animateOnScroll={state.attributes === 'animateOnScroll'}
-            loop
             subframe
             controls
             renderer={state.renderer as RendererType}
