@@ -7,11 +7,13 @@ import DotLottiePlayer from '@/full'
 
 export default function App() {
   const [state, setState] = useState({
-    aspectRatio: '1',
-    asset: localStorage.getItem('asset') ?? 'am.lottie',
-    attributes: localStorage.getItem('attributes') ?? 'autoplay',
-    renderer: localStorage.getItem('renderer') ?? RendererType.SVG
-  })
+      aspectRatio: '1',
+      asset: localStorage.getItem('asset') ?? 'am.lottie',
+      attributes: localStorage.getItem('attributes') ?? 'autoplay',
+      renderer: localStorage.getItem('renderer') ?? RendererType.SVG,
+      showControls: Boolean(JSON.parse(localStorage.getItem('controls') ?? 'true'))
+    }),
+    isAnimateOnScroll = state.attributes === 'animateOnScroll'
 
   return (
     <>
@@ -19,6 +21,20 @@ export default function App() {
         <div className="header-inner">
           <h1 style={{ margin: '0' }}>dotlottie-react</h1>
           <form id="preview">
+            <label>
+              Show controls:
+              <input
+                type="checkbox"
+                checked={state.showControls}
+                onChange={({ target: { checked } }) => {
+                  setState(prev => ({
+                    ...prev,
+                    showControls: checked
+                  }))
+                  localStorage.setItem('controls', JSON.stringify(checked))
+                }}
+              />
+            </label>
             <label>
               Attributes:<br />
               <select
@@ -84,6 +100,9 @@ export default function App() {
         maxWidth: '800px',
         width: '80%'
       }}>
+        {isAnimateOnScroll &&
+          <DotLottiePlayer autoplay loop src="/assets/menuAnimation.lottie" />
+        }
         <div id="container"
           style={{
             alignItems: 'center',
@@ -92,7 +111,7 @@ export default function App() {
             gap: '1em',
             justifyContent: 'center',
           }}>
-          <div className="lorem-ipsum" hidden={state.attributes !== 'animateOnScroll'}>
+          <div className="lorem-ipsum" hidden={!isAnimateOnScroll}>
             <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
@@ -103,16 +122,16 @@ export default function App() {
           </div>
           <DotLottiePlayer
             autoplay={state.attributes === 'autoplay'}
-            animateOnScroll={state.attributes === 'animateOnScroll'}
+            animateOnScroll={isAnimateOnScroll}
+            controls={state.showControls}
             subframe
-            controls
             renderer={state.renderer as RendererType}
             className="preview"
             src={`/assets/${state.asset}`}
             background="rgba(255,255,255,0.8)"
             // style={{ aspectRatio: state.aspectRatio }}
           />
-          <div className="lorem-ipsum" hidden={state.attributes !== 'animateOnScroll'}>
+          <div className="lorem-ipsum" hidden={!isAnimateOnScroll}>
             <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus

@@ -8,6 +8,7 @@ body {
   padding: 0;
   margin: 0;
   font-family: sans-serif;
+  font-size: 20px;
   color: white;
   background-color: #0b1a29;
 }
@@ -23,13 +24,14 @@ header {
   margin: 0;
   padding: 10px 30px;
   z-index: 100;
+  font-size: 0.8em;
 }
 
 .header-inner {
   display: flex;
   width: 100%;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   gap: 2em;
 }
 
@@ -49,13 +51,13 @@ header {
   display: inline-flex;
   max-width: 80vw;
   max-height: 80vh;
-  &[data-renderer="svg"] {
+  &[data-renderer='svg'] {
     width: auto;
     height: auto;
     min-width: 400px;
     shape-rendering: geometricPrecision;
   }
-  &[data-renderer="canvas"] {
+  &[data-renderer='canvas'] {
     width: 100%;
     height: 100%;
   }
