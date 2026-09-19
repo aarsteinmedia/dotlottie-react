@@ -14,7 +14,6 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
-  useState
 } from 'react'
 
 import type { PlayerProps } from '@/types'
@@ -25,10 +24,10 @@ import {
   usePlayerStateRef,
   usePlayerStore
 } from '@/hooks/useApp'
-// import { useGlobalEvents } from '@/hooks/useGlobalEvents'
 import { useLottieInstance } from '@/hooks/useLottieInstance'
 import { usePlayback } from '@/hooks/usePlayback'
 import { usePlayerEvents } from '@/hooks/usePlayerEvents'
+import { useVisibility } from '@/hooks/useVisibility'
 import styles from '@/styles/player.module.css'
 import { classnames } from '@/utils'
 import { ObjectFit, PlayerState } from '@/utils/enums'
@@ -69,13 +68,6 @@ export default function Player({
       playback: { playerState }
     } = usePlayerStore(),
     containerRef = useRef<HTMLElement>(null),
-    [containerNode, setContainerNode] = useState<HTMLElement | null>(null),
-
-    setContainerRef = useCallback((node: HTMLElement | null) => {
-      containerRef.current = node
-      setContainerNode(node)
-    }, []),
-
     {
       animationRef,
       load,
@@ -144,14 +136,14 @@ export default function Player({
         segment,
         type: 'SET_SEGMENT'
       })
-    }, [dispatch])
+    }, [dispatch]),
 
-  // { getIsVisible } = useGlobalEvents({
-  //   animationRef,
-  //   container: containerNode,
-  //   freeze,
-  //   play
-  // })
+    { getIsVisible } = useVisibility({
+      animationRef,
+      containerRef,
+      freeze,
+      play
+    })
 
   useAnimateOnScroll(containerRef, animationRef)
 
@@ -172,7 +164,7 @@ export default function Player({
 
           return convert(...args)
         },
-        // getIsVisible,
+        getIsVisible,
         load,
         next,
         pause,
@@ -189,7 +181,7 @@ export default function Player({
         stop
       }
     }, [
-      // getIsVisible,
+      getIsVisible,
       load,
       next,
       pause,
@@ -240,7 +232,7 @@ export default function Player({
       <figure
         className={styles.animation}
         aria-hidden={!description && !config.controls || undefined}
-        ref={setContainerRef}
+        ref={containerRef}
         style={{ background }}
       >
         {playerState === PlayerState.Error &&

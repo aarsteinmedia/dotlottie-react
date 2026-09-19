@@ -103,7 +103,6 @@ export default defineConfig({
     target: 'es2024'
   },
   css: {
-    // modules: { scopeBehaviour: 'local' },
     postcss: {
       plugins: [
         autoprefixer({ flexbox: 'no-2009' }), flexbugsFixes(),

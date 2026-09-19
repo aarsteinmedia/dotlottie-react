@@ -40,8 +40,8 @@
     "predev": "pnpm assets",
     "dev": "BROWSER='firefox' vite --open",
     "build": "vite build",
-    "lint": "eslint --flag unstable_native_nodejs_ts_config lib",
-    "lint:fix": "eslint --flag unstable_native_nodejs_ts_config lib --fix",
+    "lint": "eslint lib",
+    "lint:fix": "eslint lib --fix",
     "lint:css": "npx stylelint lib/**/*.css",
     "lint:css:fix": "npx stylelint lib/**/*.css --fix",
     "pretest": "pnpm build",
@@ -50,7 +50,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.6.0"
+    "@aarsteinmedia/lottie-web": "^1.6.1"
   },
   "peerDependencies": {
     "react": "^19.x",
@@ -72,7 +72,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/eslint-plugin": "^1.6.27",
     "autoprefixer": "^10.6.1",
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-no-restricted": "^0.1.2",
     "eslint-plugin-fsecond": "^1.5.0",
@@ -86,9 +86,10 @@
     "eslint-plugin-sonarjs": "^4.2.1",
     "eslint-plugin-unicorn": "^75.0.0",
     "globals": "^17.12.0",
-    "jsdom": "^30.0.1",
+    "jiti": "^2.7.0",
+    "jsdom": "^30.1.0",
     "postcss-flexbugs-fixes": "^5.0.2",
-    "prettier": "^3.9.7",
+    "prettier": "^3.9.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "rollup-preserve-directives": "^1.1.3",
