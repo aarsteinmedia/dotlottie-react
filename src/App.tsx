@@ -24,6 +24,7 @@ export default function App() {
             <label>
               Show controls:
               <input
+                name="controls"
                 type="checkbox"
                 checked={state.showControls}
                 onChange={({ target: { checked } }) => {

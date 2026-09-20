@@ -58,7 +58,7 @@
     "react-dom": "^19.x"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^5.19.1",
+    "@eslint-react/eslint-plugin": "^5.20.0",
     "@eslint/compat": "^2.1.1",
     "@eslint/core": "^1.2.1",
     "@eslint/js": "^10.0.1",
@@ -66,7 +66,7 @@
     "@stylistic/eslint-plugin": "^5.10.0",
     "@testing-library/react": "^16.3.3",
     "@types/eslint-plugin-jsx-a11y": "^6.10.1",
-    "@types/node": "^26.6.1",
+    "@types/node": "^26.6.2",
     "@types/postcss-flexbugs-fixes": "^5.0.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -85,7 +85,7 @@
     "eslint-plugin-react-you-might-not-need-an-effect": "^1.0.2",
     "eslint-plugin-regexp": "^3.3.0",
     "eslint-plugin-sonarjs": "^4.2.1",
-    "eslint-plugin-unicorn": "^75.0.0",
+    "eslint-plugin-unicorn": "^76.0.0",
     "globals": "^17.12.0",
     "jiti": "^2.7.0",
     "jsdom": "^30.1.0",
@@ -137,5 +137,6 @@
   "funding": {
     "type": "paypal",
     "url": "https://www.paypal.me/aarsteinmedia"
-  }
+  },
+  "packageManager": "pnpm@12.5.1+sha512.e3f305bc784a2bc89f5ad3b6138889470fae8d2af5f36b61216ec91c2c3d64089775f9de38aac331044ea40f245cb0d5666392dfdf65824e1907ef6a2c62de5f"
 }
