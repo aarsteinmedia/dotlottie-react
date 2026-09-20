@@ -11,32 +11,54 @@ import { usePlayback } from '@/hooks/usePlayback'
 import { hasVTSupport } from '@/utils/constants'
 import { getSeeker } from '@/utils/getSeeker'
 
-const getScrollProgress = (container: HTMLElement | null, scrollProbe: React.RefObject<Animation | null>) => {
-  if (!container) {
-    return null
+const _canDriveTimeline = ({ source }: ViewTimeline) => {
+    if (!source || source === document.scrollingElement) {
+      return true
+    }
+
+    return getComputedStyle(source).overflowY !== 'hidden' &&
+      source.scrollHeight > source.clientHeight
+  },
+  getScrollProgress = (container: HTMLElement | null, scrollProbe: React.RefObject<Animation | null>) => {
+    if (!container) {
+      return null
+    }
+
+    if (hasVTSupport) {
+
+      const timeline= new ViewTimeline({
+          axis: 'block',
+          subject: container
+        }),
+        canDriveTimeline = _canDriveTimeline(timeline)
+
+      if (canDriveTimeline) {
+        scrollProbe.current ??= container.animate({ '--dotlottie-scroll': [0, 1] }, {
+          fill: 'both',
+          rangeEnd: 'cover 100%',
+          rangeStart: 'cover 0%',
+          timeline
+        })
+
+        return scrollProbe.current.effect?.getComputedTiming().progress ?? null
+      }
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[dotlottie-react] animateOnScroll: the player\'s nearest scrolling ancestor cannot ' +
+          'scroll, so its ViewTimeline would never advance. This is almost always an ancestor ' +
+          'with `overflow: hidden` — use `overflow: clip` instead. Falling back to viewport ' +
+          'measurement.',
+        timeline.source)
+      }
+    }
+
+    const { height, top } = container.getBoundingClientRect(),
+      viewport = visualViewport?.height ?? innerHeight
+
+    return clamp(
+      (viewport - top) / (viewport + height), 0, 1
+    )
   }
-
-  if (hasVTSupport) {
-    scrollProbe.current ??= container.animate({ '--dotlottie-scroll': [0, 1] }, {
-      fill: 'both',
-      rangeEnd: 'cover 100%',
-      rangeStart: 'cover 0%',
-      timeline: new ViewTimeline({
-        axis: 'block',
-        subject: container
-      })
-    })
-
-    return scrollProbe.current.effect?.getComputedTiming().progress ?? null
-  }
-
-  const { height, top } = container.getBoundingClientRect(),
-    viewport = visualViewport?.height ?? innerHeight
-
-  return clamp(
-    (viewport - top) / (viewport + height), 0, 1
-  )
-}
 
 export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | null>, animationRef: React.RefObject<AnimationItem | null>) {
   const isInView = useIntersectionObserver(containerRef),
