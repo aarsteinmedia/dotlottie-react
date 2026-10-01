@@ -126,7 +126,7 @@ export default function App() {
             animateOnScroll={isAnimateOnScroll}
             controls={state.showControls}
             subframe
-            renderer={state.renderer as RendererType}
+            renderer={state.renderer as unknown as RendererType}
             className="preview"
             src={`/assets/${state.asset}`}
             background="rgba(255,255,255,0.8)"
