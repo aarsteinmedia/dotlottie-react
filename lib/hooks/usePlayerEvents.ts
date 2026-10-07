@@ -11,6 +11,7 @@ import {
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
 import { PlayerState } from '@/utils/enums'
+import { getSeeker } from '@/utils/getSeeker'
 
 interface Props {
   animationRef: React.RefObject<AnimationItem | null>
@@ -99,8 +100,7 @@ export function usePlayerEvents({
         }
       }
 
-      const { currentFrame, totalFrames } = animationRef.current,
-        seeker = Math.round(currentFrame / totalFrames * 100)
+      const seeker = getSeeker(animationRef.current)
 
       dispatch({
         patch: {

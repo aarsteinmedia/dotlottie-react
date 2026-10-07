@@ -259,7 +259,7 @@ export function useLottieInstance({
 
       dispatch({
         currentAnimation: index,
-        mode: playMode ?? PlayMode.Normal,
+        mode: playMode ?? config.mode,
         type: 'SWITCH_ANIMATION'
       })
 

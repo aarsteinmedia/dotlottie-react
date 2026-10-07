@@ -5,7 +5,9 @@
     "lib"
   ],
   "exclude": [
-    "lib/**/*.test.ts",
-    "lib/**/*.spec.ts"
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
   ]
 }

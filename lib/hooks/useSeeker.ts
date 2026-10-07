@@ -2,6 +2,8 @@ import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { useEffect, useState } from 'react'
 
+import { getSeeker } from '@/utils/getSeeker'
+
 export function useSeeker(animationRef: React.RefObject<null | AnimationItem>,
   isActive: boolean) {
   const [seeker, setSeeker] = useState(0)
@@ -16,11 +18,14 @@ export function useSeeker(animationRef: React.RefObject<null | AnimationItem>,
     const tick = () => {
       const { current: item } = animationRef
 
-      if (item && item.totalFrames > 0) {
-        const next = Math.round(item.currentFrame / item.totalFrames * 100)
-
-        setSeeker(prev => prev === next ? prev : next)
+      if (!item) {
+        return
       }
+
+      const next = getSeeker(item)
+
+      setSeeker(prev => prev === next ? prev : next)
+
       frameId = requestAnimationFrame(tick)
     }
 

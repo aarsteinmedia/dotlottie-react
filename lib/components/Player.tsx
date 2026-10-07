@@ -111,7 +111,9 @@ export default function Player({
      */
     next = useCallback(() => {
       const { asset, playback } = stateRef.current,
-        currentAnimation = clamp(playback.currentAnimation + 1, asset.animations.length)
+        currentAnimation = clamp(
+          playback.currentAnimation + 1, 0, asset.animations.length - 1
+        )
 
       switchInstance(currentAnimation)
 
