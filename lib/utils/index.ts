@@ -2,11 +2,10 @@ import type { AnimationData } from '@aarsteinmedia/lottie-web'
 
 import { isServer, PreserveAspectRatio } from '@aarsteinmedia/lottie-web/utils'
 
-import { ObjectFit } from '@/utils/enums'
+import type { AppState } from '@/types'
 
-/**
- * Get extension from filename, URL or path.
- */
+import { ObjectFit, PlayerState } from '@/utils/enums'
+
 export const aspectRatio = (objectFit: ObjectFit) => {
     switch (objectFit) {
       case ObjectFit.Contain:
@@ -63,6 +62,17 @@ export const aspectRatio = (objectFit: ObjectFit) => {
 
     return mandatory.every((field: string) =>
       Object.hasOwn(json, field))
+  },
+
+  /**
+   * Freeze animation.
+   * This internal state pauses animation and is used to differentiate between
+   * user requested pauses and component instigated pauses.
+   */
+  isPlaybackLocked = (stateRef: React.RefObject<AppState>) => {
+    const { playerState } = stateRef.current.playback
+
+    return playerState === PlayerState.Error || playerState === PlayerState.Loading
   },
 
   frameOutput = (frame?: number) =>

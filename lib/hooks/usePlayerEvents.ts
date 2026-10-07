@@ -10,6 +10,7 @@ import {
   usePlayerStateRef
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
+import { isPlaybackLocked } from '@/utils'
 import { PlayerState } from '@/utils/enums'
 import { getSeeker } from '@/utils/getSeeker'
 
@@ -62,14 +63,8 @@ export function usePlayerEvents({
       intermissionTimeoutRef.current = null
     },
 
-    isPlaybackLocked = () => {
-      const { playerState } = stateRef.current.playback
-
-      return playerState === PlayerState.Error || playerState === PlayerState.Loading
-    },
-
     complete = () => {
-      if (!animationRef.current || isPlaybackLocked()) {
+      if (!animationRef.current || isPlaybackLocked(stateRef)) {
         return
       }
 
@@ -196,7 +191,7 @@ export function usePlayerEvents({
     },
 
     loopComplete = () => {
-      if (!animationRef.current || isPlaybackLocked()) {
+      if (!animationRef.current || isPlaybackLocked(stateRef)) {
         clearIntermissionTimeout()
 
         return

@@ -29,9 +29,6 @@ export default function ErrorMessage() {
         style={{
           fontFamily: 'system-ui,-apple-system,BlinkMacSystemFont,\'.SFNSText-Regular\',sans-serif',
           fontSize: '47px',
-          left: '100%',
-          position: 'absolute',
-          textAlign: 'center'
         }}
       >
         {errorMessage}

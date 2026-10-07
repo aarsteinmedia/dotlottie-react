@@ -1,6 +1,7 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
+import { isPlaybackLocked } from '@/utils'
 import { PlayerState } from '@/utils/enums'
 import { getSeeker } from '@/utils/getSeeker'
 import { handleSeek } from '@/utils/handleSeek'
@@ -12,21 +13,10 @@ export function usePlayback({ animationRef }: Props) {
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
 
-    /**
-     * Freeze animation.
-     * This internal state pauses animation and is used to differentiate between
-     * user requested pauses and component instigated pauses.
-     */
-    isPlaybackLocked = () => {
-      const { playerState } = stateRef.current.playback
-
-      return playerState === PlayerState.Error || playerState === PlayerState.Loading
-    },
-
     freeze = () => {
       const { current: item } = animationRef
 
-      if (!item || isPlaybackLocked()) {
+      if (!item || isPlaybackLocked(stateRef)) {
         return
       }
 
@@ -53,7 +43,7 @@ export function usePlayback({ animationRef }: Props) {
     pause = () => {
       const { current: item } = animationRef
 
-      if (!item || isPlaybackLocked()) {
+      if (!item || isPlaybackLocked(stateRef)) {
         return
       }
 
@@ -75,7 +65,7 @@ export function usePlayback({ animationRef }: Props) {
     play = () => {
       const { current: item } = animationRef
 
-      if (!item || isPlaybackLocked()) {
+      if (!item || isPlaybackLocked(stateRef)) {
         return
       }
 
@@ -93,7 +83,7 @@ export function usePlayback({ animationRef }: Props) {
      * @param value - Frame to seek to.
      */
     seek = (value: number | string, seekOrigin?: PlayerState) => {
-      if (isPlaybackLocked()) {
+      if (isPlaybackLocked(stateRef)) {
         return
       }
 
@@ -113,7 +103,7 @@ export function usePlayback({ animationRef }: Props) {
     stop = () => {
       const { current: item } = animationRef
 
-      if (!item || isPlaybackLocked()) {
+      if (!item || isPlaybackLocked(stateRef)) {
         return
       }
 
