@@ -1,6 +1,6 @@
 {
   "name": "@aarsteinmedia/dotlottie-react",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
   "main": "./dist/full.js",
@@ -51,14 +51,14 @@
     "clean": "pnpm pm clean && rm -rf dist"
   },
   "dependencies": {
-    "@aarsteinmedia/lottie-web": "^1.6.4"
+    "@aarsteinmedia/lottie-web": "^1.6.5"
   },
   "peerDependencies": {
     "react": "^19.x",
     "react-dom": "^19.x"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^5.24.4",
+    "@eslint-react/eslint-plugin": "^5.24.6",
     "@eslint/compat": "^2.1.1",
     "@eslint/core": "^1.2.1",
     "@eslint/js": "^10.0.1",
@@ -98,7 +98,7 @@
     "stylelint-config-recommended": "^18.0.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1",
-    "vite": "^8.3.2",
+    "vite": "^8.3.3",
     "vite-plugin-dts": "^5.1.2",
     "vitest": "^5.0.3"
   },

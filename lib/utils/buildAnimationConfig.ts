@@ -92,12 +92,12 @@ export function buildAnimationConfig(
       } as CanvasRendererConfig
       break
     }
-    case RendererType.HTML: {
-      options.rendererSettings = {
-        ...options.rendererSettings,
-        hideOnTransparent: true,
-      }
-    }
+    // case RendererType.HTML: {
+    //   options.rendererSettings = {
+    //     ...options.rendererSettings,
+    //     hideOnTransparent: true,
+    //   }
+    // }
   }
 
   return options
