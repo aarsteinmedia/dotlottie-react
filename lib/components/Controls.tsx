@@ -214,12 +214,15 @@ export default function Controls({
         }
 
         const mimeType = isSVG ? 'image/svg+xml' : 'image/png',
-          extension = isSVG ? 'svg' : 'png'
+          extension = isSVG ? 'svg' : 'png',
+          {
+            totalFrames
+          } = animationRef.current
 
         if (shouldDownload) {
           download(data, {
             mimeType,
-            name: `${getFilename(config.src || name)}-${frameOutput(playback.seeker)}.${extension}`,
+            name: `${getFilename(config.src || name)}-${frameOutput(playback.seeker * totalFrames / 100)}.${extension}`,
           })
         }
 
