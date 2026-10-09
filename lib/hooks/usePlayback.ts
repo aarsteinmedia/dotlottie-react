@@ -15,7 +15,12 @@ export function usePlayback({ animationRef }: Props) {
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
 
-    freeze = () => {
+    /**
+     * Freeze animation.
+     * This internal state pauses animation and is used to differentiate between
+     * user requested pauses and component instigated pauses.
+     */
+    freeze = useCallback(() => {
       const { current: item } = animationRef
 
       if (!item || isPlaybackLocked(stateRef)) {
@@ -37,7 +42,9 @@ export function usePlayback({ animationRef }: Props) {
         },
         type: 'SET_PLAYBACK'
       })
-    },
+    }, [animationRef,
+      dispatch,
+      stateRef]),
 
     /**
      * Pause.

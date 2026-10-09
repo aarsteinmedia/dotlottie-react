@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import type { AnimationItem } from '@aarsteinmedia/lottie-web'
-
 import { isServer } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
@@ -35,7 +33,7 @@ type EventOptions<T> = EventListenerOptions &
 
 export function useEventListener<
   E extends Event = Event,
-  T extends Element | AnimationItem | null = Element,
+  T extends Element | null = Element,
 >(
   eventType: string,
   callback: EventHandler<E>,
@@ -58,65 +56,29 @@ export function useEventListener<
   }, [callback])
 
   useEffect(() => {
-    if (!isEnabled) {
+    // Refs are attached before effects run, so a missing element means there is nothing to listen to
+    const targetElement = isElementRef ? element.current : element
+
+    if (!isEnabled || !targetElement) {
       return
     }
 
-    let removeListener: (() => void) | undefined,
-      cancelled = false,
-      frameId = 0
-
-    const attach = () => {
-      const targetElement = isElementRef ? element.current : element
-
-      if (!targetElement) {
-        return false
+    const listenerOptions = {
+        capture: isCapture,
+        passive: isPassive
+      },
+      handler = (e: Event) => {
+        callbackRef.current(e as E)
       }
 
-      const listenerOptions = {
-          capture: isCapture,
-          passive: isPassive
-        },
-        handler = ((e: E) => {
-          callbackRef.current(e)
-        }) as EventListener
-
-      /* AnimationItem::addEventListener is not directly compatible
-      with standard Element::addEventListener, but not in a way that
-      will cause trouble */
-      ;(targetElement as Window).addEventListener(
-        eventType, handler, listenerOptions
-      )
-
-      removeListener = () => {
-        ;(targetElement as Window).removeEventListener(
-          eventType,
-          handler,
-          listenerOptions
-        )
-      }
-
-      return true
-    }
-
-    if (!attach() && isElementRef) {
-      const waitForElement = () => {
-        if (cancelled) {
-          return
-        }
-        if (attach()) {
-          return
-        }
-        frameId = requestAnimationFrame(waitForElement)
-      }
-
-      frameId = requestAnimationFrame(waitForElement)
-    }
+    targetElement.addEventListener(
+      eventType, handler, listenerOptions
+    )
 
     return () => {
-      cancelled = true
-      cancelAnimationFrame(frameId)
-      removeListener?.()
+      targetElement.removeEventListener(
+        eventType, handler, listenerOptions
+      )
     }
   }, [
     element,

@@ -12,7 +12,9 @@ import type {
   addAnimation,
   convert,
 } from '@aarsteinmedia/lottie-web/dotlottie'
-import type { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
+import type {
+  PlayerEvent, PlayMode, RendererType
+} from '@aarsteinmedia/lottie-web/utils'
 
 import type {
   PlayerAsset, PlayerConfig, PlayerPlayback
@@ -76,6 +78,12 @@ export interface DotLottieMethods {
   setSubframe: (value: boolean) => void
   stop: () => void
 }
+
+/**
+ * Handlers for events emitted by the lottie instance,
+ * looked up when the event fires.
+ */
+export type AnimationEventHandlers = Partial<Record<PlayerEvent, () => void>>
 
 export interface UseLottieInstance {
   containerRef: React.RefObject<HTMLElement | null>

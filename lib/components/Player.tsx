@@ -69,6 +69,7 @@ export default function Player({
     } = usePlayerStore(),
     containerRef = useRef<HTMLElement>(null),
     {
+      animationEventsRef,
       animationRef,
       load,
       setDirection,
@@ -210,6 +211,7 @@ export default function Player({
   )
 
   usePlayerEvents({
+    animationEventsRef,
     animationRef,
     containerRef,
     hover,

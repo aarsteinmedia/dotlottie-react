@@ -1,9 +1,12 @@
 import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import { PlayerEvent, PlayMode } from '@aarsteinmedia/lottie-web/utils'
-import { useEffect, useRef } from 'react'
+import {
+  useEffect, useLayoutEffect, useRef
+} from 'react'
 
 import type { PlayerConfig, PlayerPlayback } from '@/context/AppContext'
+import type { AnimationEventHandlers } from '@/types'
 
 import {
   usePlayerDispatch,
@@ -15,6 +18,7 @@ import { PlayerState } from '@/utils/enums'
 import { getSeeker } from '@/utils/getSeeker'
 
 interface Props {
+  animationEventsRef: React.RefObject<AnimationEventHandlers>
   animationRef: React.RefObject<AnimationItem | null>
   containerRef: React.RefObject<HTMLElement | null>
   hover?: boolean
@@ -35,6 +39,7 @@ interface Props {
 }
 
 export function usePlayerEvents({
+  animationEventsRef,
   animationRef,
   containerRef: container,
   hover,
@@ -254,21 +259,16 @@ export function usePlayerEvents({
     }
 
 
-  useEventListener(
-    PlayerEvent.EnterFrame, enterFrame, { element: animationRef }
-  )
-  useEventListener(
-    PlayerEvent.Complete, complete, { element: animationRef }
-  )
-  useEventListener(
-    PlayerEvent.LoopComplete, loopComplete, { element: animationRef }
-  )
-  useEventListener(
-    PlayerEvent.DOMLoaded, domLoaded, { element: animationRef }
-  )
-  useEventListener(
-    PlayerEvent.DataFailed, dataFailed, { element: animationRef }
-  )
+  useLayoutEffect(() => {
+    animationEventsRef.current = {
+      [PlayerEvent.Complete]: complete,
+      [PlayerEvent.DataFailed]: dataFailed,
+      [PlayerEvent.DOMLoaded]: domLoaded,
+      [PlayerEvent.EnterFrame]: enterFrame,
+      [PlayerEvent.LoopComplete]: loopComplete
+    }
+  })
+
   useEventListener(
     'mouseenter', mouseEnter, { element: container }
   )

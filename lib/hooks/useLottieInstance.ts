@@ -3,12 +3,16 @@ import type {
 } from '@aarsteinmedia/lottie-web'
 
 import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
-import { createElementID, PlayMode } from '@aarsteinmedia/lottie-web/utils'
+import {
+  createElementID, PlayerEvent, PlayMode
+} from '@aarsteinmedia/lottie-web/utils'
 import {
   useCallback, useEffect, useLayoutEffect, useRef
 } from 'react'
 
-import type { AppState, UseLottieInstance } from '@/types'
+import type {
+  AnimationEventHandlers, AppState, UseLottieInstance
+} from '@/types'
 
 import {
   usePlayerDispatch,
@@ -21,63 +25,71 @@ import { createInstance } from '@/utils/createInstance'
 import { PlayerState } from '@/utils/enums'
 import { handleSeek } from '@/utils/handleSeek'
 
-const buildPayload = ({
-  animationData: {
-    animations = [], isDotLottie, manifest
-  },
-  appState: {
-    asset, config, playback
-  },
-  direction,
-  speed
-}: Readonly<{
-  animationData: Awaited<ReturnType<typeof getAnimationData>>
-  appState: AppState
-  speed: number
-  direction: AnimationDirection
-}>) => {
-  const {
-      animateOnScroll: hasAnimateOnScroll,
-      autoplay: hasAutoplay,
-      mode,
-    } = config,
-    { multiAnimationSettings } = asset,
-    { currentAnimation } = playback
+const animationEvents = [
+    PlayerEvent.Complete,
+    PlayerEvent.DataFailed,
+    PlayerEvent.DOMLoaded,
+    PlayerEvent.EnterFrame,
+    PlayerEvent.LoopComplete
+  ] as const,
 
-  let playerState: PlayerState = PlayerState.Stopped
-
-  if (
-    !hasAnimateOnScroll &&
-    (hasAutoplay ||
-      multiAnimationSettings[currentAnimation]?.autoplay)
-  ) {
-    playerState = PlayerState.Playing
-  }
-
-  let isBounce = mode === PlayMode.Bounce
-
-  if (multiAnimationSettings.length > 0 && multiAnimationSettings[currentAnimation]?.mode) {
-    isBounce =
-      multiAnimationSettings[currentAnimation].mode ===
-      PlayMode.Bounce
-  }
-
-  return {
-    animations,
-    isDotLottie,
-    manifest: manifest ?? {
-      animations: [{
-        autoplay: !hasAnimateOnScroll && hasAutoplay,
-        direction,
-        id: createElementID(),
-        mode,
-        speed
-      }]
+  buildPayload = ({
+    animationData: {
+      animations = [], isDotLottie, manifest
     },
-    mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
-    playerState
+    appState: {
+      asset, config, playback
+    },
+    direction,
+    speed
+  }: Readonly<{
+    animationData: Awaited<ReturnType<typeof getAnimationData>>
+    appState: AppState
+    speed: number
+    direction: AnimationDirection
+  }>) => {
+    const {
+        animateOnScroll: hasAnimateOnScroll,
+        autoplay: hasAutoplay,
+        mode,
+      } = config,
+      { multiAnimationSettings } = asset,
+      { currentAnimation } = playback
+
+    let playerState: PlayerState = PlayerState.Stopped
+
+    if (
+      !hasAnimateOnScroll &&
+      (hasAutoplay ||
+        multiAnimationSettings[currentAnimation]?.autoplay)
+    ) {
+      playerState = PlayerState.Playing
+    }
+
+    let isBounce = mode === PlayMode.Bounce
+
+    if (multiAnimationSettings.length > 0 && multiAnimationSettings[currentAnimation]?.mode) {
+      isBounce =
+        multiAnimationSettings[currentAnimation].mode ===
+        PlayMode.Bounce
+    }
+
+    return {
+      animations,
+      isDotLottie,
+      manifest: manifest ?? {
+        animations: [{
+          autoplay: !hasAnimateOnScroll && hasAutoplay,
+          direction,
+          id: createElementID(),
+          mode,
+          speed
+        }]
+      },
+      mode: isBounce ? PlayMode.Bounce : PlayMode.Normal,
+      playerState
+    }
   }
-}
 
 export function useLottieInstance({
   containerRef,
@@ -100,7 +112,10 @@ export function useLottieInstance({
       onLoadError,
       speed,
       subframe
-    })
+    }),
+
+    /** Filled by usePlayerEvents, attached to each instance in mountAtIndex */
+    animationEventsRef = useRef<AnimationEventHandlers>({})
 
   useLayoutEffect(() => {
     live.current = {
@@ -146,6 +161,12 @@ export function useLottieInstance({
       item.setSpeed(settings?.speed ?? live.current.speed)
       item.setDirection(settings?.direction ?? live.current.direction)
       item.setSubframe(Boolean(live.current.subframe))
+
+      for (const event of animationEvents) {
+        item.addEventListener(event, () => {
+          animationEventsRef.current[event]?.()
+        })
+      }
 
       return item
     }, [
@@ -362,6 +383,7 @@ export function useLottieInstance({
   }, [destroyAnimation])
 
   return {
+    animationEventsRef,
     animationRef,
     load,
     setDirection,
