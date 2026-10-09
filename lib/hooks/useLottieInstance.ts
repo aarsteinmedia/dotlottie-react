@@ -6,7 +6,7 @@ import type {
 import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
 import { createElementID, PlayMode } from '@aarsteinmedia/lottie-web/utils'
 import {
-  useCallback, useEffect, useRef
+  useCallback, useEffect, useLayoutEffect, useRef
 } from 'react'
 
 import type { AppState, UseLottieInstance } from '@/types'
@@ -95,7 +95,24 @@ export function useLottieInstance({
     dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
 
-    destroyAnimation = useCallback(() => {
+    /** Latest values of props that must not trigger a reload */
+    live = useRef({
+      direction,
+      onLoadError,
+      speed,
+      subframe
+    })
+
+  useLayoutEffect(() => {
+    live.current = {
+      direction,
+      onLoadError,
+      speed,
+      subframe
+    }
+  })
+
+  const destroyAnimation = useCallback(() => {
       animationRef.current?.destroy()
       animationRef.current = null
     }, []),
@@ -179,8 +196,8 @@ export function useLottieInstance({
           manifest
         },
         appState: stateRef.current,
-        direction,
-        speed
+        direction: live.current.direction,
+        speed: live.current.speed
       })
 
       dispatch({
@@ -189,11 +206,11 @@ export function useLottieInstance({
       })
 
       const item = mountAtIndex(animations, nextIndex),
-        animationDirection = settings?.direction ?? direction
+        animationDirection = settings?.direction ?? live.current.direction
 
-      item.setSpeed(settings?.speed ?? speed)
+      item.setSpeed(settings?.speed ?? live.current.speed)
       item.setDirection(animationDirection)
-      item.setSubframe(Boolean(subframe))
+      item.setSubframe(Boolean(live.current.subframe))
 
       const { animateOnScroll: hasAnimateOnScroll } = stateRef.current.config,
         { playerState: loadedPlayerState } = stateRef.current.playback
@@ -229,22 +246,16 @@ export function useLottieInstance({
 
       const { message: errorMessage } = handleErrors(error)
 
-      onLoadError?.(errorMessage)
+      live.current.onLoadError?.(errorMessage)
       dispatch({
         errorMessage,
         type: 'LOAD_ERROR'
       })
     }
-  }, [
-    destroyAnimation,
-    direction,
+  }, [destroyAnimation,
     dispatch,
     mountAtIndex,
-    onLoadError,
-    speed,
-    stateRef,
-    subframe
-  ])
+    stateRef])
 
   const switchInstance = useCallback((index: number) => {
     const { asset, config } = stateRef.current
@@ -297,35 +308,50 @@ export function useLottieInstance({
 
       const { message: errorMessage } = handleErrors(error)
 
-      onLoadError?.(errorMessage)
+      live.current.onLoadError?.(errorMessage)
       dispatch({
         errorMessage,
         type: 'LOAD_ERROR'
       })
     }
-  }, [
-    destroyAnimation,
+  }, [destroyAnimation,
     dispatch,
     mountAtIndex,
-    onLoadError,
-    stateRef
-  ])
+    stateRef])
 
   const setLoop = (value: boolean) => {
-    animationRef.current?.setLoop(value)
-  }
+      animationRef.current?.setLoop(value)
+    },
 
-  const setSpeed = (value: number) => {
-    animationRef.current?.setSpeed(value)
-  }
+    setSpeed = (value: number) => {
+      animationRef.current?.setSpeed(value)
+    },
 
-  const setDirection = (value: AnimationDirection) => {
-    animationRef.current?.setDirection(value)
-  }
+    setDirection = (value: AnimationDirection) => {
+      animationRef.current?.setDirection(value)
+    },
 
-  const setSubframe = (value: boolean) => {
-    animationRef.current?.setSubframe(value)
-  }
+    setSubframe = (value: boolean) => {
+      animationRef.current?.setSubframe(value)
+    },
+
+    currentSettings = useCallback(() => {
+      const { asset, playback } = stateRef.current
+
+      return asset.multiAnimationSettings[playback.currentAnimation]
+    }, [stateRef])
+
+  useEffect(() => {
+    animationRef.current?.setSpeed(currentSettings().speed ?? speed)
+  }, [currentSettings, speed])
+
+  useEffect(() => {
+    animationRef.current?.setDirection(currentSettings().direction ?? direction)
+  }, [currentSettings, direction])
+
+  useEffect(() => {
+    animationRef.current?.setSubframe(Boolean(subframe))
+  }, [subframe])
 
   useEffect(() => {
     return () => {

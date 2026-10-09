@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createElementID } from '@aarsteinmedia/lottie-web/utils'
 import {
-  useEffect, useReducer, useRef
+  useCallback,
+  useEffect, useRef,
+  useState
 } from 'react'
+
+import type { PlayerAction } from '@/types'
 
 import {
   PlayerDispatchContext, PlayerStateContext, PlayerStateRefContext, type PlayerConfig
@@ -12,16 +16,23 @@ import { createInitialState, playerReducer } from '@/context/playerReducer'
 type Props = Readonly<PlayerConfig> & { children: React.ReactNode }
 
 export default function AppProvider(props: Props) {
-  const [state, dispatch] = useReducer(
-      playerReducer,
-      props,
-      initialProps => createInitialState({
-        ...initialProps,
-        id: initialProps.id ?? createElementID(),
-        src: initialProps.src ?? null
-      })
-    ),
+  const [state, setState] = useState(() => createInitialState({
+      ...props,
+      id: props.id ?? createElementID(),
+      src: props.src ?? null
+    })),
     stateRef = useRef(state),
+
+    dispatch = useCallback((action: PlayerAction) => {
+      const next = playerReducer(stateRef.current, action)
+
+      if (next === stateRef.current) {
+        return
+      }
+
+      stateRef.current = next
+      setState(next)
+    }, [setState]),
 
     {
       animateOnScroll,
@@ -36,10 +47,6 @@ export default function AppProvider(props: Props) {
       src,
       subframe
     } = props
-
-  useEffect(() => {
-    stateRef.current = state
-  }, [state])
 
   useEffect(() => {
     dispatch({
@@ -57,18 +64,17 @@ export default function AppProvider(props: Props) {
       },
       type: 'SYNC_CONFIG'
     })
-  }, [
-    animateOnScroll,
+  }, [animateOnScroll,
     autoplay,
     controls,
+    dispatch,
     id,
     loop,
     mode,
     renderer,
     simple,
     src,
-    subframe
-  ])
+    subframe])
 
   return (
     <PlayerDispatchContext value={dispatch}>

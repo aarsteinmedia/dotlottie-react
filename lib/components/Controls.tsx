@@ -19,7 +19,7 @@ import StopIcon from '@/components/icons/StopIcon'
 import {
   usePlayerDispatch,
   usePlayerPlayback,
-  usePlayerStateRef
+  usePlayerStore
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
 import { useSeeker } from '@/hooks/useSeeker'
@@ -53,7 +53,7 @@ export default function Controls({
   setLoop,
   stop,
 }: Readonly<Props>) {
-  const stateRef = usePlayerStateRef(),
+  const { asset, config } = usePlayerStore(),
     playback = usePlayerPlayback(),
     dispatch = usePlayerDispatch(),
     scrubOrigin = useRef(playback.playerState),
@@ -111,7 +111,6 @@ export default function Controls({
         patch: { playerState: PlayerState.Playing },
         type: 'SET_PLAYBACK'
       })
-      const { config } = stateRef.current
 
       if (config.mode === PlayMode.Bounce) {
         setDirection((playDirection * -1) as AnimationDirection)
@@ -133,8 +132,7 @@ export default function Controls({
      * Toggle loop.
      */
     toggleLoop = () => {
-      const { config } = stateRef.current,
-        hasLoop = !config.loop
+      const hasLoop = !config.loop
 
       dispatch({
         patch: { loop: hasLoop },
@@ -147,8 +145,7 @@ export default function Controls({
      * Toggle Boomerang.
      */
     toggleBoomerang = () => {
-      const { asset, config } = stateRef.current,
-        curr = asset.multiAnimationSettings[playback.currentAnimation] ?? {},
+      const curr = asset.multiAnimationSettings[playback.currentAnimation] ?? {},
         prevMode = curr.mode ?? config.mode,
         newMode = prevMode === PlayMode.Normal ? PlayMode.Bounce : PlayMode.Normal
 
@@ -190,10 +187,8 @@ export default function Controls({
 
         let data: ArrayBuffer | string | null = null
 
-        const { config } = stateRef.current,
-
-          // Get animation element and serialize markup
-          animationElement = containerRef.current.querySelector(config.renderer)
+        // Get animation element and serialize markup
+        const animationElement = containerRef.current.querySelector(config.renderer)
 
         if (!animationElement) {
           throw new Error('Could not retrieve animation from DOM')
@@ -287,7 +282,7 @@ export default function Controls({
         <StopIcon />
       </button>
       <button
-        hidden={stateRef.current.asset.animations.length === 0 || playback.currentAnimation === 0}
+        hidden={asset.animations.length === 0 || playback.currentAnimation === 0}
         className={styles.button}
         aria-label="Previous animation"
         onClick={previous}
@@ -295,7 +290,7 @@ export default function Controls({
         <PreviousIcon />
       </button>
       <button
-        hidden={stateRef.current.asset.animations.length === 0 || playback.currentAnimation === stateRef.current.asset.animations.length - 1}
+        hidden={asset.animations.length === 0 || playback.currentAnimation === asset.animations.length - 1}
         className={styles.button}
         aria-label="Next animation"
         onClick={next}
@@ -304,7 +299,7 @@ export default function Controls({
       </button>
       <form
         className={styles.progressContainer}
-        data-simple={stateRef.current.config.simple}
+        data-simple={config.simple}
       >
         <input
           type="range"
@@ -344,11 +339,11 @@ export default function Controls({
         />
         <progress className={styles.progress} max="100" value={seeker}></progress>
       </form>
-      {!stateRef.current.config.simple &&
+      {!config.simple &&
         <>
           <button
             className={styles.button}
-            data-active={stateRef.current.config.loop}
+            data-active={config.loop}
             tabIndex={0}
             aria-label="Toggle loop"
             onClick={toggleLoop}
@@ -357,7 +352,7 @@ export default function Controls({
           </button>
           <button
             className={styles.button}
-            data-active={stateRef.current.config.mode === PlayMode.Bounce}
+            data-active={config.mode === PlayMode.Bounce}
             aria-label="Toggle boomerang"
             tabIndex={0}
             onClick={toggleBoomerang}
@@ -369,7 +364,7 @@ export default function Controls({
             aria-label="Settings"
             aria-haspopup="true"
             aria-expanded={state.isSettingsOpen}
-            aria-controls={`${stateRef.current.config.id}-settings`}
+            aria-controls={`${config.id}-settings`}
             data-active={state.isSettingsOpen}
             onClick={() => {
               toggleSettings()
@@ -377,10 +372,10 @@ export default function Controls({
           >
             <SettingsIcon />
           </button>
-          <div hidden={!state.isSettingsOpen} id={`${stateRef.current.config.id}-settings`} className={styles.popover}>
+          <div hidden={!state.isSettingsOpen} id={`${config.id}-settings`} className={styles.popover}>
             <button
               className={styles.button}
-              aria-label={stateRef.current.asset.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
+              aria-label={asset.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
               onClick={() => {
                 void (async() => {
                   const { convert } = await getDotLottieModule()
@@ -388,15 +383,15 @@ export default function Controls({
                   await convert({
                     currentAnimation: playback.currentAnimation,
                     generator: '@aarsteinmedia/dotlottie-react',
-                    isDotLottie: stateRef.current.asset.isDotLottie,
-                    manifest: stateRef.current.asset.manifest ?? undefined,
-                    src: stateRef.current.config.src ?? undefined
+                    isDotLottie: asset.isDotLottie,
+                    manifest: asset.manifest ?? undefined,
+                    src: config.src ?? undefined
                   })
                 })()
               }}
             >
               <ConvertIcon />
-              {stateRef.current.asset.isDotLottie ? 'Convert to JSON' : 'Convert to dotLottie'}
+              {asset.isDotLottie ? 'Convert to JSON' : 'Convert to dotLottie'}
             </button>
             <button
               className={styles.button}
