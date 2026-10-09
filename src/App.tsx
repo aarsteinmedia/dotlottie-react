@@ -100,9 +100,9 @@ export default function App() {
         maxWidth: '800px',
         width: '80%'
       }}>
-        {/* {isAnimateOnScroll &&
-          <DotLottiePlayer autoplay loop src="/assets/menuAnimation.lottie" />
-        } */}
+        {isAnimateOnScroll &&
+          <DotLottiePlayer autoplay renderer={RendererType.Canvas} loop src="/assets/menuAnimation.lottie" />
+        }
         <div id="container"
           style={{
             alignItems: 'center',

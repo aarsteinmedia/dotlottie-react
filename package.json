@@ -1,6 +1,6 @@
 {
   "name": "@aarsteinmedia/dotlottie-react",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
   "main": "./dist/full.js",
@@ -98,7 +98,7 @@
     "stylelint-config-recommended": "^18.0.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1",
-    "vite": "^8.3.3",
+    "vite": "^8.3.4",
     "vite-plugin-dts": "^5.1.2",
     "vitest": "^5.0.3"
   },
@@ -138,5 +138,5 @@
     "type": "paypal",
     "url": "https://www.paypal.me/aarsteinmedia"
   },
-  "packageManager": "pnpm@12.8.1"
+  "packageManager": "pnpm@12.10.1"
 }
