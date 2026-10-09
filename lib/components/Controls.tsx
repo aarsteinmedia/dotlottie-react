@@ -202,14 +202,15 @@ export default function Controls({
               ? new XMLSerializer().serializeToString(animationElement)
               : null
         } else {
-          const dataURL = (animationElement as HTMLCanvasElement).toDataURL('image/png'),
-            resp = await fetch(dataURL)
+          const blob = await new Promise<Blob | null>((resolve) => {
+            (animationElement as HTMLCanvasElement).toBlob(resolve, 'image/png')
+          })
 
-          data = await resp.arrayBuffer()
+          data = await blob?.arrayBuffer() ?? null
         }
 
         if (!data) {
-          throw new Error('Could parse animation element')
+          throw new Error('Could not parse animation element')
         }
 
         const mimeType = isSVG ? 'image/svg+xml' : 'image/png',

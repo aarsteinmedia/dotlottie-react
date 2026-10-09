@@ -43,14 +43,16 @@ export function useVisibility({
         play()
         frozenByVisibility.current = false
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [freeze, play]),
+    }, [freeze,
+      play,
+      // eslint-disable-next-line react-hooks/preserve-manual-memoization
+      stateRef]),
 
     handleWindowBlur = ({ type }: FocusEvent) => {
       if (type !== 'focus' && type !== 'blur') {
         return
       }
-      handleIsVisible(type === 'focus')
+      handleIsVisible(type === 'focus' && isInView)
     },
 
     getIsVisible = () => {

@@ -1,6 +1,5 @@
 import type {
   AnimationData, AnimationDirection, AnimationItem,
-  AnimationSettings,
 } from '@aarsteinmedia/lottie-web'
 
 import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
@@ -125,24 +124,30 @@ export function useLottieInstance({
       }
 
       const options = buildAnimationConfig(
-        container,
-        {
-          ...stateRef.current,
-          playback: {
-            ...stateRef.current.playback,
-            currentAnimation: index
-          }
-        },
-        objectFit,
-        renderer
-      )
+          container,
+          {
+            ...stateRef.current,
+            playback: {
+              ...stateRef.current.playback,
+              currentAnimation: index
+            }
+          },
+          objectFit,
+          renderer
+        ),
+        item = createInstance(
+          loadAnimation,
+          animationRef,
+          options,
+          animations[index]
+        ),
+        settings = stateRef.current.asset.multiAnimationSettings.at(index)
 
-      return createInstance(
-        loadAnimation,
-        animationRef,
-        options,
-        animations[index]
-      )
+      item.setSpeed(settings?.speed ?? live.current.speed)
+      item.setDirection(settings?.direction ?? live.current.direction)
+      item.setSubframe(Boolean(live.current.subframe))
+
+      return item
     }, [
       containerRef,
       loadAnimation,
@@ -187,18 +192,18 @@ export function useLottieInstance({
       const { multiAnimationSettings } = stateRef.current.asset,
         { currentAnimation } = stateRef.current.playback,
         nextIndex = currentAnimation,
-        settings = multiAnimationSettings[nextIndex] as AnimationSettings | undefined
+        settings = multiAnimationSettings.at(nextIndex),
 
-      const payload = buildPayload({
-        animationData: {
-          animations,
-          isDotLottie,
-          manifest
-        },
-        appState: stateRef.current,
-        direction: live.current.direction,
-        speed: live.current.speed
-      })
+        payload = buildPayload({
+          animationData: {
+            animations,
+            isDotLottie,
+            manifest
+          },
+          appState: stateRef.current,
+          direction: live.current.direction,
+          speed: live.current.speed
+        })
 
       dispatch({
         payload,
@@ -206,13 +211,9 @@ export function useLottieInstance({
       })
 
       const item = mountAtIndex(animations, nextIndex),
-        animationDirection = settings?.direction ?? live.current.direction
+        animationDirection = settings?.direction ?? live.current.direction,
 
-      item.setSpeed(settings?.speed ?? live.current.speed)
-      item.setDirection(animationDirection)
-      item.setSubframe(Boolean(live.current.subframe))
-
-      const { animateOnScroll: hasAnimateOnScroll } = stateRef.current.config,
+        { animateOnScroll: hasAnimateOnScroll } = stateRef.current.config,
         { playerState: loadedPlayerState } = stateRef.current.playback
 
       if (
@@ -338,15 +339,15 @@ export function useLottieInstance({
     currentSettings = useCallback(() => {
       const { asset, playback } = stateRef.current
 
-      return asset.multiAnimationSettings[playback.currentAnimation]
+      return asset.multiAnimationSettings.at(playback.currentAnimation)
     }, [stateRef])
 
   useEffect(() => {
-    animationRef.current?.setSpeed(currentSettings().speed ?? speed)
+    animationRef.current?.setSpeed(currentSettings()?.speed ?? speed)
   }, [currentSettings, speed])
 
   useEffect(() => {
-    animationRef.current?.setDirection(currentSettings().direction ?? direction)
+    animationRef.current?.setDirection(currentSettings()?.direction ?? direction)
   }, [currentSettings, direction])
 
   useEffect(() => {

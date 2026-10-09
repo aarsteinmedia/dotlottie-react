@@ -83,12 +83,6 @@ export function usePlayerEvents({
           return
         }
         if (config.loop && playback.currentAnimation === asset.animations.length - 1) {
-
-          dispatch({
-            currentAnimation: 0,
-            type: 'SWITCH_ANIMATION'
-          })
-
           switchInstance(0)
 
           return

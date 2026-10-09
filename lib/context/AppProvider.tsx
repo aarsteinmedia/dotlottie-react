@@ -16,8 +16,9 @@ import { createInitialState, playerReducer } from '@/context/playerReducer'
 type Props = Readonly<PlayerConfig> & { children: React.ReactNode }
 
 export default function AppProvider(props: Props) {
-  const [state, setState] = useState(() => createInitialState({
-      ...props,
+  const { children, ...stateProps } = props,
+    [state, setState] = useState(() => createInitialState({
+      ...stateProps,
       id: props.id ?? createElementID(),
       src: props.src ?? null
     })),
@@ -37,7 +38,6 @@ export default function AppProvider(props: Props) {
     {
       animateOnScroll,
       autoplay,
-      children,
       controls,
       id,
       loop,
