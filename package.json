@@ -1,6 +1,6 @@
 {
   "name": "@aarsteinmedia/dotlottie-react",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "description": "React component for playing Lottie animations in your React web app.",
   "type": "module",
   "main": "./dist/full.js",
@@ -15,6 +15,16 @@
       "types": "./dist/light.d.ts",
       "import": "./dist/light.js",
       "default": "./dist/light.js"
+    },
+    "./svg": {
+      "types": "./dist/svg.d.ts",
+      "import": "./dist/svg.js",
+      "default": "./dist/svg.js"
+    },
+    "./canvas": {
+      "types": "./dist/canvas.d.ts",
+      "import": "./dist/canvas.js",
+      "default": "./dist/canvas.js"
     },
     "./enums": {
       "types": "./dist/enums.d.ts",

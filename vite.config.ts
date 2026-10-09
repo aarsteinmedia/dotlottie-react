@@ -51,7 +51,12 @@ function compiledCssModules(): Plugin {
       await writeFile(stylesPath, css)
       await rm(bundledCss)
 
-      for (const entry of ['full.js', 'light.js']) {
+      for (const entry of [
+        'full.js',
+        'light.js',
+        'svg.js',
+        'canvas.js'
+      ]) {
         const entryPath = join(distDir, entry),
           source = await readFile(entryPath, 'utf8')
 
@@ -74,6 +79,9 @@ export default defineConfig({
     cssTarget: 'es2022',
     lib: {
       entry: {
+        canvas: resolve(
+          __dirname, 'lib', 'canvas.tsx'
+        ),
         enums: resolve(
           __dirname, 'lib', 'enums.ts'
         ),
@@ -82,6 +90,9 @@ export default defineConfig({
         ),
         light: resolve(
           __dirname, 'lib', 'light.tsx'
+        ),
+        svg: resolve(
+          __dirname, 'lib', 'svg.tsx'
         )
       },
       formats: ['es'],
@@ -90,6 +101,8 @@ export default defineConfig({
       external: [
         '@aarsteinmedia/lottie-web',
         '@aarsteinmedia/lottie-web/light',
+        '@aarsteinmedia/lottie-web/canvas',
+        '@aarsteinmedia/lottie-web/svg',
         '@aarsteinmedia/lottie-web/utils',
         '@aarsteinmedia/lottie-web/dotlottie',
         'react',
