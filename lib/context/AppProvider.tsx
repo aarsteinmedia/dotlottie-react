@@ -31,6 +31,7 @@ export default function AppProvider(props: Props) {
       id,
       loop,
       mode,
+      renderer,
       simple,
       src,
       subframe
@@ -48,6 +49,7 @@ export default function AppProvider(props: Props) {
         controls,
         loop,
         mode,
+        renderer,
         simple,
         src: src ?? null,
         subframe,
@@ -62,6 +64,7 @@ export default function AppProvider(props: Props) {
     id,
     loop,
     mode,
+    renderer,
     simple,
     src,
     subframe

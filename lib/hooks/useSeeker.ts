@@ -16,13 +16,8 @@ export function useSeeker(animationRef: React.RefObject<null | AnimationItem>,
     let frameId = 0
 
     const tick = () => {
-      const { current: item } = animationRef
-
-      if (!item) {
-        return
-      }
-
-      const next = getSeeker(item)
+      const { current: item } = animationRef,
+        next = getSeeker(item)
 
       setSeeker(prev => prev === next ? prev : next)
 

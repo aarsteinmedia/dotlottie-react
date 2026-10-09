@@ -64,11 +64,6 @@ export const aspectRatio = (objectFit: ObjectFit) => {
       Object.hasOwn(json, field))
   },
 
-  /**
-   * Freeze animation.
-   * This internal state pauses animation and is used to differentiate between
-   * user requested pauses and component instigated pauses.
-   */
   isPlaybackLocked = (stateRef: React.RefObject<AppState>) => {
     const { playerState } = stateRef.current.playback
 

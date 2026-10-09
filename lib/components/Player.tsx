@@ -100,9 +100,13 @@ export default function Player({
      */
     previous = useCallback(() => {
       const { playback } = stateRef.current,
-        currentAnimation = clamp(playback.currentAnimation - 1, 0)
+        target = clamp(playback.currentAnimation - 1, 0)
 
-      switchInstance(currentAnimation)
+      if (target === playback.currentAnimation) {
+        return
+      }
+
+      switchInstance(target)
 
     }, [stateRef, switchInstance]),
 
@@ -111,11 +115,15 @@ export default function Player({
      */
     next = useCallback(() => {
       const { asset, playback } = stateRef.current,
-        currentAnimation = clamp(
+        target = clamp(
           playback.currentAnimation + 1, 0, asset.animations.length - 1
         )
 
-      switchInstance(currentAnimation)
+      if (target === playback.currentAnimation) {
+        return
+      }
+
+      switchInstance(target)
 
     }, [stateRef, switchInstance]),
 

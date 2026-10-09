@@ -1,7 +1,10 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
-export function getSeeker(animationItem: AnimationItem): number {
-  const { currentFrame, totalFrames } = animationItem
+export function getSeeker(animationItem: null | AnimationItem): number {
+  const { currentFrame, totalFrames } = animationItem ?? {
+    currentFrame: 0,
+    totalFrames: 0
+  }
 
   if (totalFrames <= 0) {
     return 0

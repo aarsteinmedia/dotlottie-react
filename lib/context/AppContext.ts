@@ -2,7 +2,7 @@ import type {
   AnimationData,
   AnimationSettings, LottieManifest, Vector2
 } from '@aarsteinmedia/lottie-web'
-import type { PlayMode } from '@aarsteinmedia/lottie-web/utils'
+import type { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 
 import { createContext, type Dispatch } from 'react'
 
@@ -19,6 +19,7 @@ export interface PlayerConfig {
   lang: string
   loop?: boolean
   mode: PlayMode
+  renderer: RendererType
   simple?: boolean
   src: null | string
   subframe?: boolean

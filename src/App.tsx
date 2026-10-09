@@ -1,4 +1,3 @@
-// import { getAnimationData } from '@aarsteinmedia/lottie-web/dotlottie'
 import files from '@src/files'
 import { useState } from 'react'
 
@@ -101,9 +100,9 @@ export default function App() {
         maxWidth: '800px',
         width: '80%'
       }}>
-        {isAnimateOnScroll &&
+        {/* {isAnimateOnScroll &&
           <DotLottiePlayer autoplay loop src="/assets/menuAnimation.lottie" />
-        }
+        } */}
         <div id="container"
           style={{
             alignItems: 'center',

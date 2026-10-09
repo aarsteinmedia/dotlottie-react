@@ -1,7 +1,8 @@
 import type { AnimationDirection, AnimationItem } from '@aarsteinmedia/lottie-web'
 
 import {
-  download, getFilename, PlayMode
+  download, getFilename, PlayMode,
+  RendererType,
 } from '@aarsteinmedia/lottie-web/utils'
 import { useRef, useState } from 'react'
 
@@ -16,7 +17,8 @@ import PreviousIcon from '@/components/icons/PreviousIcon'
 import SettingsIcon from '@/components/icons/SettingsIcon'
 import StopIcon from '@/components/icons/StopIcon'
 import {
-  usePlayerDispatch, usePlayerPlayback,
+  usePlayerDispatch,
+  usePlayerPlayback,
   usePlayerStateRef
 } from '@/hooks/useApp'
 import { useEventListener } from '@/hooks/useEventListener'
@@ -180,34 +182,48 @@ export default function Controls({
     /**
      * Snapshot and download the current frame as SVG.
      */
-    snapshot = (shouldDownload = true, name = 'AM Lottie') => {
+    snapshot = async (shouldDownload = true, name = 'AM Lottie') => {
       try {
         if (!containerRef.current) {
           throw new Error('Unknown error')
         }
 
-        const { config } = stateRef.current
+        let data: ArrayBuffer | string | null = null
 
-        // Get SVG element and serialize markup
-        const svgElement = containerRef.current.querySelector('svg')
+        const { config } = stateRef.current,
 
-        if (!svgElement) {
+          // Get animation element and serialize markup
+          animationElement = containerRef.current.querySelector(config.renderer)
+
+        if (!animationElement) {
           throw new Error('Could not retrieve animation from DOM')
         }
 
-        const data =
-          svgElement instanceof Node
-            ? new XMLSerializer().serializeToString(svgElement)
-            : null
+        const isSVG = config.renderer === RendererType.SVG
+
+        if (isSVG) {
+          data =
+            animationElement instanceof Node
+              ? new XMLSerializer().serializeToString(animationElement)
+              : null
+        } else {
+          const dataURL = (animationElement as HTMLCanvasElement).toDataURL('image/png'),
+            resp = await fetch(dataURL)
+
+          data = await resp.arrayBuffer()
+        }
 
         if (!data) {
-          throw new Error('Could not serialize SVG element')
+          throw new Error('Could parse animation element')
         }
+
+        const mimeType = isSVG ? 'image/svg+xml' : 'image/png',
+          extension = isSVG ? 'svg' : 'png'
 
         if (shouldDownload) {
           download(data, {
-            mimeType: 'image/svg+xml',
-            name: `${getFilename(config.src || name)}-${frameOutput(playback.seeker)}.svg`,
+            mimeType,
+            name: `${getFilename(config.src || name)}-${frameOutput(playback.seeker)}.${extension}`,
           })
         }
 
@@ -383,7 +399,7 @@ export default function Controls({
             <button
               className={styles.button}
               aria-label="Download still image"
-              onClick={() => snapshot(true)}
+              onClick={() => void snapshot(true)}
             >
               <DownloadIcon />
               Download still image

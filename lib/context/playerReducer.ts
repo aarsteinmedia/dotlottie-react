@@ -1,4 +1,4 @@
-import { PlayMode } from '@aarsteinmedia/lottie-web/utils'
+import { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 
 import type { PlayerConfig } from '@/context/AppContext'
 import type { AppState, PlayerAction } from '@/types'
@@ -151,6 +151,7 @@ export function createInitialState(config: Partial<PlayerConfig> = {}): AppState
       lang: 'en',
       mode: PlayMode.Normal,
       ...config,
+      renderer: config.renderer ?? RendererType.SVG,
       src: config.src ?? null
     },
     playback: {

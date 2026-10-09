@@ -44,7 +44,9 @@ export function createDotLottiePlayer(loadAnimation: (params: AnimationConfigura
       lang={lang}
       loop={loop}
       mode={mode}
+      renderer={renderer}
       simple={simple}
+      subframe={subframe}
       src={src}
     >
       <Player
