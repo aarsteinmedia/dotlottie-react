@@ -4,9 +4,8 @@ import { clamp } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
 import {
-  usePlayerDispatch, usePlayerStateRef, usePlayerStore
+  usePlayerDispatch, usePlayerPlayback, usePlayerStateRef, usePlayerStore
 } from '@/hooks/useApp'
-import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 import { usePlayback } from '@/hooks/usePlayback'
 import { hasVTSupport } from '@/utils/constants'
 import { getSeeker } from '@/utils/getSeeker'
@@ -61,7 +60,7 @@ const _canDriveTimeline = ({ source }: ViewTimeline) => {
   }
 
 export function useAnimateOnScroll(containerRef: React.RefObject<HTMLElement | null>, animationRef: React.RefObject<AnimationItem | null>) {
-  const isInView = useIntersectionObserver(containerRef),
+  const { isInView } = usePlayerPlayback(),
     scrollLoopId = useRef<number>(null),
     scrollProbe = useRef<Animation>(null),
     prevFrame = useRef(0),

@@ -1,8 +1,10 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
-import { useRef } from 'react'
+import {
+  useCallback, useEffect, useRef
+} from 'react'
 
-import { usePlayerStateRef } from '@/hooks/useApp'
+import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
 import { useEventListener, WINDOW_LISTENER_OPTS } from '@/hooks/useEventListener'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 import { PlayerState } from '@/utils/enums'
@@ -22,29 +24,50 @@ export function useVisibility({
   const stateRef = usePlayerStateRef(),
     frozenByVisibility = useRef(false),
 
-    isVisible = useIntersectionObserver(containerRef),
+    isInView = useIntersectionObserver(containerRef),
 
-    handleWindowBlur = ({ type }: FocusEvent) => {
+    handleIsVisible = useCallback((isVisible: boolean) => {
       const { config, playback } = stateRef.current
 
-      if (playback.playerState === PlayerState.Playing && type === 'blur') {
+      if (!isVisible && playback.playerState === PlayerState.Playing) {
         freeze()
         frozenByVisibility.current = true
       }
+
       if (
+        isVisible &&
         playback.playerState === PlayerState.Frozen &&
         frozenByVisibility.current &&
-        !config.animateOnScroll &&
-        type === 'focus'
+        !config.animateOnScroll
       ) {
         play()
         frozenByVisibility.current = false
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [freeze, play]),
+
+    handleWindowBlur = ({ type }: FocusEvent) => {
+      if (type !== 'focus' && type !== 'blur') {
+        return
+      }
+      handleIsVisible(type === 'focus')
     },
 
     getIsVisible = () => {
-      return isVisible
-    }
+      return isInView
+    },
+    dispatch = usePlayerDispatch()
+
+  useEffect(() => {
+    dispatch({
+      patch: { isInView },
+      type: 'SET_PLAYBACK'
+    })
+  }, [dispatch, isInView])
+
+  useEffect(() => {
+    handleIsVisible(isInView)
+  }, [handleIsVisible, isInView])
 
   useEventListener(
     'focus', handleWindowBlur, WINDOW_LISTENER_OPTS

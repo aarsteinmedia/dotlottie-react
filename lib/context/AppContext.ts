@@ -35,6 +35,7 @@ export interface PlayerAsset {
 export interface PlayerPlayback {
   currentAnimation: number
   errorMessage: string
+  isInView: boolean
   loopsCompleted: number
   playerState: PlayerState
   seeker: number

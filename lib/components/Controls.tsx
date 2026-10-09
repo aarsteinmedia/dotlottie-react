@@ -242,6 +242,7 @@ export default function Controls({
       }
     }, {
       capture: true,
+      enabled: state.isSettingsOpen,
       passive: true
     }
   )
@@ -253,6 +254,7 @@ export default function Controls({
       }
     }, {
       capture: true,
+      enabled: state.isSettingsOpen,
       passive: true
     }
   )

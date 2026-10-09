@@ -157,6 +157,7 @@ export function createInitialState(config: Partial<PlayerConfig> = {}): AppState
     playback: {
       currentAnimation: 0,
       errorMessage: 'Failed to load file',
+      isInView: false,
       loopsCompleted: 0,
       playerState: PlayerState.Loading,
       seeker: 0,
