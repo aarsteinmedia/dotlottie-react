@@ -4,7 +4,9 @@ import {
   useCallback, useEffect, useRef
 } from 'react'
 
-import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
+import {
+  usePlayerDispatch, usePlayerState, usePlayerStateRef
+} from '@/hooks/useApp'
 import { useEventListener, WINDOW_LISTENER_OPTS } from '@/hooks/useEventListener'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 import { PlayerState } from '@/utils/enums'
@@ -22,6 +24,7 @@ export function useVisibility({
   play
 }: Props) {
   const stateRef = usePlayerStateRef(),
+    playerState = usePlayerState(),
     frozenByVisibility = useRef(false),
 
     isInView = useIntersectionObserver(containerRef),
@@ -66,6 +69,17 @@ export function useVisibility({
       type: 'SET_PLAYBACK'
     })
   }, [dispatch, isInView])
+
+  useEffect(() => {
+    if (isInView || playerState !== PlayerState.Playing) {
+      return
+    }
+    freeze()
+    // eslint-disable-next-line react-hooks/immutability
+    frozenByVisibility.current = true
+  }, [freeze,
+    isInView,
+    playerState])
 
   useEffect(() => {
     handleIsVisible(isInView)

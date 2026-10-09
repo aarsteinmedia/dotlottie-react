@@ -1,5 +1,7 @@
 import type { AnimationItem } from '@aarsteinmedia/lottie-web'
 
+import { useCallback } from 'react'
+
 import { usePlayerDispatch, usePlayerStateRef } from '@/hooks/useApp'
 import { isPlaybackLocked } from '@/utils'
 import { PlayerState } from '@/utils/enums'
@@ -40,7 +42,7 @@ export function usePlayback({ animationRef }: Props) {
     /**
      * Pause.
      */
-    pause = () => {
+    pause = useCallback(() => {
       const { current: item } = animationRef
 
       if (!item || isPlaybackLocked(stateRef)) {
@@ -57,12 +59,14 @@ export function usePlayback({ animationRef }: Props) {
         type: 'SET_PLAYBACK'
       })
 
-    },
+    }, [animationRef,
+      dispatch,
+      stateRef]),
 
     /**
      * Play.
      */
-    play = () => {
+    play = useCallback(() => {
       const { current: item } = animationRef
 
       if (!item || isPlaybackLocked(stateRef)) {
@@ -75,14 +79,16 @@ export function usePlayback({ animationRef }: Props) {
         patch: { playerState: PlayerState.Playing },
         type: 'SET_PLAYBACK'
       })
-    },
+    }, [animationRef,
+      dispatch,
+      stateRef]),
 
     /**
      * Seek to a given frame.
      *
      * @param value - Frame to seek to.
      */
-    seek = (value: number | string, seekOrigin?: PlayerState) => {
+    seek = useCallback((value: number | string, seekOrigin?: PlayerState) => {
       if (isPlaybackLocked(stateRef)) {
         return
       }
@@ -95,12 +101,14 @@ export function usePlayback({ animationRef }: Props) {
         seekOrigin: seekOrigin ?? playback.playerState,
         value
       })
-    },
+    }, [animationRef,
+      dispatch,
+      stateRef]),
 
     /**
      * Stop.
      */
-    stop = () => {
+    stop = useCallback(() => {
       const { current: item } = animationRef
 
       if (!item || isPlaybackLocked(stateRef)) {
@@ -117,7 +125,9 @@ export function usePlayback({ animationRef }: Props) {
         },
         type: 'SET_PLAYBACK'
       })
-    }
+    }, [animationRef,
+      dispatch,
+      stateRef])
 
 
   return {

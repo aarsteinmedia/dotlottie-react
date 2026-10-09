@@ -3,6 +3,7 @@ import { PlayMode, RendererType } from '@aarsteinmedia/lottie-web/utils'
 import type { PlayerConfig } from '@/context/AppContext'
 import type { AppState, PlayerAction } from '@/types'
 
+import { hasIOSupport } from '@/utils/constants'
 import { PlayerState } from '@/utils/enums'
 
 export function playerReducer(state: AppState, action: PlayerAction) {
@@ -157,7 +158,7 @@ export function createInitialState(config: Partial<PlayerConfig> = {}): AppState
     playback: {
       currentAnimation: 0,
       errorMessage: 'Failed to load file',
-      isInView: false,
+      isInView: !hasIOSupport,
       loopsCompleted: 0,
       playerState: PlayerState.Loading,
       seeker: 0,
