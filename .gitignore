@@ -23,4 +23,4 @@ dist-ssr
 
 .pnpm-store
 
-src/files.js
+src/files.ts
