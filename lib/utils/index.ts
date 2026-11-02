@@ -70,5 +70,5 @@ export const aspectRatio = (objectFit: ObjectFit) => {
     return playerState === PlayerState.Error || playerState === PlayerState.Loading
   },
 
-  frameOutput = (frame?: number) =>
-    ((frame ?? 0) + 1).toString().padStart(3, '0')
+  frameOutput = (frame = 0) =>
+    (frame + 1).toString().padStart(3, '0')
