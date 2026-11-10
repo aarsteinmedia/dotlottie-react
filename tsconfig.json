@@ -24,7 +24,12 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "types": ["node"],
+    "types": [
+      "node",
+      "postcss-flexbugs-fixes",
+      "react",
+      "react-dom"
+    ],
     /* Paths */
     "paths": {
       "@/*": [

@@ -12,7 +12,7 @@ import createNoRestrictedProperties from 'eslint-no-restricted/properties'
 import createNoRestrictedSyntax from 'eslint-no-restricted/syntax'
 import fsecond from 'eslint-plugin-fsecond'
 import { importX } from 'eslint-plugin-import-x'
-import reactAccessibility from 'eslint-plugin-jsx-a11y'
+import reactAccessibility from 'eslint-plugin-jsx-a11y-x'
 import perfectionist from 'eslint-plugin-perfectionist'
 import reactHooks from 'eslint-plugin-react-hooks'
 import { reactRefresh } from 'eslint-plugin-react-refresh'
@@ -123,7 +123,7 @@ export default defineConfig({
     importX.flatConfigs.recommended,
     importX.flatConfigs.typescript,
     tsConfigs.strictTypeChecked,
-    reactAccessibility.flatConfigs.recommended,
+    reactAccessibility.configs.recommended,
   ],
   files: ['**/*.{ts,tsx,js}'],
   ignores: [
