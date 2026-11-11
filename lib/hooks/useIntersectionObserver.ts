@@ -1,11 +1,19 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect, useState, useSyncExternalStore
+} from 'react'
 
 import { hasIOSupport } from '@/utils/constants'
 
+const noop = () => undefined,
+  subscribeNoop = () => noop
+
 export function useIntersectionObserver(refObject: React.RefObject<HTMLElement | null>,
   options?: IntersectionObserverInit) {
-  // Without IntersectionObserver we can't tell, so assume visible
-  const [isInView, setIsInView] = useState(!hasIOSupport)
+  const [isInView, setIsInView] = useState(false),
+    // false on the server and during hydration, so markup matches; true afterwards if unsupported
+    hasNoSupport = useSyncExternalStore(
+      subscribeNoop, () => !hasIOSupport, () => false
+    )
 
   useEffect(() => {
     const { current: toObserve } = refObject
@@ -25,5 +33,5 @@ export function useIntersectionObserver(refObject: React.RefObject<HTMLElement |
     }
   }, [options, refObject])
 
-  return isInView
+  return isInView || hasNoSupport
 }
