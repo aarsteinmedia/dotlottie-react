@@ -6,7 +6,7 @@ import type { AppState } from '@/types'
 import type { ObjectFit } from '@/utils/enums'
 
 import { aspectRatio } from '@/utils'
-import { hasReducedMotion } from '@/utils/constants'
+import { reducedMotionQuery } from '@/utils/constants'
 
 export function buildAnimationConfig(
   container: HTMLElement,
@@ -38,9 +38,9 @@ export function buildAnimationConfig(
   }
 
   // Autoplay
-  let hasAutoplay = !hasReducedMotion && Boolean(config.autoplay)
+  let hasAutoplay = !reducedMotionQuery?.matches && Boolean(config.autoplay)
 
-  if (!hasReducedMotion) {
+  if (!reducedMotionQuery?.matches) {
     if (
       currentAnimationManifest?.autoplay !== undefined
     ) {

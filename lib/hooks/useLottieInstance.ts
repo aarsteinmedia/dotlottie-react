@@ -20,7 +20,7 @@ import {
 } from '@/hooks/useApp'
 import { handleErrors, isLottie } from '@/utils'
 import { buildAnimationConfig } from '@/utils/buildAnimationConfig'
-import { hasIOSupport, hasReducedMotion } from '@/utils/constants'
+import { HAS_IO_SUPPORT, reducedMotionQuery } from '@/utils/constants'
 import { createInstance } from '@/utils/createInstance'
 import { PlayerState } from '@/utils/enums'
 import { handleSeek } from '@/utils/handleSeek'
@@ -238,7 +238,7 @@ export function useLottieInstance({
         { playerState: loadedPlayerState } = stateRef.current.playback
 
       if (
-        hasReducedMotion ||
+        reducedMotionQuery?.matches ||
         loadedPlayerState !== PlayerState.Playing && !hasAnimateOnScroll
       ) {
         return
@@ -254,7 +254,7 @@ export function useLottieInstance({
 
       if (
         loadedPlayerState === PlayerState.Playing &&
-        !hasIOSupport &&
+        !HAS_IO_SUPPORT &&
         !hasAnimateOnScroll
       ) {
         item.play()

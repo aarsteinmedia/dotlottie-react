@@ -4,9 +4,9 @@ import {
 
 describe('constants (server)', () => {
   test('constants are safe to import on server', async () => {
-    const { hasIOSupport, hasReducedMotion } = await import('@/utils/constants')
+    const { HAS_IO_SUPPORT, reducedMotionQuery } = await import('@/utils/constants')
 
-    expect(hasIOSupport).toBeFalsy()
-    expect(hasReducedMotion).toBeFalsy()
+    expect(HAS_IO_SUPPORT).toBeFalsy()
+    expect(reducedMotionQuery?.matches).toBeFalsy()
   })
 })

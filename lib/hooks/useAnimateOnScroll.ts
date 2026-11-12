@@ -7,7 +7,7 @@ import {
   usePlayerDispatch, usePlayerPlayback, usePlayerStateRef, usePlayerStore
 } from '@/hooks/useApp'
 import { usePlayback } from '@/hooks/usePlayback'
-import { hasVTSupport } from '@/utils/constants'
+import { HAS_VT_SUPPORT } from '@/utils/constants'
 import { getSeeker } from '@/utils/getSeeker'
 
 const _canDriveTimeline = ({ source }: ViewTimeline) => {
@@ -23,7 +23,7 @@ const _canDriveTimeline = ({ source }: ViewTimeline) => {
       return null
     }
 
-    if (hasVTSupport) {
+    if (HAS_VT_SUPPORT) {
 
       const timeline= new ViewTimeline({
           axis: 'block',

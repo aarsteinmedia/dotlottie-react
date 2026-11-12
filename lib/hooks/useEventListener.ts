@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { isServer } from '@aarsteinmedia/lottie-web/utils'
+import { IS_SERVER } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
 export type EventHandler<E extends Event = Event> = (event: E) => void
@@ -44,7 +44,7 @@ export function useEventListener<
     } = options,
 
     element =
-      elementOptions === undefined && !isServer ? window : elementOptions,
+      elementOptions === undefined && !IS_SERVER ? window : elementOptions,
 
     isElementRef = isRefObject(element),
     resolvedElement = isElementRef ? element.current : element,
