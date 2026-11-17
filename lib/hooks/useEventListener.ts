@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+
 import { IS_SERVER } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 

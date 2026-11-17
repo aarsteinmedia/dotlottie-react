@@ -64,7 +64,8 @@ export default function AppProvider(props: Props) {
       },
       type: 'SYNC_CONFIG'
     })
-  }, [animateOnScroll,
+  }, [
+    animateOnScroll,
     autoplay,
     controls,
     dispatch,
@@ -74,7 +75,8 @@ export default function AppProvider(props: Props) {
     renderer,
     simple,
     src,
-    subframe])
+    subframe
+  ])
 
   return (
     <PlayerDispatchContext value={dispatch}>

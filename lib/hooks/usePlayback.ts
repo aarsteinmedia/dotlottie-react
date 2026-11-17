@@ -42,9 +42,11 @@ export function usePlayback({ animationRef }: Props) {
         },
         type: 'SET_PLAYBACK'
       })
-    }, [animationRef,
+    }, [
+      animationRef,
       dispatch,
-      stateRef]),
+      stateRef
+    ]),
 
     /**
      * Pause.
@@ -66,9 +68,11 @@ export function usePlayback({ animationRef }: Props) {
         type: 'SET_PLAYBACK'
       })
 
-    }, [animationRef,
+    }, [
+      animationRef,
       dispatch,
-      stateRef]),
+      stateRef
+    ]),
 
     /**
      * Play.
@@ -86,9 +90,11 @@ export function usePlayback({ animationRef }: Props) {
         patch: { playerState: PlayerState.Playing },
         type: 'SET_PLAYBACK'
       })
-    }, [animationRef,
+    }, [
+      animationRef,
       dispatch,
-      stateRef]),
+      stateRef
+    ]),
 
     /**
      * Seek to a given frame.
@@ -108,9 +114,11 @@ export function usePlayback({ animationRef }: Props) {
         seekOrigin: seekOrigin ?? playback.playerState,
         value
       })
-    }, [animationRef,
+    }, [
+      animationRef,
       dispatch,
-      stateRef]),
+      stateRef
+    ]),
 
     /**
      * Stop.
@@ -132,9 +140,11 @@ export function usePlayback({ animationRef }: Props) {
         },
         type: 'SET_PLAYBACK'
       })
-    }, [animationRef,
+    }, [
+      animationRef,
       dispatch,
-      stateRef])
+      stateRef
+    ])
 
 
   return {

@@ -46,10 +46,12 @@ export function useVisibility({
         play()
         frozenByVisibility.current = false
       }
-    }, [freeze,
+    }, [
+      freeze,
       play,
       // eslint-disable-next-line react-hooks/preserve-manual-memoization
-      stateRef]),
+      stateRef
+    ]),
 
     handleWindowBlur = ({ type }: FocusEvent) => {
       if (type !== 'focus' && type !== 'blur') {
@@ -77,9 +79,11 @@ export function useVisibility({
     freeze()
     // eslint-disable-next-line react-hooks/immutability
     frozenByVisibility.current = true
-  }, [freeze,
+  }, [
+    freeze,
     isInView,
-    playerState])
+    playerState
+  ])
 
   useEffect(() => {
     handleIsVisible(isInView)

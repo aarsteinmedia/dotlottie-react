@@ -274,10 +274,12 @@ export function useLottieInstance({
         type: 'LOAD_ERROR'
       })
     }
-  }, [destroyAnimation,
+  }, [
+    destroyAnimation,
     dispatch,
     mountAtIndex,
-    stateRef])
+    stateRef
+  ])
 
   const switchInstance = useCallback((index: number) => {
     const { asset, config } = stateRef.current
@@ -336,10 +338,12 @@ export function useLottieInstance({
         type: 'LOAD_ERROR'
       })
     }
-  }, [destroyAnimation,
+  }, [
+    destroyAnimation,
     dispatch,
     mountAtIndex,
-    stateRef])
+    stateRef
+  ])
 
   const setLoop = (value: boolean) => {
       animationRef.current?.setLoop(value)

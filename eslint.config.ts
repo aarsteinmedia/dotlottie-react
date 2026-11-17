@@ -166,38 +166,37 @@ export default defineConfig({
     ...reactYouMightNotNeedAnEffect.configs.strict.rules,
     ...reactHooks.configs.flat['recommended-latest'].rules,
     ...sonarConfigs.recommended.rules,
-    '@eslint-react/function-component-definition': 0,
-    '@eslint-react/no-array-index-key': 'warn',
-    '@eslint-react/react-in-jsx-scope': 0,
     '@regru/prefer-early-return/prefer-early-return': [2, { maximumStatements: 1 }],
-    '@stylistic/array-element-newline': ['warn', { minItems: 3 }],
-    '@stylistic/comma-dangle': ['warn', 'only-multiline'],
-    '@stylistic/comma-spacing': 'warn',
-    '@stylistic/function-call-spacing': 'warn',
-    '@stylistic/function-paren-newline': ['warn', { minItems: 3 }],
-    '@stylistic/indent': ['warn', 2],
-    '@stylistic/indent-binary-ops': ['warn', 2],
+    '@stylistic/array-bracket-newline': [1, { minItems: 3 }],
+    '@stylistic/array-element-newline': [1, { minItems: 3 }],
+    '@stylistic/comma-dangle': [1, 'only-multiline'],
+    '@stylistic/comma-spacing': 1,
+    '@stylistic/curly-newline': 1,
+    '@stylistic/function-call-spacing': 1,
+    '@stylistic/function-paren-newline': [1, { minItems: 3 }],
+    '@stylistic/indent': [1, 2],
+    '@stylistic/indent-binary-ops': [1, 2],
     '@stylistic/jsx-quotes': [1, 'prefer-double'],
-    '@stylistic/key-spacing': 'warn',
-    '@stylistic/lines-between-class-members': ['warn', {
-      enforce: [
-        {
-          blankLine: 'always',
-          next: 'method',
-          prev: 'method'
-        }
-      ]
+    '@stylistic/jsx-wrap-multilines': 1,
+    '@stylistic/key-spacing': 1,
+    '@stylistic/linebreak-style': 1,
+    '@stylistic/lines-between-class-members': [1, {
+      enforce: [{
+        blankLine: 'always',
+        next: 'method',
+        prev: 'method'
+      }]
     }],
-    '@stylistic/no-extra-parens': 'warn',
+    '@stylistic/no-extra-parens': 1,
     '@stylistic/no-multi-spaces': 1,
-    '@stylistic/no-multiple-empty-lines': 'warn',
-    '@stylistic/no-trailing-spaces': 'warn',
-    '@stylistic/object-curly-newline': ['warn', {
+    '@stylistic/no-multiple-empty-lines': 1,
+    '@stylistic/no-trailing-spaces': 1,
+    '@stylistic/object-curly-newline': [1, {
       minProperties: 3,
       multiline: true
     }],
-    '@stylistic/object-curly-spacing': ['warn', 'always'],
-    '@stylistic/object-property-newline': 'warn',
+    '@stylistic/object-curly-spacing': [1, 'always'],
+    '@stylistic/object-property-newline': 1,
     '@stylistic/padding-line-between-statements': [
       2,
       {
@@ -216,11 +215,11 @@ export default defineConfig({
         prev: '*'
       }
     ],
-    '@stylistic/quotes': ['warn', 'single'],
-    '@stylistic/semi': ['warn', 'never'],
+    '@stylistic/quotes': [1, 'single'],
+    '@stylistic/semi': [1, 'never'],
     '@stylistic/space-before-blocks': 1,
     '@stylistic/space-in-parens': 1,
-    '@stylistic/type-annotation-spacing': 'warn',
+    '@stylistic/type-annotation-spacing': 1,
     '@typescript-eslint/array-type': 2,
     '@typescript-eslint/ban-ts-comment': [2, {
       'ts-check': false,
@@ -231,21 +230,30 @@ export default defineConfig({
     '@typescript-eslint/consistent-type-assertions': 2,
     '@typescript-eslint/consistent-type-definitions': 2,
     '@typescript-eslint/consistent-type-exports': [2, { fixMixedExportsWithInlineTypeSpecifier: true }],
-    '@typescript-eslint/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
+    '@typescript-eslint/consistent-type-imports': [2, { fixStyle: 'inline-type-imports' }],
     '@typescript-eslint/default-param-last': 2,
     '@typescript-eslint/dot-notation': 2,
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 0,
     '@typescript-eslint/method-signature-style': 2,
     '@typescript-eslint/naming-convention': [
-      'error',
+      2,
       {
-        format: ['camelCase', 'PascalCase'],
+        format: [
+          'camelCase',
+          'UPPER_CASE',
+          'PascalCase',
+          'snake_case'
+        ],
         leadingUnderscore: 'allowSingleOrDouble',
         selector: 'default',
         trailingUnderscore: 'forbid',
       },
       {
-        format: ['camelCase'],
+        format: [
+          'camelCase',
+          'UPPER_CASE',
+          'snake_case'
+        ],
         leadingUnderscore: 'allowSingleOrDouble',
         modifiers: ['const'],
         selector: 'variable',
@@ -267,10 +275,14 @@ export default defineConfig({
       {
         custom: {
           match: true,
-          regex: '^(?i:is|in|has|can|should)'
+          // A bug in NodeJS bug causes ?i: to trigger memory threshold
+          regex: '^(is|IS|in|IN|has|HAS|can|CAN|should|SHOULD|was|WAS)'
         },
-        format: ['camelCase',
-          'UPPER_CASE'],
+        format: [
+          'camelCase',
+          'PascalCase',
+          'UPPER_CASE'
+        ],
         leadingUnderscore: 'allowSingleOrDouble',
         selector: 'variable',
         trailingUnderscore: 'forbid',
@@ -289,7 +301,7 @@ export default defineConfig({
     '@typescript-eslint/no-array-constructor': 0,
     '@typescript-eslint/no-empty-function': 2,
     '@typescript-eslint/no-empty-object-type': [2, { allowInterfaces: 'with-single-extends' }],
-    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-explicit-any': 1,
     '@typescript-eslint/no-import-type-side-effects': 2,
     '@typescript-eslint/no-inferrable-types': 2,
     '@typescript-eslint/no-loop-func': 2,
@@ -316,15 +328,13 @@ export default defineConfig({
       enforceForJSX: true
     }],
     '@typescript-eslint/no-unused-private-class-members': 2,
-    '@typescript-eslint/no-unused-vars': [
-      'error', {
-        argsIgnorePattern: '^_',
-        caughtErrors: 'none',
-        caughtErrorsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      },
-    ],
-    '@typescript-eslint/no-use-before-define': ['error', {
+    '@typescript-eslint/no-unused-vars': [2, {
+      argsIgnorePattern: '^_',
+      caughtErrors: 'none',
+      caughtErrorsIgnorePattern: '^_',
+      varsIgnorePattern: '^_',
+    }],
+    '@typescript-eslint/no-use-before-define': [2, {
       classes: false,
       functions: false
     }],
@@ -332,10 +342,8 @@ export default defineConfig({
     '@typescript-eslint/prefer-nullish-coalescing': [2, { ignorePrimitives: true }],
     '@typescript-eslint/prefer-optional-chain': 2,
     '@typescript-eslint/prefer-string-starts-ends-with': 2,
-    '@typescript-eslint/restrict-template-expressions': [
-      'error', { allowNumber: true },
-    ],
-    '@typescript-eslint/switch-exhaustiveness-check': ['error', { considerDefaultExhaustiveForUnions: true }],
+    '@typescript-eslint/restrict-template-expressions': [2, { allowNumber: true }],
+    '@typescript-eslint/switch-exhaustiveness-check': [2, { considerDefaultExhaustiveForUnions: true }],
     '@typescript-eslint/unbound-method': 0,
     '@typescript-eslint/use-unknown-in-catch-callback-variable': 0,
     'arrow-return-style/arrow-return-style': 0,
@@ -350,25 +358,29 @@ export default defineConfig({
     'import-x/no-named-as-default': 2,
     'import-x/no-useless-path-segments': [2, { noUselessIndex: true }],
     'no-console': [2, {
-      allow: ['error',
+      allow: [
+        'error',
         'warn',
-        'info']
+        'info'
+      ]
     }],
-    'no-plusplus': 'off',
-    'no-restricted-globals': ['error',
+    'no-plusplus': 0,
+    'no-restricted-globals': [
+      2,
       'event',
-      'fdescribe'],
-    'no-restricted-syntax/noAccessModifiers': 'off',
-    'no-restricted-syntax/noClasses': 'off',
-    'no-restricted-syntax/noEnums': 'off',
-    'no-void': 'off',
+      'fdescribe'
+    ],
+    'no-restricted-syntax/noAccessModifiers': 0,
+    'no-restricted-syntax/noClasses': 0,
+    'no-restricted-syntax/noEnums': 0,
+    'no-void': 0,
     'operator-assignment': 0,
-    'perfectionist/sort-classes': 'warn',
-    'perfectionist/sort-enums': 'warn',
-    'perfectionist/sort-imports': 'warn',
-    'perfectionist/sort-interfaces': 'warn',
-    'perfectionist/sort-objects': 'warn',
-    'simple-import-sort/imports': 'off',
+    'perfectionist/sort-classes': 1,
+    'perfectionist/sort-enums': 1,
+    'perfectionist/sort-imports': 1,
+    'perfectionist/sort-interfaces': 1,
+    'perfectionist/sort-objects': 1,
+    'simple-import-sort/imports': 0,
     'sonarjs/no-unused-vars': 0,
     'sonarjs/todo-tag': 1,
     'unicorn/catch-error-name': 2,
@@ -379,12 +391,12 @@ export default defineConfig({
     'unicorn/error-message': 2,
     'unicorn/explicit-length-check': 2,
     'unicorn/no-array-push-push': 2,
-    'unicorn/no-array-reduce': ['error', { allowSimpleOperations: true }],
+    'unicorn/no-array-reduce': [2, { allowSimpleOperations: true }],
     'unicorn/no-array-reverse': 2,
     'unicorn/no-array-sort': 2,
     'unicorn/no-await-expression-member': 2,
     'unicorn/no-await-in-promise-methods': 2,
-    'unicorn/no-for-loop': 2,
+    'unicorn/no-for-loop': 0,
     'unicorn/no-immediate-mutation': 2,
     'unicorn/no-instanceof-array': 2,
     'unicorn/no-invalid-file-input-accept': 2,
@@ -413,7 +425,7 @@ export default defineConfig({
     'unicorn/prefer-node-protocol': 2,
     'unicorn/prefer-object-from-entries': 2,
     'unicorn/prefer-prototype-methods': 2,
-    'unicorn/prefer-query-selector': 'off',
+    'unicorn/prefer-query-selector': 0,
     'unicorn/prefer-response-static-json': 2,
     'unicorn/prefer-set-size': 2,
     'unicorn/prefer-spread': 2,
@@ -424,12 +436,10 @@ export default defineConfig({
     'unicorn/prefer-type-error': 2,
     'unicorn/require-passive-events': 2,
     'unicorn/switch-case-braces': 2,
-    'unicorn/template-indent': 'warn',
+    'unicorn/template-indent': 1,
     'unicorn/throw-new-error': 2
   }
 }, {
-  files: [
-    '**/*.tsx', '**/*.config.ts',
-  ],
+  files: ['**/*.tsx', '**/*.config.ts'],
   rules: { 'import-x/no-default-export': 0 }
 })
