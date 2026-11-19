@@ -11,7 +11,7 @@ describe('getSeeker', () => {
     const item = {
       currentFrame: 10,
       totalFrames: 0,
-    } as AnimationItem
+    } as unknown as AnimationItem
 
     expect(getSeeker(item)).toBe(0)
   })
@@ -20,7 +20,7 @@ describe('getSeeker', () => {
     const item = {
       currentFrame: 50,
       totalFrames: 200,
-    } as AnimationItem
+    } as unknown as AnimationItem
 
     expect(getSeeker(item)).toBe(25)
   })

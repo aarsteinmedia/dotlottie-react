@@ -1,7 +1,7 @@
 import files from '@src/files'
 import { useState } from 'react'
 
-import { RendererType } from '@/enums'
+import { ObjectFit, RendererType } from '@/enums'
 import DotLottiePlayer from '@/full'
 
 export default function App() {
@@ -75,7 +75,7 @@ export default function App() {
             <label>
               Select file:<br />
               <select
-                // eslint-disable-next-line jsx-a11y/no-autofocus
+                // eslint-disable-next-line jsx-a11y-x/no-autofocus
                 autoFocus
                 name="path"
                 value={state.asset}
@@ -95,6 +95,14 @@ export default function App() {
           </form>
         </div>
       </header>
+      <DotLottiePlayer
+        objectFit={ObjectFit.Cover}
+        autoplay
+        renderer={state.renderer as unknown as RendererType}
+        loop
+        className="background"
+        src="/assets/menuAnimation.lottie"
+      />
       <div style={{
         margin: '40px auto',
         maxWidth: '800px',

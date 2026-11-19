@@ -232,6 +232,7 @@ export default function Player({
     <div
       lang={config.lang}
       data-controls={config.controls}
+      data-object-fit={objectFit}
       data-renderer={renderer}
       role="group"
       className={classnames([

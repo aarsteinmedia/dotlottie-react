@@ -46,6 +46,14 @@
     height: calc(100% - var(--lottie-player-toolbar-height));
   }
 
+  &[data-renderer='canvas'][data-object-fit='cover'] {
+    & canvas {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+    }
+  }
+
   .error {
     display: flex;
     margin: auto;
