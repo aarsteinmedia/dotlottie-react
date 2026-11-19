@@ -1,4 +1,3 @@
-
 import { IS_SERVER } from '@aarsteinmedia/lottie-web/utils'
 import { useEffect, useRef } from 'react'
 
@@ -19,8 +18,8 @@ interface ElementOptions<T> {
     | false
 }
 
-type EventOptions<T> = EventListenerOptions &
-  AddEventListenerOptions & ElementOptions<T> & { enabled?: boolean }
+type EventOptions<T> = EventListenerOptions
+  & AddEventListenerOptions & ElementOptions<T> & { enabled?: boolean }
 
 /**
  * `useEventListener` is a custom React hook that adds an event listener to a specified element.
@@ -43,8 +42,8 @@ export function useEventListener<
       capture: isCapture, element: elementOptions, enabled: isEnabled = true, passive: isPassive
     } = options,
 
-    element =
-      elementOptions === undefined && !IS_SERVER ? window : elementOptions,
+    element
+      = elementOptions === undefined && !IS_SERVER ? window : elementOptions,
 
     isElementRef = isRefObject(element),
     resolvedElement = isElementRef ? element.current : element,

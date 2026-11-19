@@ -14,25 +14,23 @@ export default defineConfig({
     },
   },
   test: {
-    projects: [
-      {
-        extends: true,
-        test: {
-          environment: 'jsdom',
-          exclude: ['lib/**/*.ssr.{test,spec}.{ts,tsx}'],
-          globals: false,
-          include: ['lib/**/*.{test,spec}.{ts,tsx}'],
-          name: 'unit',
-          setupFiles: [resolve(__dirname, 'vitest.setup.ts')],
-        }
-      }, {
-        extends: true,
-        test: {
-          environment: 'node',
-          include: ['lib/**/*.ssr.{test,spec}.{ts,tsx}'],
-          name: 'ssr'
-        }
+    projects: [{
+      extends: true,
+      test: {
+        environment: 'jsdom',
+        exclude: ['lib/**/*.ssr.{test,spec}.{ts,tsx}'],
+        globals: false,
+        include: ['lib/**/*.{test,spec}.{ts,tsx}'],
+        name: 'unit',
+        setupFiles: [resolve(__dirname, 'vitest.setup.ts')],
       }
-    ]
+    }, {
+      extends: true,
+      test: {
+        environment: 'node',
+        include: ['lib/**/*.ssr.{test,spec}.{ts,tsx}'],
+        name: 'ssr'
+      }
+    }]
   },
 })

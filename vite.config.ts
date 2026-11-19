@@ -21,7 +21,7 @@ function injectStylesImport(source: string): string {
   const useClient = /^(['"])use client\1;\s*\n/
 
   if (useClient.test(source)) {
-    return source.replace(useClient, (match) => `${match}import "./styles.css";\n`)
+    return source.replace(useClient, match => `${match}import "./styles.css";\n`)
   }
 
   return `import "./styles.css";\n${source}`
@@ -115,13 +115,7 @@ export default defineConfig({
     },
     target: 'es2024'
   },
-  css: {
-    postcss: {
-      plugins: [
-        autoprefixer({ flexbox: 'no-2009' }), flexbugsFixes(),
-      ]
-    },
-  },
+  css: { postcss: { plugins: [autoprefixer({ flexbox: 'no-2009' }), flexbugsFixes()] } },
   plugins: [
     react(),
     preserveDirectives(),

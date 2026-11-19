@@ -59,9 +59,9 @@ const animationEvents = [
     let playerState: PlayerState = PlayerState.Stopped
 
     if (
-      !hasAnimateOnScroll &&
-      (hasAutoplay ||
-        multiAnimationSettings[currentAnimation]?.autoplay)
+      !hasAnimateOnScroll
+      && (hasAutoplay
+        || multiAnimationSettings[currentAnimation]?.autoplay)
     ) {
       playerState = PlayerState.Playing
     }
@@ -69,9 +69,9 @@ const animationEvents = [
     let isBounce = mode === PlayMode.Bounce
 
     if (multiAnimationSettings.length > 0 && multiAnimationSettings[currentAnimation]?.mode) {
-      isBounce =
-        multiAnimationSettings[currentAnimation].mode ===
-        PlayMode.Bounce
+      isBounce
+        = multiAnimationSettings[currentAnimation].mode
+          === PlayMode.Bounce
     }
 
     return {
@@ -238,8 +238,8 @@ export function useLottieInstance({
         { playerState: loadedPlayerState } = stateRef.current.playback
 
       if (
-        reducedMotionQuery?.matches ||
-        loadedPlayerState !== PlayerState.Playing && !hasAnimateOnScroll
+        reducedMotionQuery?.matches
+        || (loadedPlayerState !== PlayerState.Playing && !hasAnimateOnScroll)
       ) {
         return
       }
@@ -253,9 +253,9 @@ export function useLottieInstance({
       }
 
       if (
-        loadedPlayerState === PlayerState.Playing &&
-        !HAS_IO_SUPPORT &&
-        !hasAnimateOnScroll
+        loadedPlayerState === PlayerState.Playing
+        && !HAS_IO_SUPPORT
+        && !hasAnimateOnScroll
       ) {
         item.play()
       }
@@ -298,9 +298,9 @@ export function useLottieInstance({
         type: 'SWITCH_ANIMATION'
       })
 
-      const shouldAutoplay =
-        asset.multiAnimationSettings[index]?.autoplay ??
-        config.autoplay
+      const shouldAutoplay
+        = asset.multiAnimationSettings[index]?.autoplay
+          ?? config.autoplay
 
       if (shouldAutoplay) {
         if (config.animateOnScroll) {

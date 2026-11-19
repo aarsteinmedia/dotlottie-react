@@ -29,7 +29,6 @@ export function useSeeker(animationRef: React.RefObject<null | AnimationItem>,
     return () => {
       cancelAnimationFrame(frameId)
     }
-
   }, [animationRef, isActive])
 
   return seeker

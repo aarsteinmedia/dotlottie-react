@@ -60,7 +60,6 @@ export default function Player({
   subframe,
   ...rest
 }: PlayerProps) {
-
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
     {
@@ -108,7 +107,6 @@ export default function Player({
       }
 
       switchInstance(target)
-
     }, [stateRef, switchInstance]),
 
     /**
@@ -125,7 +123,6 @@ export default function Player({
       }
 
       switchInstance(target)
-
     }, [stateRef, switchInstance]),
 
     setLoopsCompleted = useCallback((value: number) => {
@@ -244,35 +241,37 @@ export default function Player({
     >
       <figure
         className={styles.animation}
-        aria-hidden={!description && !config.controls || undefined}
+        aria-hidden={(!description && !config.controls) || undefined}
         ref={containerRef}
         style={{ background }}
       >
-        {playerState === PlayerState.Error &&
-          <Suspense>
-            <div className={styles.error}>
-              <ErrorMessage />
-            </div>
-          </Suspense>
-        }
+        {playerState === PlayerState.Error
+          && (
+            <Suspense>
+              <div className={styles.error}>
+                <ErrorMessage />
+              </div>
+            </Suspense>
+          )}
         {description && <figcaption>{description}</figcaption>}
       </figure>
-      {config.controls && playerState !== PlayerState.Error &&
-        <Suspense>
-          <Controls
-            animationRef={animationRef}
-            containerRef={containerRef}
-            freeze={freeze}
-            next={next}
-            pause={pause}
-            play={play}
-            previous={previous}
-            seek={seek}
-            setLoop={setLoop}
-            stop={stop}
-          />
-        </Suspense>
-      }
+      {config.controls && playerState !== PlayerState.Error
+        && (
+          <Suspense>
+            <Controls
+              animationRef={animationRef}
+              containerRef={containerRef}
+              freeze={freeze}
+              next={next}
+              pause={pause}
+              play={play}
+              previous={previous}
+              seek={seek}
+              setLoop={setLoop}
+              stop={stop}
+            />
+          </Suspense>
+        )}
     </div>
   )
 }

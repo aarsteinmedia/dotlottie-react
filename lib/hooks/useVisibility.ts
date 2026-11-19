@@ -38,10 +38,10 @@ export function useVisibility({
       }
 
       if (
-        isVisible &&
-        playback.playerState === PlayerState.Frozen &&
-        frozenByVisibility.current &&
-        !config.animateOnScroll
+        isVisible
+        && playback.playerState === PlayerState.Frozen
+        && frozenByVisibility.current
+        && !config.animateOnScroll
       ) {
         play()
         frozenByVisibility.current = false

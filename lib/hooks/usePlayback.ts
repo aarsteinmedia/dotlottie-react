@@ -11,7 +11,6 @@ import { handleSeek } from '@/utils/handleSeek'
 interface Props { animationRef: React.RefObject<AnimationItem | null> }
 
 export function usePlayback({ animationRef }: Props) {
-
   const dispatch = usePlayerDispatch(),
     stateRef = usePlayerStateRef(),
 
@@ -67,7 +66,6 @@ export function usePlayback({ animationRef }: Props) {
         },
         type: 'SET_PLAYBACK'
       })
-
     }, [
       animationRef,
       dispatch,
@@ -145,7 +143,6 @@ export function usePlayback({ animationRef }: Props) {
       dispatch,
       stateRef
     ])
-
 
   return {
     freeze,

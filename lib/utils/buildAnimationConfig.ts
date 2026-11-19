@@ -17,13 +17,13 @@ export function buildAnimationConfig(
   const {
       asset, config, playback
     } = state,
-    preserveAspectRatio =
-      aspectRatio(objectFit),
+    preserveAspectRatio
+      = aspectRatio(objectFit),
     currentAnimationSettings = asset.multiAnimationSettings.length > 0
       ? asset.multiAnimationSettings[playback.currentAnimation]
       : undefined,
-    currentAnimationManifest =
-      asset.manifest?.animations[playback.currentAnimation]
+    currentAnimationManifest
+      = asset.manifest?.animations[playback.currentAnimation]
 
   // Loop
   let hasLoop = Boolean(config.loop)
@@ -57,10 +57,10 @@ export function buildAnimationConfig(
   // Segment
   let initialSegment = playback.segment ?? undefined
 
-  if (playback.segment?.every((val) => val > 0)) {
+  if (playback.segment?.every(val => val > 0)) {
     initialSegment = [playback.segment[0] - 1, playback.segment[1] - 1]
   }
-  if (playback.segment?.some((val) => val < 0)) {
+  if (playback.segment?.some(val => val < 0)) {
     initialSegment = undefined
   }
 

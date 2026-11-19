@@ -13,15 +13,15 @@ let hasWarnedRenderer = false
 export default function DotLottiePlayer({ renderer, ...props }: React.HTMLAttributes<HTMLElement> & DotLottieProps) {
   // The canvas build only registers the Canvas renderer
   if (
-    process.env.NODE_ENV !== 'production' &&
-    renderer &&
-    renderer !== RendererType.Canvas &&
-    !hasWarnedRenderer
+    process.env.NODE_ENV !== 'production'
+    && renderer
+    && renderer !== RendererType.Canvas
+    && !hasWarnedRenderer
   ) {
     hasWarnedRenderer = true
-    console.warn(`[dotlottie-react] renderer "${renderer}" is not available in ` +
-      '@aarsteinmedia/dotlottie-react/canvas, falling back to "canvas". Import from ' +
-      '@aarsteinmedia/dotlottie-react to use other renderers.')
+    console.warn(`[dotlottie-react] renderer "${renderer}" is not available in `
+      + '@aarsteinmedia/dotlottie-react/canvas, falling back to "canvas". Import from '
+      + '@aarsteinmedia/dotlottie-react to use other renderers.')
   }
 
   return createDotLottiePlayer(loadAnimation, {

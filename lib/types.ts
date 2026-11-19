@@ -35,7 +35,7 @@ export interface DotLottieProps {
   lang?: string
   loop?: boolean
   loopLimit?: number
-  mode?: PlayMode,
+  mode?: PlayMode
   objectFit?: ObjectFit
   onComplete?: () => void
   onError?: (message?: string) => void
@@ -102,8 +102,8 @@ export interface AppState {
   playback: Readonly<PlayerPlayback>
 }
 
-export type PlayerAction =
-  | {
+export type PlayerAction
+  = | {
     type: 'SYNC_CONFIG'
     patch: Partial<PlayerConfig>
   }

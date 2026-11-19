@@ -197,8 +197,8 @@ export default function Controls({
         const isSVG = config.renderer === RendererType.SVG
 
         if (isSVG) {
-          data =
-            animationElement instanceof Node
+          data
+            = animationElement instanceof Node
               ? new XMLSerializer().serializeToString(animationElement)
               : null
         } else {
@@ -268,11 +268,9 @@ export default function Controls({
         aria-label="Toggle Play/Pause"
         onClick={togglePlay}
       >
-        {playback.playerState === PlayerState.Playing ?
-          <PauseIcon />
-          :
-          <PlayIcon />
-        }
+        {playback.playerState === PlayerState.Playing
+          ? <PauseIcon />
+          : <PlayIcon />}
       </button>
 
       <button
@@ -341,71 +339,72 @@ export default function Controls({
         />
         <progress className={styles.progress} max="100" value={seeker}></progress>
       </form>
-      {!config.simple &&
-        <>
-          <button
-            className={styles.button}
-            data-active={config.loop}
-            tabIndex={0}
-            aria-label="Toggle loop"
-            onClick={toggleLoop}
-          >
-            <LoopIcon />
-          </button>
-          <button
-            className={styles.button}
-            data-active={config.mode === PlayMode.Bounce}
-            aria-label="Toggle boomerang"
-            tabIndex={0}
-            onClick={toggleBoomerang}
-          >
-            <BoomerangIcon />
-          </button>
-          <button
-            className={styles.button}
-            aria-label="Settings"
-            aria-haspopup="true"
-            aria-expanded={state.isSettingsOpen}
-            aria-controls={`${config.id}-settings`}
-            data-active={state.isSettingsOpen}
-            onClick={() => {
-              toggleSettings()
-            }}
-          >
-            <SettingsIcon />
-          </button>
-          <div hidden={!state.isSettingsOpen} id={`${config.id}-settings`} className={styles.popover}>
+      {!config.simple
+        && (
+          <>
             <button
               className={styles.button}
-              aria-label={asset.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
+              data-active={config.loop}
+              tabIndex={0}
+              aria-label="Toggle loop"
+              onClick={toggleLoop}
+            >
+              <LoopIcon />
+            </button>
+            <button
+              className={styles.button}
+              data-active={config.mode === PlayMode.Bounce}
+              aria-label="Toggle boomerang"
+              tabIndex={0}
+              onClick={toggleBoomerang}
+            >
+              <BoomerangIcon />
+            </button>
+            <button
+              className={styles.button}
+              aria-label="Settings"
+              aria-haspopup="true"
+              aria-expanded={state.isSettingsOpen}
+              aria-controls={`${config.id}-settings`}
+              data-active={state.isSettingsOpen}
               onClick={() => {
-                void (async() => {
-                  const { convert } = await getDotLottieModule()
-
-                  await convert({
-                    currentAnimation: playback.currentAnimation,
-                    generator: '@aarsteinmedia/dotlottie-react',
-                    isDotLottie: asset.isDotLottie,
-                    manifest: asset.manifest ?? undefined,
-                    src: config.src ?? undefined
-                  })
-                })()
+                toggleSettings()
               }}
             >
-              <ConvertIcon />
-              {asset.isDotLottie ? 'Convert to JSON' : 'Convert to dotLottie'}
+              <SettingsIcon />
             </button>
-            <button
-              className={styles.button}
-              aria-label="Download still image"
-              onClick={() => void snapshot(true)}
-            >
-              <DownloadIcon />
-              Download still image
-            </button>
-          </div>
-        </>
-      }
+            <div hidden={!state.isSettingsOpen} id={`${config.id}-settings`} className={styles.popover}>
+              <button
+                className={styles.button}
+                aria-label={asset.isDotLottie ? 'Convert dotLottie to JSON' : 'Convert JSON animation to dotLottie format'}
+                onClick={() => {
+                  void (async () => {
+                    const { convert } = await getDotLottieModule()
+
+                    await convert({
+                      currentAnimation: playback.currentAnimation,
+                      generator: '@aarsteinmedia/dotlottie-react',
+                      isDotLottie: asset.isDotLottie,
+                      manifest: asset.manifest ?? undefined,
+                      src: config.src ?? undefined
+                    })
+                  })()
+                }}
+              >
+                <ConvertIcon />
+                {asset.isDotLottie ? 'Convert to JSON' : 'Convert to dotLottie'}
+              </button>
+              <button
+                className={styles.button}
+                aria-label="Download still image"
+                onClick={() => void snapshot(true)}
+              >
+                <DownloadIcon />
+                Download still image
+              </button>
+            </div>
+          </>
+        )}
     </div>
   )
 }

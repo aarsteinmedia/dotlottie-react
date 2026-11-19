@@ -36,7 +36,8 @@ export default function App() {
               />
             </label>
             <label>
-              Attributes:<br />
+              Attributes:
+              <br />
               <select
                 name="attributes"
                 value={state.attributes}
@@ -56,7 +57,8 @@ export default function App() {
               </select>
             </label>
             <label>
-              Choose renderer:<br />
+              Choose renderer:
+              <br />
               <select
                 name="renderer"
                 value={state.renderer}
@@ -73,7 +75,8 @@ export default function App() {
               </select>
             </label>
             <label>
-              Select file:<br />
+              Select file:
+              <br />
               <select
                 // eslint-disable-next-line jsx-a11y-x/no-autofocus
                 autoFocus
@@ -107,26 +110,30 @@ export default function App() {
         margin: '40px auto',
         maxWidth: '800px',
         width: '80%'
-      }}>
-        {isAnimateOnScroll &&
-          <DotLottiePlayer autoplay renderer={RendererType.Canvas} loop src="/assets/menuAnimation.lottie" />
-        }
-        <div id="container"
+      }}
+      >
+        {isAnimateOnScroll
+          && <DotLottiePlayer autoplay renderer={RendererType.Canvas} loop src="/assets/menuAnimation.lottie" />}
+        <div
+          id="container"
           style={{
             alignItems: 'center',
             display: 'flex',
             flexDirection: 'column',
             gap: '1em',
             justifyContent: 'center',
-          }}>
+          }}
+        >
           <div className="lorem-ipsum" hidden={!isAnimateOnScroll}>
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus
               nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
               class
-              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p>
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
           </div>
           <DotLottiePlayer
             autoplay={state.attributes === 'autoplay'}
@@ -140,23 +147,8 @@ export default function App() {
             // style={{ aspectRatio: state.aspectRatio }}
           />
           <div className="lorem-ipsum" hidden={!isAnimateOnScroll}>
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
-              placerat. In
-              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
-              fringilla lacus
-              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
-              class
-              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p>
-
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
-              placerat. In
-              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
-              fringilla lacus
-              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
-              class
-              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p>
-
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus
@@ -165,7 +157,8 @@ export default function App() {
               aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
             </p>
 
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus
@@ -174,7 +167,8 @@ export default function App() {
               aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
             </p>
 
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus
@@ -183,7 +177,28 @@ export default function App() {
               aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
             </p>
 
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+              placerat. In
+              id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
+              fringilla lacus
+              nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel
+              class
+              aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+            </p>
+
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus
@@ -194,7 +209,8 @@ export default function App() {
 
             <div style={{ marginBottom: '200vh' }}></div>
 
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus
@@ -203,7 +219,8 @@ export default function App() {
               aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
             </p>
 
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus
@@ -212,7 +229,8 @@ export default function App() {
               aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
             </p>
 
-            <p>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
               placerat. In
               id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus
               fringilla lacus

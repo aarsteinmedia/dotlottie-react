@@ -77,9 +77,9 @@ export function playerReducer(state: AppState, action: PlayerAction) {
 
       // Only LOAD_* actions may leave Loading/Error; ignore stale animation events.
       if (
-        nextPlayerState !== undefined &&
-        nextPlayerState !== playerState &&
-        (playerState === PlayerState.Error || playerState === PlayerState.Loading)
+        nextPlayerState !== undefined
+        && nextPlayerState !== playerState
+        && (playerState === PlayerState.Error || playerState === PlayerState.Loading)
       ) {
         const { playerState: _ignored, ...rest } = action.patch
 
@@ -116,10 +116,12 @@ export function playerReducer(state: AppState, action: PlayerAction) {
     case 'SWITCH_ANIMATION': {
       return {
         ...state,
-        config: action.mode === undefined ? state.config : {
-          ...state.config,
-          mode: action.mode
-        },
+        config: action.mode === undefined
+          ? state.config
+          : {
+            ...state.config,
+            mode: action.mode
+          },
         playback: {
           ...state.playback,
           currentAnimation: action.currentAnimation

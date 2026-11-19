@@ -9,6 +9,8 @@ if (!root) {
   throw new Error('Document root is not set')
 }
 
-createRoot(root).render(<StrictMode>
-  <App />
-</StrictMode>)
+createRoot(root).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+)

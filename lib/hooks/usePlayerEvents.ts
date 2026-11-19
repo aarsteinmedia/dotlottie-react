@@ -258,7 +258,6 @@ export function usePlayerEvents({
       onLoad?.()
     }
 
-
   useLayoutEffect(() => {
     animationEventsRef.current = {
       [PlayerEvent.Complete]: complete,

@@ -15,8 +15,8 @@ const _canDriveTimeline = ({ source }: ViewTimeline) => {
       return true
     }
 
-    return getComputedStyle(source).overflowY !== 'hidden' &&
-      source.scrollHeight > source.clientHeight
+    return getComputedStyle(source).overflowY !== 'hidden'
+      && source.scrollHeight > source.clientHeight
   },
   getScrollProgress = (container: HTMLElement | null, scrollProbe: React.RefObject<Animation | null>) => {
     if (!container) {
@@ -24,8 +24,7 @@ const _canDriveTimeline = ({ source }: ViewTimeline) => {
     }
 
     if (HAS_VT_SUPPORT) {
-
-      const timeline= new ViewTimeline({
+      const timeline = new ViewTimeline({
           axis: 'block',
           subject: container
         }),
@@ -43,10 +42,10 @@ const _canDriveTimeline = ({ source }: ViewTimeline) => {
       }
 
       if (process.env.NODE_ENV !== 'production') {
-        console.warn('[dotlottie-react] animateOnScroll: the player\'s nearest scrolling ancestor cannot ' +
-          'scroll, so its ViewTimeline would never advance. This is almost always an ancestor ' +
-          'with `overflow: hidden` — use `overflow: clip` instead. Falling back to viewport ' +
-          'measurement.',
+        console.warn('[dotlottie-react] animateOnScroll: the player\'s nearest scrolling ancestor cannot '
+          + 'scroll, so its ViewTimeline would never advance. This is almost always an ancestor '
+          + 'with `overflow: hidden` — use `overflow: clip` instead. Falling back to viewport '
+          + 'measurement.',
         timeline.source)
       }
     }

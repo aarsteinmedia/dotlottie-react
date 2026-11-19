@@ -13,15 +13,15 @@ let hasWarnedRenderer = false
 export default function DotLottiePlayer({ renderer, ...props }: React.HTMLAttributes<HTMLElement> & DotLottieProps) {
   // The light build only registers the SVG renderer
   if (
-    process.env.NODE_ENV !== 'production' &&
-    renderer &&
-    renderer !== RendererType.SVG &&
-    !hasWarnedRenderer
+    process.env.NODE_ENV !== 'production'
+    && renderer
+    && renderer !== RendererType.SVG
+    && !hasWarnedRenderer
   ) {
     hasWarnedRenderer = true
-    console.warn(`[dotlottie-react] renderer "${renderer}" is not available in ` +
-      '@aarsteinmedia/dotlottie-react/light, falling back to "svg". Import from ' +
-      '@aarsteinmedia/dotlottie-react to use other renderers.')
+    console.warn(`[dotlottie-react] renderer "${renderer}" is not available in `
+      + '@aarsteinmedia/dotlottie-react/light, falling back to "svg". Import from '
+      + '@aarsteinmedia/dotlottie-react to use other renderers.')
   }
 
   return createDotLottiePlayer(loadAnimation, {
